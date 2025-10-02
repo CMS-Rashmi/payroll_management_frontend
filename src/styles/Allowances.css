@@ -1,0 +1,411 @@
+.allowances-container {
+  display: flex;
+  width: 100vw;
+  background-color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.allowances-content {
+  flex: 1;
+  margin-left: 250px;
+  background: #f8f9fa;
+}
+
+/* Header */
+.allowances-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header-left .breadcrumb {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.breadcrumb-item {
+  color: #666;
+}
+
+.breadcrumb-item.active {
+  color: #333;
+  font-weight: 600;
+}
+
+.breadcrumb-separator {
+  margin: 0 8px;
+  color: #999;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.add-allowance-btn {
+  padding: 8px 16px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.notification-icon {
+  font-size: 18px;
+  color: #666;
+  margin-left: 10px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 10px;
+}
+
+.user-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #ddd;
+  border: 2px solid #e0e0e0;
+}
+
+.username {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.dropdown-arrow {
+  color: #666;
+  font-size: 10px;
+}
+
+/* Tabs */
+.allowances-tabs {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0 30px;
+}
+
+.tab {
+  padding: 15px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: #333;
+}
+
+.tab.active {
+  color: #1976d2;
+  border-bottom-color: #1976d2;
+  font-weight: 600;
+}
+
+/* Main Content */
+.allowances-main {
+  padding: 25px 30px;
+}
+
+.configuration-section {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 25px;
+}
+
+.configuration-section h2 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.subtitle {
+  margin: 0 0 25px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+/* Allowance Card */
+.allowance-card {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.allowance-header {
+  margin-bottom: 20px;
+}
+
+.allowance-header h3 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.allowance-description {
+  font-size: 13px;
+  color: #666;
+}
+
+.configuration-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.config-section h4 {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Amount Input */
+.amount-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 12px;
+  font-size: 13px;
+  color: #666;
+  z-index: 1;
+}
+
+.amount-input {
+  width: 100%;
+  padding: 10px 12px 10px 25px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 13px;
+  background: white;
+  color:#333 ;
+}
+
+.amount-input:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+/* Date Input */
+.date-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 13px;
+  background: white;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+/* Select Dropdowns */
+.config-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-item span:first-child {
+  font-size: 12px;
+  color: #666;
+  min-width: 60px;
+}
+
+.detail-select {
+  padding: 6px 10px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 12px;
+  background: white;
+  min-width: 80px;
+  color: #333;
+}
+
+.detail-select:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+.description-section {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+}
+
+.description-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.description-section p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* Other Allowances */
+.other-allowances {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.allowances-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.allowance-item {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.allowance-item-header {
+  margin-bottom: 10px;
+}
+
+.allowance-item-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.description {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.allowance-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.frequency {
+  font-size: 12px;
+  color: #666;
+}
+
+.amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1976d2;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .configuration-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .allowances-content {
+    margin-left: 0;
+  }
+  
+  .allowances-header {
+    padding: 15px;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .allowances-tabs {
+    padding: 0 15px;
+    overflow-x: auto;
+  }
+  
+  .allowances-main {
+    padding: 15px;
+  }
+  
+  .configuration-section,
+  .other-allowances {
+    padding: 15px;
+  }
+  
+  .allowances-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .detail-select {
+    width: 100%;
+  }
+}

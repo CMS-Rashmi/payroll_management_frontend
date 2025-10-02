@@ -1,0 +1,35 @@
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import StartPage from "./pages/StartPage"; // match file name
+import Dashboard from "./pages/Dashboard"; 
+import EmployeeInfo from "./pages/EmployeeInfo"; 
+import AddEmployee from "./pages/AddEmployee"; 
+import AttendanceLeave from "./pages/AttendanceLeave"; 
+import PerformanceTraining from "./pages/PerformanceTraining"; 
+import DocumentsContracts from "./pages/DocumentsContracts";
+import AuditLogs from "./pages/AuditLogs";
+import Earnings from "./pages/Earnings";
+import Deductions from "./pages/Deductions";
+import Allowances from "./pages/Allowances";
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+       <Route path="/" element={<StartPage />} />
+       <Route path="/dashboard" element={<Dashboard />} />
+       <Route path="/employee-info" element={<EmployeeInfo />} />
+       <Route path="/add-employee" element={<AddEmployee />} />
+       <Route path="/attendance-leave" element={<AttendanceLeave />} />
+       <Route path="/performance-training" element={<PerformanceTraining />} />
+       <Route path="/documents-contracts" element={<DocumentsContracts />} />
+      <Route path="/audit-logs" element={<AuditLogs />} />
+      <Route path="/earnings" element={<Earnings />} />
+      <Route path="/deductions" element={<Deductions />} />
+      <Route path="/allowances" element={<Allowances />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
