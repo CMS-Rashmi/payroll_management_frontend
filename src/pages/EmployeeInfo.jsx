@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import '../styles/EmployeeInfo.css';
+import { apiGet } from '../services/api';                    //new chnages by dev_shanika
 
 
 const EmployeeInfo = () => {

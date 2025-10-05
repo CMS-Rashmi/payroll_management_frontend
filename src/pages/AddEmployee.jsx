@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import '../styles/AddEmployee.css';
+import { apiUpload } from '../services/api';                      //new changes-dev_shanika
 
 const AddEmployee = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Add Employee');
+
+  //form data
+
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNumber: '',
@@ -18,6 +22,16 @@ const AddEmployee = () => {
     status: 'Active'
   });
 
+  //file state                       //new changes       dev_shanika
+  const  [profilePhoto, setProfilePhoto] = useState(null);
+  const [document, setDocument] = useState(null);
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  // end of the new changes ___________ dev_shanika
+
+
   const tabs = [
     'Overview', 'Add Employee', 'Attendance & Leave Records', 
     'Performance & Training', 'Documents & Contracts', 'Audit Logs'
@@ -25,12 +39,10 @@ const AddEmployee = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData(prev => ({ ...prev,[name]: value}));        //new changes  _dev_shanika
   };
 
+  /*
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission here
@@ -40,6 +52,9 @@ const AddEmployee = () => {
     navigate('/employee-information');
   };
 
+  */                                                          //commented by dev-shanika
+
+
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if (tab === 'Overview') {
@@ -47,6 +62,39 @@ const AddEmployee = () => {
     }
     // Add navigation for other tabs if needed
   };
+
+
+  //new changes                 ----------------------   dev_shanika
+  const onSubmit = async e => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError('');
+  }
+
+  try{
+    //build formdata to match your express +multer route
+    //(fields: full_name, email , phone , department , designation, status , joining_date, address , mergency_contact, files:profilephot, document)
+    const fd = new FormData();
+    Object,entries(formData).forEach(([k, v]) => fd,append(k, v));
+    if (profilePhoto) fd.append('profilePhoto', profilePhoto);
+    if (document) fd.append('document', document);
+
+    await apiUpload('/employees', fd , 'POST');
+
+    alert ('Employee added succesfully');
+    navigate('/EmployeeInfo');
+
+  } catch (err) {
+    console.error(err);
+    setError('Failed to save employee');
+
+  } finally {
+    setSubmitting(false)
+  }
+};
+
+// end of the changes                      -dev-shanika
+
 
   return (
     <div className="add-employee-container">
