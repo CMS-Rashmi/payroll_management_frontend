@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import '../styles/AddEmployee.css';
-import { apiUpload } from '../services/api';                      //new changes-dev_shanika
+import { apiUpload } from '../services/api';
 
 const AddEmployee = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Add Employee');
 
-  //form data
-
+  // form state (UI-friendly)
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNumber: '',
@@ -19,87 +18,72 @@ const AddEmployee = () => {
     emergencyContact: '',
     email: '',
     department: '',
-    status: 'Active'
+    status: 'Active',
   });
 
-  //file state                       //new changes       dev_shanika
-  const  [profilePhoto, setProfilePhoto] = useState(null);
+  // file state
+  const [profilePhoto, setProfilePhoto] = useState(null);
   const [document, setDocument] = useState(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // end of the new changes ___________ dev_shanika
-
-
   const tabs = [
-    'Overview', 'Add Employee', 'Attendance & Leave Records', 
+    'Overview', 'Add Employee', 'Attendance & Leave Records',
     'Performance & Training', 'Documents & Contracts', 'Audit Logs'
   ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev,[name]: value}));        //new changes  _dev_shanika
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
-
-  /*
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    // You would typically send this data to your backend
-    alert('Employee added successfully!');
-    navigate('/employee-information');
-  };
-
-  */                                                          //commented by dev-shanika
-
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    if (tab === 'Overview') {
-      navigate('/employee-info');
-    }
-    // Add navigation for other tabs if needed
+    if (tab === 'Overview') navigate('/employee-info');
   };
 
-
-  //new changes                 ----------------------   dev_shanika
-  const onSubmit = async e => {
+  //  FIXED: async handler with try/catch INSIDE the function
+  const onSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
-  }
 
-  try{
-    //build formdata to match your express +multer route
-    //(fields: full_name, email , phone , department , designation, status , joining_date, address , mergency_contact, files:profilephot, document)
-    const fd = new FormData();
-    Object,entries(formData).forEach(([k, v]) => fd,append(k, v));
-    if (profilePhoto) fd.append('profilePhoto', profilePhoto);
-    if (document) fd.append('document', document);
+    try {
+      // Build FormData to match your Express + Multer route
+      const fd = new FormData();
 
-    await apiUpload('/employees', fd , 'POST');
+      // Map UI keys -> backend keys
+      fd.append('full_name', formData.fullName);
+      fd.append('email', formData.email);
+      fd.append('phone', formData.phoneNumber);
+      fd.append('department', formData.department);
+      fd.append('designation', formData.designation);
+      fd.append('status', formData.status);
+      fd.append('joining_date', formData.joiningDate);
+      fd.append('address', formData.address);
+      fd.append('emergency_contact', formData.emergencyContact);
 
-    alert ('Employee added succesfully');
-    navigate('/EmployeeInfo');
+      // Files — names must match your multer field config
+      if (profilePhoto) fd.append('profilephoto', profilePhoto);
+      if (document) fd.append('document', document);
 
-  } catch (err) {
-    console.error(err);
-    setError('Failed to save employee');
+      await apiUpload('/employees', fd, 'POST');
 
-  } finally {
-    setSubmitting(false)
-  }
-};
-
-// end of the changes                      -dev-shanika
-
+      alert('Employee added successfully!');
+      navigate('/employee-info');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to save employee');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="add-employee-container">
       <Sidebar />
-      
+
       <div className="add-employee-content">
         {/* Header */}
         <header className="add-employee-header">
@@ -113,7 +97,7 @@ const AddEmployee = () => {
             </div>
             <h1 className="page-title">Employee Information Management</h1>
           </div>
-          
+
           <div className="header-right">
             <div className="notification-icon">🔔</div>
             <div className="user-profile">
@@ -124,10 +108,10 @@ const AddEmployee = () => {
           </div>
         </header>
 
-        {/* Tab Navigation */}
+        {/* Tabs */}
         <div className="tab-navigation">
           {tabs.map(tab => (
-            <button 
+            <button
               key={tab}
               className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
               onClick={() => handleTabClick(tab)}
@@ -144,7 +128,14 @@ const AddEmployee = () => {
             <p>Stay compliant with the latest employment regulations.</p>
           </div>
 
-          <form className="employee-form" onSubmit={handleSubmit}>
+          {error && (
+            <div style={{ color: 'crimson', marginBottom: 12 }}>
+              {error}
+            </div>
+          )}
+
+        
+          <form className="employee-form" onSubmit={onSubmit}>
             <div className="form-columns">
               {/* Left Column */}
               <div className="form-column">
@@ -156,7 +147,13 @@ const AddEmployee = () => {
                       <div className="upload-icon">📷</div>
                       <p>Upload Photo</p>
                     </div>
-                    <input type="file" accept="image/*" className="file-input" />
+                    
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="file-input"
+                      onChange={e => setProfilePhoto(e.target.files?.[0] || null)}
+                    />
                   </div>
                 </div>
 
@@ -208,7 +205,6 @@ const AddEmployee = () => {
                   <input
                     type="date"
                     name="joiningDate"
-                    placeholder="mm/dd/yyyy"
                     value={formData.joiningDate}
                     onChange={handleInputChange}
                     className="form-input"
@@ -227,7 +223,7 @@ const AddEmployee = () => {
                     className="form-textarea"
                     rows="3"
                     required
-                  ></textarea>
+                  />
                 </div>
 
                 {/* Emergency Contact */}
@@ -253,11 +249,13 @@ const AddEmployee = () => {
                       <p>Drag and drop files here, or click to browse</p>
                       <span className="file-formats">Accepted formats: PDF, XLSX, CSV (Max 10MB)</span>
                     </div>
-                    <input type="file" multiple className="file-input" />
+                    
+                    <input
+                      type="file"
+                      className="file-input"
+                      onChange={e => setDocument(e.target.files?.[0] || null)}
+                    />
                   </div>
-                  <button type="button" className="upload-document-btn">
-                    Upload Document
-                  </button>
                 </div>
               </div>
 
@@ -333,11 +331,12 @@ const AddEmployee = () => {
             </div>
 
             <div className="form-actions">
-              <button type="button" className="cancel-btn" onClick={() => navigate('/employee-information')}>
+              {/* ✅ path fixed */}
+              <button type="button" className="cancel-btn" onClick={() => navigate('/employee-info')}>
                 Cancel
               </button>
-              <button type="submit" className="submit-btn">
-                Save Employee
+              <button type="submit" className="submit-btn" disabled={submitting}>
+                {submitting ? 'Saving…' : 'Save Employee'}
               </button>
             </div>
           </form>
