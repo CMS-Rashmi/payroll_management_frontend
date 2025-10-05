@@ -11,6 +11,7 @@ import AuditLogs from "./pages/AuditLogs";
 import Earnings from "./pages/Earnings";
 import Deductions from "./pages/Deductions";
 import Allowances from "./pages/Allowances";
+import EditEmployee from "./pages/EditEmployee";        //new changes   - dev-shanika
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
       <Route path="/earnings" element={<Earnings />} />
       <Route path="/deductions" element={<Deductions />} />
       <Route path="/allowances" element={<Allowances />} />
+      <Route path="/employees" element={<AddEmployee/>} />                 
       </Routes>
     </Router>
   );
