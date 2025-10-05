@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import '../styles/EmployeeInfo.css';
 
+
 const EmployeeInfo = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
