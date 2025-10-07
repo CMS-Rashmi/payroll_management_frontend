@@ -8,20 +8,20 @@ const AddEmployee = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Add Employee');
 
-  // form state (UI-friendly)
+  // Form state
   const [formData, setFormData] = useState({
-    fullName: '',
-    phoneNumber: '',
-    designation: '',
-    joiningDate: '',
-    address: '',
-    emergencyContact: '',
+    full_Name: '',                 // UI name; mapped to full_name at submit
     email: '',
-    department: '',
+    phone: '',
+    department: '',               // UI: holds department_id value (string/number)
+    designation: '',
     status: 'Active',
+    joining_date: '',
+    address: '',
+    emergency_contact: '',
   });
 
-  // file state
+  // Files
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [document, setDocument] = useState(null);
 
@@ -43,30 +43,27 @@ const AddEmployee = () => {
     if (tab === 'Overview') navigate('/employee-info');
   };
 
-  //  FIXED: async handler with try/catch INSIDE the function
   const onSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
 
     try {
-      // Build FormData to match your Express + Multer route
       const fd = new FormData();
-
-      // Map UI keys -> backend keys
-      fd.append('full_name', formData.fullName);
+      // Map UI -> backend field names
+      fd.append('full_name', formData.full_Name);
       fd.append('email', formData.email);
-      fd.append('phone', formData.phoneNumber);
-      fd.append('department', formData.department);
+      fd.append('phone', formData.phone);
+      fd.append('department_id', formData.department); // IMPORTANT
       fd.append('designation', formData.designation);
       fd.append('status', formData.status);
-      fd.append('joining_date', formData.joiningDate);
+      fd.append('joining_date', formData.joining_date);
       fd.append('address', formData.address);
-      fd.append('emergency_contact', formData.emergencyContact);
+      fd.append('emergency_contact', formData.emergency_contact);
 
-      // Files — names must match your multer field config
-      if (profilePhoto) fd.append('profilephoto', profilePhoto);
-      if (document) fd.append('document', document);
+      // Files — exact names expected by multer/route
+      if (profilePhoto) fd.append('profilePhoto', profilePhoto);
+      if (document) fd.append('documents', document);
 
       await apiUpload('/employees', fd, 'POST');
 
@@ -128,13 +125,8 @@ const AddEmployee = () => {
             <p>Stay compliant with the latest employment regulations.</p>
           </div>
 
-          {error && (
-            <div style={{ color: 'crimson', marginBottom: 12 }}>
-              {error}
-            </div>
-          )}
+          {error && <div style={{ color: 'crimson', marginBottom: 12 }}>{error}</div>}
 
-        
           <form className="employee-form" onSubmit={onSubmit}>
             <div className="form-columns">
               {/* Left Column */}
@@ -147,7 +139,6 @@ const AddEmployee = () => {
                       <div className="upload-icon">📷</div>
                       <p>Upload Photo</p>
                     </div>
-                    
                     <input
                       type="file"
                       accept="image/*"
@@ -162,23 +153,23 @@ const AddEmployee = () => {
                   <h3 className="form-subheading">Full Name</h3>
                   <input
                     type="text"
-                    name="fullName"
+                    name="full_Name"
                     placeholder="Enter full name"
-                    value={formData.fullName}
+                    value={formData.full_Name}
                     onChange={handleInputChange}
                     className="form-input"
                     required
                   />
                 </div>
 
-                {/* Phone Number */}
+                {/* Phone */}
                 <div className="form-group">
                   <h3 className="form-subheading">Phone Number</h3>
                   <input
                     type="tel"
-                    name="phoneNumber"
+                    name="phone"
                     placeholder="Enter phone number"
-                    value={formData.phoneNumber}
+                    value={formData.phone}
                     onChange={handleInputChange}
                     className="form-input"
                     required
@@ -204,8 +195,8 @@ const AddEmployee = () => {
                   <h3 className="form-subheading">Joining Date</h3>
                   <input
                     type="date"
-                    name="joiningDate"
-                    value={formData.joiningDate}
+                    name="joining_date"
+                    value={formData.joining_date}
                     onChange={handleInputChange}
                     className="form-input"
                     required
@@ -231,16 +222,16 @@ const AddEmployee = () => {
                   <h3 className="form-subheading">Emergency Contact</h3>
                   <input
                     type="tel"
-                    name="emergencyContact"
+                    name="emergency_contact"
                     placeholder="Enter phone number"
-                    value={formData.emergencyContact}
+                    value={formData.emergency_contact}
                     onChange={handleInputChange}
                     className="form-input"
                     required
                   />
                 </div>
 
-                {/* Documents */}
+                {/* One Document */}
                 <div className="form-group">
                   <h3 className="form-subheading">Documents</h3>
                   <div className="documents-upload">
@@ -249,7 +240,6 @@ const AddEmployee = () => {
                       <p>Drag and drop files here, or click to browse</p>
                       <span className="file-formats">Accepted formats: PDF, XLSX, CSV (Max 10MB)</span>
                     </div>
-                    
                     <input
                       type="file"
                       className="file-input"
@@ -261,7 +251,7 @@ const AddEmployee = () => {
 
               {/* Right Column */}
               <div className="form-column">
-                {/* Email Address */}
+                {/* Email */}
                 <div className="form-group">
                   <h3 className="form-subheading emphasized">Email Address</h3>
                   <input
@@ -275,7 +265,7 @@ const AddEmployee = () => {
                   />
                 </div>
 
-                {/* Department */}
+                {/* Department (value = department_id) */}
                 <div className="form-group">
                   <h3 className="form-subheading">Department</h3>
                   <select
@@ -286,16 +276,17 @@ const AddEmployee = () => {
                     required
                   >
                     <option value="">Select Department</option>
-                    <option value="HR">HR</option>
-                    <option value="IT">IT</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Operations">Operations</option>
-                    <option value="Support">Support</option>
-                    <option value="QA">QA</option>
-                    <option value="Customer Success">Customer Success</option>
-                    <option value="Product">Product</option>
-                    <option value="People Ops">People Ops</option>
+                    {/* The values (1..N) should match rows in your `departments` table */}
+                    <option value="1">HR</option>
+                    <option value="2">IT</option>
+                    <option value="3">Finance</option>
+                    <option value="4">Marketing</option>
+                    <option value="5">Operations</option>
+                    <option value="6">Support</option>
+                    <option value="7">QA</option>
+                    <option value="8">Customer Success</option>
+                    <option value="9">Product</option>
+                    <option value="10">People Ops</option>
                   </select>
                 </div>
 
@@ -331,7 +322,6 @@ const AddEmployee = () => {
             </div>
 
             <div className="form-actions">
-              {/* ✅ path fixed */}
               <button type="button" className="cancel-btn" onClick={() => navigate('/employee-info')}>
                 Cancel
               </button>
