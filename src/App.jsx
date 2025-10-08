@@ -1,6 +1,6 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import StartPage from "./pages/StartPage"; // match file name
+import Login from "./pages/Login"; // match file name
 import Dashboard from "./pages/Dashboard"; 
 import EmployeeInfo from "./pages/EmployeeInfo"; 
 import AddEmployee from "./pages/AddEmployee"; 
@@ -17,7 +17,7 @@ function App() {
   return (
     <Router>
       <Routes>
-       <Route path="/" element={<StartPage />} />
+       <Route path="/" element={<Login />} />
        <Route path="/dashboard" element={<Dashboard />} />
        <Route path="/employee-info" element={<EmployeeInfo />} />
        <Route path="/add-employee" element={<AddEmployee />} />
