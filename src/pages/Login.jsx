@@ -19,7 +19,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await apiPost('/login', { email, password, role });
+      const response = await apiPost('/auth/login', { email, password, role });
 
       if (response.ok) {
         // Save JWT and user info
@@ -30,7 +30,7 @@ const Login = () => {
         if (role === 'hr') {
           navigate('/dashboard'); // HR admin dashboard
         } else {
-          navigate('/employee-dashboard'); // Employee dashboard
+          navigate('/employee-info'); // Employee dashboard               //dev-shanika
         }
       } else {
         setError(response.message || 'Invalid credentials');
