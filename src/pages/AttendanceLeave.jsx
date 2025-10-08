@@ -112,11 +112,19 @@ const AttendanceLeave = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if (tab === 'Overview') {
-      navigate('/employee-information');
+      navigate('/employee-info');
     } else if (tab === 'Add Employee') {
       navigate('/add-employee');
+    } else if (tab === 'Attendance & Leave Records') {
+      navigate('/attendance-leave');
+      } else if (tab === 'Performance & Training') {
+      navigate('/performance-training');
+    } else if (tab === 'Documents & Contracts') {
+      navigate('/documents-contracts');
+    } else if (tab === 'Audit Logs') {
+      navigate('/audit-logs');
     }
-  };
+  }
 
   const handleRecordClick = (record) => {
     setSelectedRecord(record);

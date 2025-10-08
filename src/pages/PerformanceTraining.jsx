@@ -102,7 +102,7 @@ const PerformanceTraining = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if (tab === 'Overview') {
-      navigate('/employee-information');
+      navigate('/employee-info');
     } else if (tab === 'Add Employee') {
       navigate('/add-employee');
     } else if (tab === 'Attendance & Leave Records') {

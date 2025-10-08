@@ -70,10 +70,44 @@ const Sidebar = () => {
     navigate(path);
   };
 
-  // Determine active item based on current path
+  // ✅ Group related paths for "Employee Information"
+  const employeeInfoPaths = [
+    '/employee-info',
+    '/add-employee',
+    '/attendance-leave',
+    '/performance-training',
+    '/documents-contracts',
+    '/audit-logs'
+  ];
+
+  // ✅ Group related paths for "Salary Compensation"
+  const salaryCompensationPaths = [
+    '/earnings',
+    '/deductions',
+    '/allowances',
+    '/overtime-adjustments',
+    '/compensation-adjustment',
+    '/net-salary-summary'
+  ];
+
+  // ✅ Determine which sidebar item should be active
   const getActiveItem = () => {
-    return menuItems.find(item => location.pathname === item.path)?.id || 'dashboard';
+    const currentPath = location.pathname;
+
+    if (employeeInfoPaths.some(p => currentPath.startsWith(p))) {
+      return 'employee-information';
+    }
+
+    if (salaryCompensationPaths.some(p => currentPath.startsWith(p))) {
+      return 'salary-compensation';
+    }
+
+    return (
+      menuItems.find(item => currentPath === item.path)?.id || 'dashboard'
+    );
   };
+
+  const activeItem = getActiveItem();
 
   return (
     <div className="sidebar">
@@ -86,8 +120,8 @@ const Sidebar = () => {
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
           <div key={item.id} className="nav-item-container">
-            <div 
-              className={`nav-item ${getActiveItem() === item.id ? 'active' : ''}`}
+            <div
+              className={`nav-item ${activeItem === item.id ? 'active' : ''}`}
               onClick={() => handleItemClick(item.path)}
             >
               <span className="nav-icon">{item.icon}</span>

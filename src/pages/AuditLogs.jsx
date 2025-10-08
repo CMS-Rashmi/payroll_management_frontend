@@ -57,7 +57,7 @@ const AuditLogs = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     switch(tab){
-      case 'Overview': navigate('/employee-information'); break;
+      case 'Overview': navigate('/employee-info'); break;
       case 'Add Employee': navigate('/add-employee'); break;
       case 'Attendance & Leave Records': navigate('/attendance-leave'); break;
       case 'Performance & Training': navigate('/performance-training'); break;

@@ -10,10 +10,10 @@ const AddEmployee = () => {
 
   // Form state
   const [formData, setFormData] = useState({
-    full_Name: '',                 // UI name; mapped to full_name at submit
+    full_Name: '',
     email: '',
     phone: '',
-    department: '',               // UI: holds department_id value (string/number)
+    department: '',
     designation: '',
     status: 'Active',
     joining_date: '',
@@ -38,35 +38,62 @@ const AddEmployee = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleTabClick = (tab) => {
+ const handleTabClick = (tab) => {
     setActiveTab(tab);
-    if (tab === 'Overview') navigate('/employee-info');
+    if (tab === 'Overview') {
+      navigate('/employee-info');
+    } else if (tab === 'Add Employee') {
+      navigate('/add-employee');
+    } else if (tab === 'Attendance & Leave Records') {
+      navigate('/attendance-leave');
+      } else if (tab === 'Performance & Training') {
+      navigate('/performance-training');
+    } else if (tab === 'Documents & Contracts') {
+      navigate('/documents-contracts');
+    } else if (tab === 'Audit Logs') {
+      navigate('/audit-logs');
+    }
+  }
+
+  const validateFiles = () => {
+    // Validate profile photo type
+    if (profilePhoto && !['image/jpeg', 'image/jpg', 'image/png'].includes(profilePhoto.type)) {
+      setError('Profile photo must be in JPG, JPEG, or PNG format.');
+      return false;
+    }
+
+    // Validate document type
+    if (document && !['application/pdf', 'image/jpeg', 'image/jpg'].includes(document.type)) {
+      setError('Document must be in PDF, JPG, or JPEG format.');
+      return false;
+    }
+
+    return true;
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     setError('');
 
+    if (!validateFiles()) return;
+
+    setSubmitting(true);
     try {
       const fd = new FormData();
-      // Map UI -> backend field names
       fd.append('full_name', formData.full_Name);
       fd.append('email', formData.email);
       fd.append('phone', formData.phone);
-      fd.append('department_id', formData.department); // IMPORTANT
+      fd.append('department_id', formData.department);
       fd.append('designation', formData.designation);
       fd.append('status', formData.status);
       fd.append('joining_date', formData.joining_date);
       fd.append('address', formData.address);
       fd.append('emergency_contact', formData.emergency_contact);
 
-      // Files — exact names expected by multer/route
       if (profilePhoto) fd.append('profilePhoto', profilePhoto);
       if (document) fd.append('documents', document);
 
       await apiUpload('/employees', fd, 'POST');
-
       alert('Employee added successfully!');
       navigate('/employee-info');
     } catch (err) {
@@ -80,7 +107,6 @@ const AddEmployee = () => {
   return (
     <div className="add-employee-container">
       <Sidebar />
-
       <div className="add-employee-content">
         {/* Header */}
         <header className="add-employee-header">
@@ -137,11 +163,11 @@ const AddEmployee = () => {
                   <div className="photo-upload">
                     <div className="upload-placeholder">
                       <div className="upload-icon">📷</div>
-                      <p>Upload Photo</p>
+                      <p>Upload Photo (JPG, JPEG, PNG)</p>
                     </div>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept=".jpg,.jpeg,.png"
                       className="file-input"
                       onChange={e => setProfilePhoto(e.target.files?.[0] || null)}
                     />
@@ -237,11 +263,12 @@ const AddEmployee = () => {
                   <div className="documents-upload">
                     <div className="documents-placeholder">
                       <div className="upload-icon">📄</div>
-                      <p>Drag and drop files here, or click to browse</p>
-                      <span className="file-formats">Accepted formats: PDF, XLSX, CSV (Max 10MB)</span>
+                      <p>Upload Documents (PDF, JPG, JPEG)</p>
+                      <span className="file-formats">Upload Documents (PDF, Word)</span>
                     </div>
                     <input
                       type="file"
+                      accept=".pdf,.docx"
                       className="file-input"
                       onChange={e => setDocument(e.target.files?.[0] || null)}
                     />
@@ -265,7 +292,7 @@ const AddEmployee = () => {
                   />
                 </div>
 
-                {/* Department (value = department_id) */}
+                {/* Department */}
                 <div className="form-group">
                   <h3 className="form-subheading">Department</h3>
                   <select
@@ -276,7 +303,6 @@ const AddEmployee = () => {
                     required
                   >
                     <option value="">Select Department</option>
-                    {/* The values (1..N) should match rows in your `departments` table */}
                     <option value="1">HR</option>
                     <option value="2">IT</option>
                     <option value="3">Finance</option>
