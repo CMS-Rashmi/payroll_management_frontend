@@ -1,12 +1,9 @@
 // src/services/api.js
-
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 function authHeaders(extra = {}) {
   const token = localStorage.getItem('token');
-  return token
-    ? { ...extra, Authorization: `Bearer ${token}` }
-    : { ...extra };
+  return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
 }
 
 export async function apiGet(path, opts = {}) {
@@ -17,6 +14,7 @@ export async function apiGet(path, opts = {}) {
   });
 
   if (!res.ok) {
+    // Try to surface backend JSON error message
     const text = await res.text().catch(() => '');
     throw new Error(text || `Request failed: ${res.status}`);
   }
@@ -34,15 +32,15 @@ export async function apiJSON(path, method, body) {
 }
 
 export async function apiUpload(path, formData, method = 'POST') {
-  // Do NOT set Content-Type manually for FormData
+  // Do NOT set Content-Type for FormData (browser sets boundary)
   return apiGet(path, { method, body: formData });
 }
 
-// Simple POST that also returns {ok, status, ...data}
+// Login / any simple POST that should not throw on non-2xx:
 export async function apiPost(path, body = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
-    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    headers: { 'Content-Type': 'application/json' }, // login has no token yet
     body: JSON.stringify(body),
   });
 

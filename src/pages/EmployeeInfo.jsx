@@ -42,7 +42,7 @@ const EmployeeInfo = () => {
   };
 
   // computed lists for filters
-  const departments = [...new Set(employees.map(e => e.department).filter(Boolean))];
+  const departments = [...new Set(employees.map(e => e.department_name).filter(Boolean))];       {/* change the department name as e.department_name */}
   const designations = [...new Set(employees.map(e => e.designation).filter(Boolean))];
 
   const filtered = employees.filter(emp => {
@@ -199,7 +199,7 @@ const EmployeeInfo = () => {
                           {emp.status}
                         </span>
                       </td>
-                      <td>{emp.department}</td>
+                      <td>{emp.department_name}</td>            {/*change the emp.department as emp.department_name */}
                       <td>{emp.phone}</td>
                       <td>{formatDate(emp.joining_date)}</td>
                       <td>{emp.designation}</td>
@@ -209,6 +209,7 @@ const EmployeeInfo = () => {
                             className="action-btn view"
                             onClick={() => navigate(`/employees/${emp.id}/edit`)}
                           >
+
                             Edit
                           </button>
                         </div>
