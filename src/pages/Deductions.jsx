@@ -165,7 +165,10 @@ const Deductions = () => {
             <div className="table-header">
               <h2>Deduction Configuration</h2>
               <div className="table-buttons">
-                <button className="add-deduction-btn">Add Deduction</button>
+                <button 
+                className="add-deduction-btn"
+                onClick={() => navigate('/add-deduction')}>                         {/*link the add deductin button  */}
+                  + Add Deduction</button>
                 <button className="filter-btn">Filter</button>
               </div>
             </div>
