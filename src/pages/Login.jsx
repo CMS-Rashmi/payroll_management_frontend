@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiPost } from '../services/api';
-import { Building2, Mail, Lock, LogIn, Users, UserCheck } from 'lucide-react';
+import {
+  Building2,
+  Mail,
+  Lock,
+  LogIn,
+  Users,
+  UserCheck,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import '../styles/Login.css';
 
 const Login = () => {
@@ -9,6 +18,7 @@ const Login = () => {
   const [role, setRole] = useState('employee');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -22,15 +32,13 @@ const Login = () => {
       const response = await apiPost('/auth/login', { email, password, role });
 
       if (response.ok) {
-        // Save JWT and user info
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
 
-        // Navigate based on role
         if (role === 'hr') {
-          navigate('/dashboard'); // HR admin dashboard
+          navigate('/dashboard');
         } else {
-          navigate('/employee-info'); // Employee dashboard               //dev-shanika
+          navigate('/employee-info');
         }
       } else {
         setError(response.message || 'Invalid credentials');
@@ -44,12 +52,10 @@ const Login = () => {
   };
 
   const handleForgotPassword = () => {
-    // Navigate to forgot password page or show modal
     console.log('Forgot password clicked');
   };
 
   const handleContactSupport = () => {
-    // Navigate to support page or open email
     console.log('Contact support clicked');
   };
 
@@ -105,29 +111,39 @@ const Login = () => {
               <div className="form-group">
                 <label className="form-label">Email Address</label>
                 <div className="input-wrapper">
+                  <Mail className="input-icon" size={18} />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@company.com"
-                    className="form-input"
+                    className="form-input with-icon"
                     required
                   />
                 </div>
               </div>
 
-              {/* Password Input */}
+              {/* Password Input (Lock + Eye) */}
               <div className="form-group">
                 <label className="form-label">Password</label>
-                <div className="input-wrapper">
+                <div className="input-wrapper password-wrapper">
+                  <Lock className="input-icon" size={18} />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="form-input"
+                    className="form-input with-icon"
                     required
                   />
+                  <button
+                    type="button"
+                    className="eye-button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 
@@ -152,18 +168,10 @@ const Login = () => {
               </div>
 
               {/* Error Message */}
-              {error && (
-                <div className="error-message">
-                  {error}
-                </div>
-              )}
+              {error && <div className="error-message">{error}</div>}
 
               {/* Login Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="login-button"
-              >
+              <button type="submit" disabled={loading} className="login-button">
                 {loading ? (
                   <>
                     <div className="spinner"></div>

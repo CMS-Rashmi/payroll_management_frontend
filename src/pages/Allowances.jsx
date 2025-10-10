@@ -56,13 +56,11 @@ const Allowances = () => {
         <header className="allowances-header">
           <div className="header-left">
             <div className="breadcrumb">
-              <span className="breadcrumb-item">Settings</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item">Payroll</span>
+              <span className="breadcrumb-item">Salary & Compensation</span>
               <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item active">Allowance</span>
             </div>
-            <h1 className="page-title">Settings</h1>
+            <h1 className="page-title">SSalary & Compensation</h1>
           </div>
           
           <div className="header-right">

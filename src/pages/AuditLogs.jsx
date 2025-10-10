@@ -74,8 +74,6 @@ const AuditLogs = () => {
         <header className="audit-logs-header">
           <div className="header-left">
             <div className="breadcrumb">
-              <span className="breadcrumb-item">Dashboard</span>
-              <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item">Employee Information Management</span>
               <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item active">Audit Logs</span>

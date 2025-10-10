@@ -42,8 +42,6 @@ const Deductions = () => {
         <header className="deductions-header">
           <div className="header-left">
             <div className="breadcrumb">
-              <span className="breadcrumb-item">Dashboard</span>
-              <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item">Salary & Compensation</span>
               <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item active">Deductions</span>
@@ -165,7 +163,10 @@ const Deductions = () => {
             <div className="table-header">
               <h2>Deduction Configuration</h2>
               <div className="table-buttons">
-                <button className="add-deduction-btn">Add Deduction</button>
+                <button 
+                className="add-deduction-btn"
+                onClick={() => navigate('/add-deduction')}>                         {/*link the add deductin button  */}
+                  + Add Deduction</button>
                 <button className="filter-btn">Filter</button>
               </div>
             </div>

@@ -135,8 +135,6 @@ const DocumentsContracts = () => {
         <header className="documents-contracts-header">
           <div className="header-left">
             <div className="breadcrumb">
-              <span className="breadcrumb-item">Dashboard</span>
-              <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item">Employee Information Management</span>
               <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item active">Documents & Contracts</span>

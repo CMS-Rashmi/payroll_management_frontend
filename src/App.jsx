@@ -12,6 +12,8 @@ import Earnings from "./pages/Earnings";
 import Deductions from "./pages/Deductions";
 import Allowances from "./pages/Allowances";
 import EditEmployee from "./pages/EditEmployee";        //new changes   - dev-shanika
+import AddDeduction from "./pages/AddDeduction";        //new changes    - dev-rashmi
+import AddLeave from "./pages/AddLeave";
 
 function App() {
   return (
@@ -28,7 +30,10 @@ function App() {
       <Route path="/earnings" element={<Earnings />} />
       <Route path="/deductions" element={<Deductions />} />
       <Route path="/allowances" element={<Allowances />} />
-      <Route path="/employees" element={<AddEmployee/>} />                 
+      <Route path="/employees" element={<AddEmployee/>} />     
+      <Route path="/employees/:id/edit" element={<EditEmployee/>} />        
+      <Route path="/add-deduction" element={<AddDeduction/>} />  
+      <Route path="/add-leave" element={<AddLeave/>} />                              
       </Routes>
     </Router>
   );

@@ -8,8 +8,8 @@ const EmployeeInfo = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [employees, setEmployees] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   // filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,7 +42,7 @@ const EmployeeInfo = () => {
   };
 
   // computed lists for filters
-  const departments = [...new Set(employees.map(e => e.department).filter(Boolean))];
+  const departments = [...new Set(employees.map(e => e.department_name).filter(Boolean))];
   const designations = [...new Set(employees.map(e => e.designation).filter(Boolean))];
 
   const filtered = employees.filter(emp => {
@@ -61,6 +61,37 @@ const EmployeeInfo = () => {
 
     return matchesSearch && matchesStatus && matchesDepartment && matchesDesignation && matchesJoin;
   });
+
+  // ✅ Export Button Function
+  const handleExport = () => {
+    if (filtered.length === 0) {
+      alert('No employees to export.');
+      return;
+    }
+
+    const csvData = filtered.map(emp => ({
+      Name: emp.full_name,
+      ID: emp.employee_code || emp.id,
+      Status: emp.status,
+      Department: emp.department_name,
+      Phone: emp.phone,
+      JoiningDate: formatDate(emp.joining_date),
+      Designation: emp.designation
+    }));
+
+    const csvRows = [
+      Object.keys(csvData[0]).join(','),
+      ...csvData.map(row => Object.values(row).join(','))
+    ];
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'employees.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="employee-info-container">
@@ -86,7 +117,7 @@ const EmployeeInfo = () => {
           </div>
         </header>
 
-        {/* ✅ Updated Tab Navigation Section */}
+        {/* ✅ Tab Navigation */}
         <div className="tab-navigation">
           {[
             { label: 'Overview', path: '/employee-info' },
@@ -106,15 +137,21 @@ const EmployeeInfo = () => {
           ))}
         </div>
 
+        {/* ✅ Employee Table Section */}
         <div className="employee-table-section">
           <div className="section-header">
             <h2>All Employees</h2>
-            <button className="add-employee-btn" onClick={() => navigate('/add-employee')}>
-              + Add Employee
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="add-employee-btn" onClick={() => navigate('/add-employee')}>
+                + Add Employee
+              </button>
+              <button className="export-btn" onClick={handleExport}>
+                ⬇️ Export
+              </button>
+            </div>
           </div>
 
-          {/* Search/filters */}
+          {/* Search/Filters */}
           <div className="search-filter-container">
             <input
               className="search-input"
@@ -199,7 +236,7 @@ const EmployeeInfo = () => {
                           {emp.status}
                         </span>
                       </td>
-                      <td>{emp.department}</td>
+                      <td>{emp.department_name}</td>
                       <td>{emp.phone}</td>
                       <td>{formatDate(emp.joining_date)}</td>
                       <td>{emp.designation}</td>
