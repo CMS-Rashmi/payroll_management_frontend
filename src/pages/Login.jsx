@@ -6,7 +6,7 @@ import '../styles/Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [role, setRole] = useState('employee');
+  const [role, setRole] = useState('employee'); // purely UI; backend decides actual role
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,18 +19,21 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await apiPost('/auth/login', { email, password, role });
+      // ✅ Correct route
+      const response = await apiPost('/auth/login', { email, password });
 
       if (response.ok) {
         // Save JWT and user info
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
 
-        // Navigate based on role
-        if (role === 'hr') {
-          navigate('/dashboard'); // HR admin dashboard
+        // Route by actual backend role
+        const userRole = response.user?.role;
+        if (userRole === 'HR') {
+          navigate('/dashboard');
         } else {
-          navigate('/employee-info'); // Employee dashboard               //dev-shanika
+          // change this to your employee landing route
+          navigate('/employee-info');
         }
       } else {
         setError(response.message || 'Invalid credentials');

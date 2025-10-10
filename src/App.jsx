@@ -28,7 +28,8 @@ function App() {
       <Route path="/earnings" element={<Earnings />} />
       <Route path="/deductions" element={<Deductions />} />
       <Route path="/allowances" element={<Allowances />} />
-      <Route path="/employees" element={<AddEmployee/>} />                 
+      <Route path="/employees" element={<AddEmployee/>} />     
+      <Route path="/employees/:id/edit" element={<EditEmployee/>} />                                       
       </Routes>
     </Router>
   );
