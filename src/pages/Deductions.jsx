@@ -167,8 +167,8 @@ const Deductions = () => {
               <div className="table-buttons">
                 <button 
                 className="add-deduction-btn"
-                onClick={() => navigate('/add-deduction')}>                         {/*link the add deductin button  */}
-                  + Add Deduction</button>
+                onClick={() => navigate('/add-deduction')}>
+                  +Add Deduction</button>
                 <button className="filter-btn">Filter</button>
               </div>
             </div>
