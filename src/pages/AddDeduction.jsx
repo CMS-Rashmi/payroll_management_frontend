@@ -108,15 +108,7 @@ const AddDeduction = () => {
               required
             />
 
-            <label>Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
+            
 
             <div className="button-group">
               <button type="submit" className="save-btn">

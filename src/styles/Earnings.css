@@ -7,16 +7,20 @@
 
 .earnings-content {
   flex: 1;
-  padding: 20px 30px;
-  margin-left: 250px;
-  max-width: 1400px;
+  margin-left: 210px;
+  width: calc(100vw - 210px);
+  min-height: 100vh;
+  overflow-x: auto;
+  background-color: #f8f9fa;
 }
 
 .earnings-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  padding: 20px 24px;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .header-left .breadcrumb {
@@ -393,6 +397,56 @@
   border-radius: 4px;
   padding: 4px;
 }
+/* ✅ Footer Action Buttons */
+.earnings-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+  padding: 16px 24px;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Export Report Button */
+.export-report-btn {
+  padding: 8px 18px;
+  background-color: #f3f4f6;
+  color: #111827;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.export-report-btn:hover {
+  background-color: #e5e7eb;
+}
+
+/* Save Changes Button */
+.save-changes-btn {
+  padding: 8px 18px;
+  background-color: #1e3a8a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.save-changes-btn:hover {
+  background-color: #1d4ed8;
+}
+
 
 /* Responsive Design */
 @media (max-width: 1200px) {

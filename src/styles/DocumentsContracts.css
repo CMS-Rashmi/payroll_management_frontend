@@ -7,16 +7,20 @@
 
 .documents-contracts-content {
   flex: 1;
-  padding: 20px 30px;
-  margin-left: 250px;
-  max-width: 1400px;
+  margin-left: 210px;
+  width: calc(100vw - 210px);
+  min-height: 100vh;
+  overflow-x: auto;
+  background-color: #f8f9fa;
 }
 
 .documents-contracts-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  padding: 20px 24px;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .header-left .breadcrumb {

@@ -7,11 +7,13 @@
 
 
 .add-employee-content {
-  flex: 1;
-  padding: 20px 30px;
-  margin-left: 250px;
+ flex: 1;
+  margin-left: 210px;
+  width: calc(100vw - 210px);
+  min-height: 100vh;
+  overflow-x: auto;
+  background-color: #f8f9fa;
 }
-
 .add-employee-header {
   display: flex;
   justify-content: space-between;

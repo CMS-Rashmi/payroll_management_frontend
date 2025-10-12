@@ -42,8 +42,6 @@ const Deductions = () => {
         <header className="deductions-header">
           <div className="header-left">
             <div className="breadcrumb">
-              <span className="breadcrumb-item">Dashboard</span>
-              <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item">Salary & Compensation</span>
               <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item active">Deductions</span>
