@@ -14,6 +14,12 @@ import Allowances from "./pages/Allowances";
 import EditEmployee from "./pages/EditEmployee";        //new changes   - dev-shanika
 import AddDeduction from "./pages/AddDeduction";        //new changes    - dev-rashmi
 import AddLeave from "./pages/AddLeave";
+import OvertimeAdjustments from "./pages/OvertimeAdjustments";
+import CompensationAdjustment from "./pages/CompensationAdjustment";
+import NetSalarySummary from "./pages/NetSalarySummary";
+import BulkActions from "./pages/BulkActions";
+import Policies from "./pages/Policies";
+import Designations from "./pages/Designations";
 
 function App() {
   return (
@@ -33,7 +39,16 @@ function App() {
       <Route path="/employees" element={<AddEmployee/>} />     
       <Route path="/employees/:id/edit" element={<EditEmployee/>} />        
       <Route path="/add-deduction" element={<AddDeduction/>} />  
-      <Route path="/add-leave" element={<AddLeave/>} />                              
+      <Route path="/add-leave" element={<AddLeave/>} />     
+      <Route path="/overtime-adjustments" element={<OvertimeAdjustments/>}/>
+      <Route path="/compensation-adjustment" element={<CompensationAdjustment/>}/>
+      <Route path="/net-salary-summary" element={<NetSalarySummary/>}/>
+
+      {/* Admin helpers*/}
+      <Route path="/bulk-actions" element={<BulkActions/>}/>
+      <Route path="/policies" element={<Policies/>}/>
+      <Route path="/designations" element={<Designations/>}/>
+
       </Routes>
     </Router>
   );
