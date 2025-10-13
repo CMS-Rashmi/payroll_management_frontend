@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import '../styles/CompensationCommon.css';
 
 const CompensationAdjustment = () => {
@@ -34,6 +35,7 @@ const CompensationAdjustment = () => {
       <Sidebar />
 
       <div className="comp-content">
+        <Header/>
         <header className="comp-header">
           <div>
             <div className="comp-breadcrumb">
@@ -42,7 +44,7 @@ const CompensationAdjustment = () => {
             </div>
             <h1 className="comp-title">Salary & Compensation</h1>
           </div>
-          <div className="comp-right"><div className="comp-avatar" /><span className="sc-muted">John</span></div>
+          
         </header>
 
         <div className="comp-tabs">

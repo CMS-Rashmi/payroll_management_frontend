@@ -282,7 +282,10 @@
   font-size: 12px;
   background: white;
 }
-
+.action-btn.view-btn {
+  color: #069612;
+  border-color: #069612;
+}
 .action-btn.view {
   color: #4361ee;
   border-color: #4361ee;

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import '../styles/EmployeeInfo.css';
 import { apiGet } from '../services/api';
+
+
 
 const EmployeeInfo = () => {
   const navigate = useNavigate();
@@ -63,28 +66,24 @@ const EmployeeInfo = () => {
   });
 
   return (
-    <div className="employee-info-container">
-      <Sidebar />
+  <div className="employee-info-container">
+    <Sidebar />
 
-      <div className="employee-info-content">
-        <header className="employee-info-header">
-          <div className="header-left">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">Employee Information</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">Employee Information Management</span>
-            </div>
-            <h1 className="page-title">Employee Information Management</h1>
+    <div className="employee-info-content">
+      {/* ✅ Reusable Header Component */}
+      <Header />
+
+      <header className="employee-info-header">
+        <div className="header-left">
+          <div className="breadcrumb">
+            <span className="breadcrumb-item">Employee Information</span>
+            <span className="breadcrumb-separator">›</span>
+            <span className="breadcrumb-item active">Employee Information Management</span>
           </div>
-          <div className="header-right">
-            <div className="notification-icon">🔔</div>
-            <div className="user-profile">
-              <div className="user-avatar"></div>
-              <span className="username">John</span>
-              <span className="dropdown-arrow">▼</span>
-            </div>
-          </div>
-        </header>
+          <h1 className="page-title">Employee Information Management</h1>
+        </div>
+      </header>
+
 
         {/* ✅ Updated Tab Navigation Section */}
         <div className="tab-navigation">
@@ -205,6 +204,13 @@ const EmployeeInfo = () => {
                       <td>{emp.designation}</td>
                       <td>
                         <div className="action-buttons">
+                          <button
+                            className="action-btn view-btn"
+                            onClick={() => navigate(`/employees/${emp.id}/edit`)}
+                          >
+
+                            View
+                          </button>
                           <button
                             className="action-btn view"
                             onClick={() => navigate(`/employees/${emp.id}/edit`)}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import '../styles/AttendanceLeave.css';
 
 const AttendanceLeave = () => {
@@ -102,6 +103,7 @@ const AttendanceLeave = () => {
 
       <div className="attendance-leave-content">
         {/* Header */}
+         <Header />
         <header className="attendance-leave-header">
           <div className="header-left">
             <div className="breadcrumb">
@@ -112,14 +114,7 @@ const AttendanceLeave = () => {
             <h1 className="page-title">Employee Information Management</h1>
           </div>
 
-          <div className="header-right">
-            <div className="notification-icon">🔔</div>
-            <div className="user-profile">
-              <div className="user-avatar"></div>
-              <span className="username">John</span>
-              <span className="dropdown-arrow">▼</span>
-            </div>
-          </div>
+          
         </header>
 
         {/* Tab Navigation */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import '../styles/CompensationCommon.css';
 
 const NetSalarySummary = () => {
@@ -23,12 +24,13 @@ const NetSalarySummary = () => {
     <div className="comp-container">
       <Sidebar />
       <div className="comp-content">
+        <Header/>
         <header className="comp-header">
           <div>
             <div className="comp-breadcrumb"><span>Salary & Compensation</span> <span>›</span> <span className="active">Net salary summary</span></div>
             <h1 className="comp-title">Salary & Compensation</h1>
           </div>
-          <div className="comp-right"><div className="comp-avatar" /><span className="sc-muted">John</span></div>
+          
         </header>
 
         <div className="comp-tabs">

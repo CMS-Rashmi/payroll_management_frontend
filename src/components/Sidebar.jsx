@@ -7,107 +7,46 @@ const Sidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: '🏠',
-      path: '/dashboard'
-    },
-    {
-      id: 'employee-information',
-      label: 'Employee Information',
-      icon: '👤',
-      path: '/employee-info'
-    },
-    {
-      id: 'salary-compensation',
-      label: 'Salary Compensation',
-      icon: '💰',
-      path: '/earnings'
-    },
-    {
-      id: 'payroll-processing',
-      label: 'Payroll Processing',
-      icon: '📊',
-      path: '/payroll-processing'
-    },
-    {
-      id: 'time-attendance',
-      label: 'Time & Attendance',
-      icon: '⏰',
-      path: '/time-attendance',
-      hasSubmenu: true
-    },
-    {
-      id: 'compliance-reporting',
-      label: 'Compliance & Reporting',
-      icon: '📋',
-      path: '/compliance-reporting'
-    },
-    {
-      id: 'report-analytics',
-      label: 'Report & Analytics',
-      icon: '📈',
-      path: '/report-analytics'
-    },
-    {
-      id: 'administration',
-      label: 'Administration',
-      icon: '⚙️',
-      path: '/administration',
-      hasSubmenu: true
-    },
-    {
-      id: 'security-access',
-      label: 'Security & Access',
-      icon: '🔒',
-      path: '/security-access',
-      hasSubmenu: true
-    }
+    { id: 'dashboard', label: 'Dashboard', icon: '🏠', path: '/dashboard' },
+    { id: 'employee-information', label: 'Employee Information', icon: '👤', path: '/employee-info' },
+    { id: 'salary-compensation', label: 'Salary Compensation', icon: '💰', path: '/earnings' },
+    { id: 'payroll-processing', label: 'Payroll Processing', icon: '📊', path: '/payroll-processing' },
+    { id: 'time-attendance', label: 'Time & Attendance', icon: '⏰', path: '/time-attendance', hasSubmenu: true },
+    { id: 'compliance-reporting', label: 'Compliance & Reporting', icon: '📋', path: '/compliance-reporting' },
+    { id: 'report-analytics', label: 'Report & Analytics', icon: '📈', path: '/report-analytics' },
+    { id: 'administration', label: 'Administration', icon: '⚙️', path: '/administration', hasSubmenu: true },
+    { id: 'security-access', label: 'Security & Access', icon: '🔒', path: '/security-access', hasSubmenu: true }
   ];
 
   const handleItemClick = (path) => {
     navigate(path);
   };
 
-  // ✅ Group related paths for "Employee Information"
+  // ✅ Group related paths
   const employeeInfoPaths = [
-    '/employee-info',
-    '/add-employee',
-    '/attendance-leave',
-    '/performance-training',
-    '/documents-contracts',
-    '/audit-logs'
+    '/employee-info', '/add-employee', '/attendance-leave', '/performance-training', '/documents-contracts', '/audit-logs'
   ];
 
-  // ✅ Group related paths for "Salary Compensation"
   const salaryCompensationPaths = [
-    '/earnings',
-    '/deductions',
-    '/allowances',
-    '/overtime-adjustments',
-    '/compensation-adjustment',
-    '/net-salary-summary'
+    '/earnings', '/deductions', '/allowances', '/overtime-adjustments', '/compensation-adjustment', '/net-salary-summary'
   ];
 
-  // ✅ Determine which sidebar item should be active
+  // ✅ Determine active item
   const getActiveItem = () => {
     const currentPath = location.pathname;
-
-    if (employeeInfoPaths.some(p => currentPath.startsWith(p))) {
-      return 'employee-information';
-    }
-
-    if (salaryCompensationPaths.some(p => currentPath.startsWith(p))) {
-      return 'salary-compensation';
-    }
-
-    return (
-      menuItems.find(item => currentPath === item.path)?.id || 'dashboard'
-    );
+    if (employeeInfoPaths.some(p => currentPath.startsWith(p))) return 'employee-information';
+    if (salaryCompensationPaths.some(p => currentPath.startsWith(p))) return 'salary-compensation';
+    return menuItems.find(item => currentPath === item.path)?.id || 'dashboard';
   };
 
   const activeItem = getActiveItem();
+
+  // ✅ Handle Logout
+  const handleLogout = () => {
+    // You can clear localStorage/sessionStorage here if needed
+    // localStorage.removeItem('authToken');
+    navigate('/');
+  };
 
   return (
     <div className="sidebar">
@@ -116,7 +55,7 @@ const Sidebar = () => {
           <div className="logo-icon">CMS</div>
         </div>
       </div>
-      
+
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
           <div key={item.id} className="nav-item-container">
@@ -131,6 +70,13 @@ const Sidebar = () => {
           </div>
         ))}
       </nav>
+
+      {/* ✅ Logout Button at the Bottom */}
+      <div className="sidebar-footer">
+        <button className="logout-btn" onClick={handleLogout}>
+          🚪 Logout
+        </button>
+      </div>
     </div>
   );
 };

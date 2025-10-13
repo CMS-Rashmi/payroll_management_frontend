@@ -1,6 +1,7 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login"; // match file name
+import Header from "./components/Header";
 import Dashboard from "./pages/Dashboard"; 
 import EmployeeInfo from "./pages/EmployeeInfo"; 
 import AddEmployee from "./pages/AddEmployee"; 
@@ -26,6 +27,7 @@ function App() {
     <Router>
       <Routes>
        <Route path="/" element={<Login />} />
+       <Route path="/header" element={<Header />} />
        <Route path="/dashboard" element={<Dashboard />} />
        <Route path="/employee-info" element={<EmployeeInfo />} />
        <Route path="/add-employee" element={<AddEmployee />} />

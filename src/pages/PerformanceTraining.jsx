@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import '../styles/PerformanceTraining.css';
 
 const PerformanceTraining = () => {
@@ -128,6 +129,7 @@ const PerformanceTraining = () => {
 
       <div className="performance-training-content">
         {/* Header */}
+        <Header />
         <header className="performance-training-header">
           <div className="header-left">
             <div className="breadcrumb">
@@ -138,14 +140,6 @@ const PerformanceTraining = () => {
             <h1 className="page-title">Employee Information Management</h1>
           </div>
 
-          <div className="header-right">
-            <div className="notification-icon">🔔</div>
-            <div className="user-profile">
-              <div className="user-avatar"></div>
-              <span className="username">John</span>
-              <span className="dropdown-arrow">▼</span>
-            </div>
-          </div>
         </header>
 
         {/* Tabs */}

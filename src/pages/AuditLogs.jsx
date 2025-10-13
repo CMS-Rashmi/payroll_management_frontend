@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import '../styles/AuditLogs.css';
 
 const AuditLogs = () => {
@@ -71,6 +72,7 @@ const AuditLogs = () => {
       <Sidebar />
       <div className="audit-logs-content">
         {/* Header */}
+        <Header/>
         <header className="audit-logs-header">
           <div className="header-left">
             <div className="breadcrumb">
@@ -79,15 +81,6 @@ const AuditLogs = () => {
               <span className="breadcrumb-item active">Audit Logs</span>
             </div>
             <h1 className="page-title">Employee Information Management</h1>
-          </div>
-
-          <div className="header-right">
-            <div className="notification-icon">🔔</div>
-            <div className="user-profile">
-              <div className="user-avatar"></div>
-              <span className="username">John</span>
-              <span className="dropdown-arrow">▼</span>
-            </div>
           </div>
         </header>
 

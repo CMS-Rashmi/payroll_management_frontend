@@ -94,27 +94,74 @@
   margin-left: auto;
 }
 
+/* ✅ Sidebar Footer (Logout Section) */
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.logout-btn:hover {
+  background-color: #0251a0;
+}
+
+.logout-btn:active {
+  background-color: #b91c1c;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar {
     width: 60px;
   }
-  
+
   .sidebar-header {
     padding: 20px 8px;
   }
-  
+
   .nav-item {
     padding: 12px 8px;
     justify-content: center;
   }
-  
+
   .nav-label,
   .submenu-arrow {
     display: none;
   }
-  
+
   .nav-icon {
     margin-right: 0;
+  }
+
+  .sidebar-footer {
+    padding: 12px;
+  }
+
+  .logout-btn {
+    font-size: 0;
+    padding: 10px;
+  }
+
+  .logout-btn::before {
+    content: "🚪";
+    font-size: 18px;
   }
 }
