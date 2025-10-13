@@ -1,41 +1,63 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import "../styles/AddDeduction.css";
+// src/pages/AddDeduction.jsx
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+import { apiGet, apiJSON } from '../services/api';
+import '../styles/AddDeduction.css';
 
-const AddDeduction = () => {
+export default function AddDeduction() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    type: "",
-    category: "",
-    rate: "",
-    amount: "",
-    status: "Yes",
-    date: "",
+  const [employees, setEmployees] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [form, setForm] = useState({
+    employee_id: '',
+    name: '',
+    type: 'Tax',
+    basis: 'Fixed',      // 'Fixed' | 'Percent'
+    percent: '',
+    amount: '',
+    effective_date: '',
+    status: 'Active',
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+  useEffect(() => {
+    // Load employees for the dropdown
+    (async () => {
+      try {
+        const res = await apiGet('/employees?status=Active'); // make sure this route exists in your backend
+        setEmployees(res.data || []);
+      } catch (e) {
+        setEmployees([]);
+      }
+    })();
+  }, []);
 
-  const handleSubmit = (e) => {
+  const onChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const onSubmit = async (e) => {
     e.preventDefault();
+    setMsg('');
+    setSaving(true);
+    try {
+      // Clean numeric fields
+      const payload = {
+        ...form,
+        percent: form.basis === 'Percent' ? Number(form.percent) : null,
+        amount: form.basis === 'Fixed' ? Number(form.amount) : null
+      };
 
-    // Get existing deductions from localStorage
-    const existingDeductions = JSON.parse(localStorage.getItem("deductions")) || [];
+      const res = await apiJSON('/salary/deductions', 'POST', payload);
+      if (!res.ok) throw new Error(res.message || 'Save failed');
 
-    // Add new deduction
-    const updatedDeductions = [...existingDeductions, formData];
-
-    // Save to localStorage
-    localStorage.setItem("deductions", JSON.stringify(updatedDeductions));
-
-    console.log("New Deduction Added:", formData);
-
-    // Redirect to Deductions page
-    navigate("/deductions");
+      setMsg('✅ Deduction saved');
+      // small delay so user sees it
+      setTimeout(() => navigate('/deductions'), 400);
+    } catch (err) {
+      setMsg(`❌ ${err.message || 'Failed to save'}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -44,81 +66,60 @@ const AddDeduction = () => {
       <div className="overlay">
         <div className="add-deduction-modal">
           <h2>Add Deduction</h2>
-          <form onSubmit={handleSubmit} className="add-deduction-form">
-            <label>Deduction</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Deduction Name"
-              required
-            />
-
-            <label>Type</label>
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select</option>
-              <option value="Tax">Tax</option>
-              <option value="Statutory">Statutory</option>
-              <option value="Insurance">Insurance</option>
-              <option value="Loan">Loan</option>
+          {msg && <div style={{marginBottom:12, color: msg.startsWith('✅') ? '#0a7d10' : '#c62828'}}>{msg}</div>}
+          <form onSubmit={onSubmit} className="add-deduction-form">
+            <label>Employee</label>
+            <select name="employee_id" value={form.employee_id} onChange={onChange} required>
+              <option value="">Select employee</option>
+              {employees.map(e => (
+                <option key={e.id} value={e.id}>{e.full_name} (#{e.id})</option>
+              ))}
             </select>
 
-            <label>Category</label>
-            <input
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              placeholder="e.g., Health / Personal / Retirement"
-              required
-            />
+            <label>Deduction Name</label>
+            <input name="name" value={form.name} onChange={onChange} placeholder="Income Tax / EPF / Insurance..." required />
 
-            <label>Rate / Percentage</label>
-            <input
-              type="text"
-              name="rate"
-              value={formData.rate}
-              onChange={handleChange}
-              placeholder="e.g., 10% or $500"
-              required
-            />
+            <label>Type</label>
+            <select name="type" value={form.type} onChange={onChange} required>
+              <option>Tax</option>
+              <option>Statutory</option>
+              <option>Insurance</option>
+              <option>Loan</option>
+              <option>Other</option>
+            </select>
 
-            <label>Amount</label>
-            <input
-              type="text"
-              name="amount"
-              value={formData.amount}
-              onChange={handleChange}
-              placeholder="Amount"
-              required
-            />
+            <label>Basis</label>
+            <select name="basis" value={form.basis} onChange={onChange} required>
+              <option>Fixed</option>
+              <option>Percent</option>
+            </select>
+
+            {form.basis === 'Percent' ? (
+              <>
+                <label>Percent (%)</label>
+                <input type="number" step="0.01" name="percent" value={form.percent} onChange={onChange} placeholder="e.g. 10" required />
+              </>
+            ) : (
+              <>
+                <label>Amount</label>
+                <input type="number" step="0.01" name="amount" value={form.amount} onChange={onChange} placeholder="e.g. 200" required />
+              </>
+            )}
 
             <label>Effective Date</label>
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              required
-            />
+            <input type="date" name="effective_date" value={form.effective_date} onChange={onChange} required />
 
-            
+            <label>Status</label>
+            <select name="status" value={form.status} onChange={onChange}>
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
 
             <div className="button-group">
-              <button type="submit" className="save-btn">
-                Save
+              <button type="submit" className="save-btn" disabled={saving}>
+                {saving ? 'Saving…' : 'Save'}
               </button>
-              <button
-                type="button"
-                className="cancel-btn"
-                onClick={() => navigate("/deductions")}
-              >
+              <button type="button" className="cancel-btn" onClick={() => navigate('/deductions')}>
                 Cancel
               </button>
             </div>
@@ -127,6 +128,4 @@ const AddDeduction = () => {
       </div>
     </div>
   );
-};
-
-export default AddDeduction;
+}
