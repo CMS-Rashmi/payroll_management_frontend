@@ -4,6 +4,7 @@ import "../styles/AddEmployee.css";
 import { apiUpload } from "../services/api";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
+import 'react-phone-input-2/lib/style.css';
 
 const AddEmployee = () => {
   const [step, setStep] = useState(1);

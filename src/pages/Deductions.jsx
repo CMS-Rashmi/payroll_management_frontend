@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from '../components/Header';
 import "../styles/Deductions.css";
+import { apiGet } from "../services/api";
+
 
 const Deductions = () => {
   const navigate = useNavigate();
@@ -10,10 +12,18 @@ const Deductions = () => {
   const [deductions, setDeductions] = useState([]);
 
   // Load saved deductions from localStorage
+
   useEffect(() => {
-    const storedDeductions = JSON.parse(localStorage.getItem("deductions")) || [];
-    setDeductions(storedDeductions);
-  }, []);
+  (async () => {
+    try {
+      const res = await apiGet('/salary/deductions'); // backend returns employee_name
+      setDeductions(res.data || []);
+    } catch {
+      setDeductions([]);
+    }
+  })();
+}, []);
+
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -72,6 +82,7 @@ const Deductions = () => {
             <table className="deductions-table">
               <thead>
                 <tr>
+                  <th>Employee ID</th>
                   <th>Description</th>
                   <th>Type</th>
                   <th>Category</th>
@@ -85,22 +96,23 @@ const Deductions = () => {
                 {deductions.length > 0 ? (
                   deductions.map((item, index) => (
                     <tr key={index}>
+                      <td>{item.employee_id}</td>
                       <td>{item.name}</td>
                       <td>{item.type}</td>
-                      <td>{item.category}</td>
-                      <td>{item.rate}</td>
-                      <td>{item.amount}</td>
+                      <td>{item.basis || ''}</td>
+                      <td>{item.basis === 'Percent' ? item.percent : '-'}</td>
+                      <td>{item.basis === 'Fixed' ? item.amount : '-'}</td>
                       <td>
                         <span className={`status ${item.status === "Active" ? "active" : "inactive"}`}>
                           {item.status}
                         </span>
                       </td>
-                      <td>{item.date}</td>
+                      <td>{item.effective_date || ''}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: "center" }}>
+                    <td colSpan="8" style={{ textAlign: "center" }}>
                       No deductions found. Click “Add Deduction” to create one.
                     </td>
                   </tr>
