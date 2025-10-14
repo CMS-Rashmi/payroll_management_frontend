@@ -20,7 +20,7 @@ const EditEmployee = () => {
     first_name: "",
     last_name: "",
     initials: "",
-    calling_name: "",
+    preferred_name: "",
     email: "",
     personal_email: "",
     country_code: "+94",
@@ -64,17 +64,15 @@ const EditEmployee = () => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [document, setDocument] = useState(null);
   const [bankDocument, setBankDocument] = useState(null);
+  const [documentType, setDocumentType] = useState("");
 
-  // ✅ Fetch employee data on load
+  // ✅ Fetch employee data
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
         const res = await apiGet(`/employees/${id}`);
         const data = res.data || {};
-        setFormData({
-          ...formData,
-          ...data,
-        });
+        setFormData((prev) => ({ ...prev, ...data }));
       } catch (err) {
         console.error(err);
         setError("Failed to load employee data");
@@ -83,7 +81,6 @@ const EditEmployee = () => {
       }
     };
     fetchEmployee();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleInputChange = (e) => {
@@ -94,6 +91,7 @@ const EditEmployee = () => {
   const nextStep = () => setStep((s) => s + 1);
   const prevStep = () => setStep((s) => s - 1);
 
+  // ✅ File validation
   const validateFiles = () => {
     if (
       profilePhoto &&
@@ -107,6 +105,10 @@ const EditEmployee = () => {
       !["application/pdf", "image/jpeg", "image/jpg"].includes(document.type)
     ) {
       setError("Document must be PDF/JPG/JPEG.");
+      return false;
+    }
+    if (document && !documentType) {
+      setError("Please select a document type for your uploaded file.");
       return false;
     }
     return true;
@@ -127,6 +129,7 @@ const EditEmployee = () => {
       if (profilePhoto) fd.append("profilePhoto", profilePhoto);
       if (document) fd.append("documents", document);
       if (bankDocument) fd.append("bankDocument", bankDocument);
+      fd.append("document_type", documentType);
 
       await apiUpload(`/employees/${id}`, fd, "PUT");
       alert("Employee updated successfully!");
@@ -154,7 +157,7 @@ const EditEmployee = () => {
 
   if (loading) return <div className="edit-loading">Loading…</div>;
 
-  // ✅ FORM SECTIONS (same as AddEmployee)
+  // ✅ FORM SECTIONS
   const renderStep = () => {
     switch (step) {
       case 1:
@@ -166,7 +169,7 @@ const EditEmployee = () => {
               <input name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleInputChange} />
               <input name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleInputChange} />
               <input name="initials" placeholder="Initials" value={formData.initials} onChange={handleInputChange} />
-              <input name="calling_name" placeholder="Calling Name" value={formData.calling_name} onChange={handleInputChange} />
+              <input name="preferred_name" placeholder="Preferred Name" value={formData.preferred_name} onChange={handleInputChange} />
 
               <PhoneInput
                 country={"lk"}
@@ -279,15 +282,43 @@ const EditEmployee = () => {
           </div>
         );
 
+      // ✅ UPDATED DOCUMENT UPLOAD STEP
       case 5:
         return (
           <div className="step-section">
             <h2>Documents Upload</h2>
+            <p className="section-subtitle">Upload and select document type</p>
+
             <div className="upload-box">
               <label>Profile Photo (JPG/JPEG/PNG)</label>
-              <input type="file" onChange={(e) => setProfilePhoto(e.target.files[0])} />
-              <label>Supporting Documents (PDF/JPG/JPEG)</label>
-              <input type="file" onChange={(e) => setDocument(e.target.files[0])} />
+              <input type="file" onChange={(e) => setProfilePhoto(e.target.files[0])} accept=".jpg,.jpeg,.png" />
+            </div>
+
+            <div className="upload-box" style={{ marginTop: "20px" }}>
+              <label>Select Document Type</label>
+              <select
+                value={documentType}
+                onChange={(e) => setDocumentType(e.target.value)}
+                required
+              >
+                <option value="">Select Document Type</option>
+                <option value="NIC Copy">NIC Copy</option>
+                <option value="Birth Certificate">Birth Certificate</option>
+                <option value="Educational Certificates">Educational Certificates</option>
+                <option value="Appointment Letter">Appointment Letter</option>
+                <option value="Experience Letter">Experience Letter</option>
+                <option value="Passport Copy">Passport Copy</option>
+                <option value="Other">Other</option>
+              </select>
+
+              <label style={{ marginTop: "10px" }}>
+                Upload Supporting Document (PDF/JPG/JPEG)
+              </label>
+              <input
+                type="file"
+                onChange={(e) => setDocument(e.target.files[0])}
+                accept=".pdf,.jpg,.jpeg"
+              />
             </div>
           </div>
         );

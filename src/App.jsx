@@ -21,6 +21,7 @@ import NetSalarySummary from "./pages/NetSalarySummary";
 import BulkActions from "./pages/BulkActions";
 import Policies from "./pages/Policies";
 import Designations from "./pages/Designations";
+import ViewEmployee from "./pages/ViewEmployee";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
       <Route path="/overtime-adjustments" element={<OvertimeAdjustments/>}/>
       <Route path="/compensation-adjustment" element={<CompensationAdjustment/>}/>
       <Route path="/net-salary-summary" element={<NetSalarySummary/>}/>
+      <Route path="//employees/:id/view" element={<ViewEmployee/>}/>
 
       {/* Admin helpers*/}
       <Route path="/bulk-actions" element={<BulkActions/>}/>

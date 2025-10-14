@@ -4,7 +4,6 @@ import "../styles/AddEmployee.css";
 import { apiUpload } from "../services/api";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
-import 'react-phone-input-2/lib/style.css';
 
 const AddEmployee = () => {
   const [step, setStep] = useState(1);
@@ -16,7 +15,7 @@ const AddEmployee = () => {
     first_name: "",
     last_name: "",
     initials: "",
-    calling_name: "",
+    preferred_name: "",
     email: "",
     personal_email: "",
     country_code: "+94",
@@ -60,6 +59,7 @@ const AddEmployee = () => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [document, setDocument] = useState(null);
   const [bankDocument, setBankDocument] = useState(null);
+  const [documentType, setDocumentType] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -84,6 +84,10 @@ const AddEmployee = () => {
       setError("Document must be PDF/JPG/JPEG.");
       return false;
     }
+    if (document && !documentType) {
+      setError("Please select a document type for your uploaded file.");
+      return false;
+    }
     return true;
   };
 
@@ -101,6 +105,7 @@ const AddEmployee = () => {
       if (profilePhoto) fd.append("profilePhoto", profilePhoto);
       if (document) fd.append("documents", document);
       if (bankDocument) fd.append("bankDocument", bankDocument);
+      fd.append("document_type", documentType);
 
       await apiUpload("/employees", fd, "POST");
       alert("Employee registered successfully!");
@@ -146,17 +151,15 @@ const AddEmployee = () => {
                 onChange={handleInputChange}
               />
               <input
-                name="calling_name"
-                placeholder="Calling Name"
-                value={formData.calling_name}
+                name="preferred_name"
+                placeholder="Preferred Name"
+                value={formData.preferred_name}
                 onChange={handleInputChange}
               />
 
-              {/* === Phone number with flag === */}
               <div className="form-group">
-               
                 <PhoneInput
-                  country={"lk"} // default Sri Lanka
+                  country={"lk"}
                   value={formData.phone}
                   onChange={(phone, countryData) => {
                     setFormData((prev) => ({
@@ -408,7 +411,7 @@ const AddEmployee = () => {
       case 3:
         return (
           <div className="step-section">
-            <h2>Next of Kin Details</h2>
+            <h2>Next of Relatives Details</h2>
             <div className="two-column">
               <input
                 name="kin_name"
@@ -518,16 +521,45 @@ const AddEmployee = () => {
         return (
           <div className="step-section">
             <h2>Documents Upload</h2>
+            <p className="section-subtitle">
+              Upload profile photo and select the type of supporting document.
+            </p>
+
             <div className="upload-box">
               <label>Profile Photo (JPG/JPEG/PNG)</label>
               <input
                 type="file"
                 onChange={(e) => setProfilePhoto(e.target.files[0])}
+                accept=".jpg,.jpeg,.png"
               />
-              <label>Supporting Documents (PDF/JPG/JPEG)</label>
+            </div>
+
+            <div className="upload-box" style={{ marginTop: "20px" }}>
+              <label>Select Document Type</label>
+              <select
+                value={documentType}
+                onChange={(e) => setDocumentType(e.target.value)}
+                required
+              >
+                <option value="">Select Document Type</option>
+                <option value="NIC Copy">NIC Copy</option>
+                <option value="Birth Certificate">Birth Certificate</option>
+                <option value="Educational Certificates">
+                  Educational Certificates
+                </option>
+                <option value="Appointment Letter">Appointment Letter</option>
+                <option value="Experience Letter">Experience Letter</option>
+                <option value="Passport Copy">Passport Copy</option>
+                <option value="Other">Other</option>
+              </select>
+
+              <label style={{ marginTop: "10px" }}>
+                Upload Supporting Document (PDF/JPG/JPEG)
+              </label>
               <input
                 type="file"
                 onChange={(e) => setDocument(e.target.files[0])}
+                accept=".pdf,.jpg,.jpeg"
               />
             </div>
           </div>
@@ -548,7 +580,7 @@ const AddEmployee = () => {
           {[
             "Personal Details",
             "Official Details",
-            "Next of Kin Details",
+            "Next of Relatives Details",
             "Bank Details",
             "Personal Documents",
           ].map((label, index) => (

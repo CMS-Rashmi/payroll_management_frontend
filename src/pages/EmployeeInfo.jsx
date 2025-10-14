@@ -205,12 +205,12 @@ const EmployeeInfo = () => {
                       <td>
                         <div className="action-buttons">
                           <button
-                            className="action-btn view-btn"
-                            onClick={() => navigate(`/employees/${emp.id}/edit`)}
-                          >
+                              className="action-btn view-btn"
+                              onClick={() => navigate(`/employees/${emp.id}/view`)}
+                            >
+                              View
+                            </button>
 
-                            View
-                          </button>
                           <button
                             className="action-btn view"
                             onClick={() => navigate(`/employees/${emp.id}/edit`)}
