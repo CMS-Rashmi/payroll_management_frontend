@@ -48,7 +48,7 @@ const ViewEmployee = () => {
               )}
             </div>
             <h3>{`${employee.first_name} ${employee.last_name}`}</h3>
-            <p>{employee.preferred_name}</p>
+            <p>{employee.calling_name}</p>
             <div className="profile-details">
               <p><strong>Email:</strong> {employee.email}</p>
               <p><strong>Contact:</strong> {employee.country_code} {employee.phone}</p>
@@ -92,7 +92,7 @@ const ViewEmployee = () => {
                   <div><label>Employee No</label><p>{employee.id}</p></div>
                   <div><label>Full Name</label><p>{`${employee.first_name} ${employee.last_name}`}</p></div>
                   <div><label>Initials</label><p>{employee.initials}</p></div>
-                  <div><label>Preferred Name</label><p>{employee.preferred_name}</p></div>
+                  <div><label>Preferred Name</label><p>{employee.calling_name}</p></div>
                   <div><label>NIC</label><p>{employee.nic}</p></div>
                   <div><label>Date of Birth</label><p>{employee.dob}</p></div>
                   <div><label>Gender</label><p>{employee.gender}</p></div>
