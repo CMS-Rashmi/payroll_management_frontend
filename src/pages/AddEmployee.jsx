@@ -12,10 +12,10 @@ const AddEmployee = () => {
 
   const [formData, setFormData] = useState({
     // Personal
-    first_name: "",
+    first_name: "", 
     last_name: "",
     initials: "",
-    preferred_name: "",
+    calling_name: "",
     email: "",
     personal_email: "",
     country_code: "+94",
@@ -151,9 +151,9 @@ const AddEmployee = () => {
                 onChange={handleInputChange}
               />
               <input
-                name="preferred_name"
+                name="calling_name"
                 placeholder="Preferred Name"
-                value={formData.preferred_name}
+                value={formData.calling_name}
                 onChange={handleInputChange}
               />
 

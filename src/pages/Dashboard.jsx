@@ -36,17 +36,7 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Tab Navigation */}
-        <div className="tab-navigation">
-          <button className="tab-btn active">Manage Employee</button>
-          <button className="tab-btn">Attendance</button>
-          <button className="tab-btn">Leave</button>
-          <button className="tab-btn">salary and bonus</button>
-          <button className="tab-btn">payroll process</button>
-          <button className="tab-btn">payslip</button>
-          <button className="tab-btn">Holiday Calendar</button>
-          <button className="tab-btn">Reports</button>
-        </div>
+       
 
         {/* Main Content */}
         <div className="main-content">
