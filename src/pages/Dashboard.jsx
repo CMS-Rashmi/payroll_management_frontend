@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
@@ -16,6 +17,7 @@ const Dashboard = () => {
       
       <div className="dashboard-content">
         {/* Header */}
+<Header />
         <header className="dashboard-header">
           <div className="header-left">
             <div className="breadcrumb">
@@ -26,18 +28,13 @@ const Dashboard = () => {
             <h1 className="page-title">Dashboard</h1>
           </div>
           
-          <div className="header-right">
-            <div className="notification-icon">🔔</div>
-            <div className="user-profile">
-              <div className="user-avatar"></div>
-              <span className="username">John</span>
-              <span className="dropdown-arrow">▼</span>
-            </div>
-          </div>
+
         </header>
 
        
 
+        {/* Tab Navigation */}
+        
         {/* Main Content */}
         <div className="main-content">
           {/* Left Column */}
