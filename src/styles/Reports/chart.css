@@ -1,0 +1,20 @@
+.charts-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    align-content: center;
+    align-self: center;
+    gap: 20px;
+    padding: 10px;
+}
+
+.chart-outline {
+    width: 90%;
+    max-width: 400px;
+    margin: 5px;
+    background-color: #fff;
+    padding: 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    align-content: center;
+}

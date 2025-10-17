@@ -22,6 +22,7 @@ import BulkActions from "./pages/BulkActions";
 import Policies from "./pages/Policies";
 import Designations from "./pages/Designations";
 import ViewEmployee from "./pages/ViewEmployee";
+import ReportPage from "./pages/Reports/ReportPage";
 
 function App() {
   return (
@@ -47,6 +48,9 @@ function App() {
       <Route path="/compensation-adjustment" element={<CompensationAdjustment/>}/>
       <Route path="/net-salary-summary" element={<NetSalarySummary/>}/>
       <Route path="//employees/:id/view" element={<ViewEmployee/>}/>
+
+      {/* Reports and Analysis */}
+      <Route path="/report-analytics" element={<ReportPage/>} />
 
       {/* Admin helpers*/}
       <Route path="/bulk-actions" element={<BulkActions/>}/>
