@@ -222,6 +222,36 @@
   color: #333;
 }
 
+/* ======== Date Input Styling ======== */
+.two-column input[type="date"] {
+  color: #3b82f6; /* Text color (your theme blue) */
+  background-color: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Change color on focus */
+.two-column input[type="date"]:focus {
+  border-color: #3b82f6;
+  background-color: #fff;
+  color: #3b82f6;
+  outline: none;
+}
+
+/* Calendar icon color for Chrome, Edge, Safari */
+.two-column input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(38%) sepia(94%) saturate(3086%) hue-rotate(204deg) brightness(95%) contrast(101%);
+  cursor: pointer;
+}
+
+/* Optional: uppercase text display */
+.two-column input[type="date"] {
+  text-transform: uppercase;
+}
+
 /* ======== Form Actions ======== */
 .form-actions {
   display: flex;
@@ -231,160 +261,6 @@
   padding-top: 24px;
   border-top: 1px solid #e5e7eb;
 }
-/* ============================
-   DOCUMENT UPLOAD STYLES
-============================ */
-
-.step-section {
-  background: #fff;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  margin-bottom: 25px;
-  transition: all 0.3s ease;
-}
-
-.step-section h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 10px;
-}
-
-.section-subtitle {
-  color: #6b7280;
-  font-size: 0.95rem;
-  margin-bottom: 20px;
-}
-
-/* Upload boxes */
-.upload-box {
-  background: #f9fafb;
-  border: 2px dashed #d1d5db;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  transition: all 0.2s ease;
-}
-
-.upload-box:hover {
-  background: #f3f4f6;
-  border-color: #6366f1;
-}
-
-.upload-box label {
-  display: block;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 10px;
-  font-size: 0.95rem;
-}
-
-/* File inputs */
-.upload-box input[type="file"] {
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 8px 12px;
-  width: 100%;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-
-.upload-box input[type="file"]:hover {
-  border-color: #6366f1;
-}
-
-/* Dropdown (document type) */
-.upload-box select {
-  width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 0.95rem;
-  color: #111827;
-  background-color: #fff;
-  appearance: none;
-  margin-bottom: 12px;
-  transition: border-color 0.2s ease;
-}
-
-.upload-box select:hover,
-.upload-box select:focus {
-  border-color: #6366f1;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
-}
-
-/* Submit buttons */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 25px;
-}
-
-.submit-btn {
-  background-color: #4f46e5;
-  color: white;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.submit-btn:hover {
-  background-color: #4338ca;
-  transform: translateY(-1px);
-}
-
-.cancel-btn {
-  background-color: #e5e7eb;
-  color: #111827;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.cancel-btn:hover {
-  background-color: #d1d5db;
-  transform: translateY(-1px);
-}
-
-/* Error message */
-.error-text {
-  color: #dc2626;
-  background: #fee2e2;
-  padding: 10px 15px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  margin-bottom: 15px;
-}
-
-/* Responsive layout */
-@media (max-width: 768px) {
-  .upload-box {
-    padding: 15px;
-  }
-
-  .submit-btn,
-  .cancel-btn {
-    width: 100%;
-  }
-
-  .form-actions {
-    flex-direction: column;
-  }
-}
-
 
 .cancel-btn,
 .submit-btn {

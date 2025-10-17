@@ -22,6 +22,12 @@ import BulkActions from "./pages/BulkActions";
 import Policies from "./pages/Policies";
 import Designations from "./pages/Designations";
 import ViewEmployee from "./pages/ViewEmployee";
+import AttendanceOverview from "./pages/AttendanceOverview";
+import TimeManagement from "./pages/TimeManagement";
+import AbsenceReport from "./pages/AbsenceReport";
+import AttendanceAdjustment from "./pages/AttendanceAdjustment";
+import EmployeeAdjustment from "./pages/EmployeeAdjustment";
+import CheckinCheckoutReport from "./pages/CheckinCheckoutReport";
 
 function App() {
   return (
@@ -47,6 +53,13 @@ function App() {
       <Route path="/compensation-adjustment" element={<CompensationAdjustment/>}/>
       <Route path="/net-salary-summary" element={<NetSalarySummary/>}/>
       <Route path="//employees/:id/view" element={<ViewEmployee/>}/>
+      <Route path="/attendance-overview" element={<AttendanceOverview/>}/>
+      <Route path="/time-management" element={<TimeManagement/>}/>
+      <Route path="/absence-report" element={<AbsenceReport/>}/>
+      <Route path="/attendance-adjustment" element={<AttendanceAdjustment/>}/>
+      <Route path="/attendance-adjustment/:id" element={<EmployeeAdjustment />} />
+      <Route path="/checkin-checkout-report" element={<CheckinCheckoutReport />} />
+
 
       {/* Admin helpers*/}
       <Route path="/bulk-actions" element={<BulkActions/>}/>

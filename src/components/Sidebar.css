@@ -127,6 +127,36 @@
   background-color: #b91c1c;
 }
 
+/* ===== Submenu Styles ===== */
+.submenu {
+  margin-left: 32px;
+  display: flex;
+  flex-direction: column;
+  border-left: 2px solid #e5e7eb;
+  margin-top: 4px;
+}
+
+.submenu-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #4b5563;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.submenu-item:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.submenu-item.active {
+  background-color: #e5e7eb;
+  color: #1f2937;
+  font-weight: 500;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar {

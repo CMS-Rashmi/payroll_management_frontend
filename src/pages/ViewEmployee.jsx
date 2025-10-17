@@ -121,7 +121,7 @@ const ViewEmployee = () => {
 
               {activeTab === "kin" && (
                 <div className="details-grid">
-                  <div><label>Kin Name</label><p>{employee.kin_name}</p></div>
+                  <div><label>Relatives Name</label><p>{employee.kin_name}</p></div>
                   <div><label>Relationship</label><p>{employee.kin_relationship}</p></div>
                   <div><label>NIC</label><p>{employee.kin_nic}</p></div>
                   <div><label>Date of Birth</label><p>{employee.kin_dob}</p></div>
@@ -167,3 +167,5 @@ const ViewEmployee = () => {
 };
 
 export default ViewEmployee;
+
+
