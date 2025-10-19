@@ -27,6 +27,7 @@ const ViewEmployee = () => {
   }, [id]);
 
   if (loading) return <div className="loading">Loading employee details...</div>;
+
   if (error) return <div className="error">{error}</div>;
   if (!employee) return <div>No employee data found.</div>;
 
@@ -40,13 +41,16 @@ const ViewEmployee = () => {
 
         <div className="employee-profile-card">
           <div className="profile-left">
+
             <div className="profile-photo">
-              {employee.profilePhoto ? (
-                <img src={employee.profilePhoto} alt="Profile" />
+              {employee.profile_Photo_path ? (
+                <img src={employee.profile_Photo_path} alt="Profile" />
               ) : (
                 <div className="profile-placeholder">👤</div>
               )}
             </div>
+
+            
             <h3>{`${employee.first_name} ${employee.last_name}`}</h3>
             <p>{employee.calling_name}</p>
             <div className="profile-details">
@@ -71,7 +75,7 @@ const ViewEmployee = () => {
               {[
                 { key: "personal", label: "Personal" },
                 { key: "official", label: "Official" },
-                { key: "kin", label: "Next of Relatives" },
+                { key: "kin", label: "Relatives" },
                 { key: "bank", label: "Bank & Documents" },
                 { key: "documents", label: "Personal Documents" },
               ].map((tab) => (
@@ -106,7 +110,7 @@ const ViewEmployee = () => {
 
               {activeTab === "official" && (
                 <div className="details-grid">
-                  <div><label>Department</label><p>{employee.department}</p></div>
+                  <div><label>Department</label><p>{employee.department_name}</p></div>              {/* new changes */}
                   <div><label>Designation</label><p>{employee.designation}</p></div>
                   <div><label>Working Office</label><p>{employee.working_office}</p></div>
                   <div><label>Branch</label><p>{employee.branch}</p></div>
@@ -121,43 +125,68 @@ const ViewEmployee = () => {
 
               {activeTab === "kin" && (
                 <div className="details-grid">
-                  <div><label>Relatives Name</label><p>{employee.kin_name}</p></div>
-                  <div><label>Relationship</label><p>{employee.kin_relationship}</p></div>
-                  <div><label>NIC</label><p>{employee.kin_nic}</p></div>
-                  <div><label>Date of Birth</label><p>{employee.kin_dob}</p></div>
+                  <div><label>Relatives Name</label><p>{employee.kin?.kin_name || "-"}</p></div>
+                  <div><label>Relationship</label><p>{employee.kin?.relationship || "-"}</p></div>
+                  <div><label>NIC</label><p>{employee.kin?.kin_nic || "-"}</p></div>
+                  <div><label>Date of Birth</label><p>{employee.kin?.kin_dob || "-"}</p></div>
                 </div>
               )}
-
+              
+              {/*new changes in the bank details  */}
               {activeTab === "bank" && (
                 <div className="details-grid">
-                  <div><label>Account Name</label><p>{employee.account_name}</p></div>
-                  <div><label>Account Number</label><p>{employee.account_number}</p></div>
-                  <div><label>Bank</label><p>{employee.bank_name}</p></div>
-                  <div><label>Branch</label><p>{employee.branch_name}</p></div>
-                  <div><label>Bank Document</label><p>{employee.bankDocument ? "Uploaded" : "No document uploaded"}</p></div>
+                  <div><label>Account Name</label><p>{employee.bank_account?.account_name || "-"}</p></div>
+                  <div><label>Account Number</label><p>{employee.bank_account?.account_number || "-"}</p></div>
+                  <div><label>Bank</label><p>{employee.bank_account?.bank_name || "-"}</p></div>
+                  <div><label>Branch</label><p>{employee.bank_account?.branch_name || "-"}</p></div>
+                  <div>
+                    <label>Bank Document</label>
+                    <p>
+                      {(() => {
+                         const bankDoc = (employee.documents || []).find(d => d.file_name?.startsWith("BANK-"));
+                         return bankDoc ? "Uploaded" : "No document uploaded";
+
+                      })}
+                    </p>
+                  </div>
                 </div>
-              )}
+
+                    )}
+
+                  
+               {/* changes in the personal documents */}
 
               {activeTab === "documents" && (
                 <div className="details-grid">
-                  <div><label>Document Type</label><p>{employee.document_type}</p></div>
-                  <div>
-                    <label>Document</label>
-                    {employee.documents ? (
-                      <a
-                        href={employee.documents}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="doc-link"
-                      >
-                        View Document
-                      </a>
+                  <div className="doc-list" style={{ gridColumn: "1 / -1" }}>
+                    <label>Documents</label>
+                    {(employee.documents && employee.documents.length) ? (
+                      <ul>
+                        {employee.documents.map(doc => (
+                          <li key={doc.id}>
+                            <span>{doc.file_name}</span>{" "}
+                            <a
+                            href={doc.file_path}
+                            target="_blank"
+                            rel="noonpener noreferrer"
+                            className="doc-link"
+                            >
+                              view
+
+                            </a>
+
+                          </li>
+                        ))}
+                      </ul>
                     ) : (
-                      <p>No documents uploaded</p>
+                      <p>No Documents uploaded</p>
                     )}
+
                   </div>
+                  
                 </div>
               )}
+              
             </div>
           </div>
         </div>

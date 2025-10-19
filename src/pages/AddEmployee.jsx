@@ -45,7 +45,7 @@ const AddEmployee = () => {
 
     // Kin
     kin_name: "",
-    kin_relationship: "",
+    relationship: "",
     kin_nic: "",
     kin_dob: "",
 
@@ -411,7 +411,7 @@ const AddEmployee = () => {
       case 3:
         return (
           <div className="step-section">
-            <h2>Next of Relatives Details</h2>
+            <h2>Relatives Details</h2>
             <div className="two-column">
               <input
                 name="kin_name"
@@ -419,7 +419,7 @@ const AddEmployee = () => {
                 onChange={handleInputChange}
               />
               <input
-                name="kin_relationship"
+                name="relationship"
                 placeholder="Relationship"
                 onChange={handleInputChange}
               />
@@ -580,7 +580,7 @@ const AddEmployee = () => {
           {[
             "Personal Details",
             "Official Details",
-            "Next of Relatives Details",
+            "Relatives Details",
             "Bank Details",
             "Personal Documents",
           ].map((label, index) => (

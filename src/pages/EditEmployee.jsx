@@ -20,7 +20,7 @@ const EditEmployee = () => {
     first_name: "",
     last_name: "",
     initials: "",
-    preferred_name: "",
+    calling_name: "",       
     email: "",
     personal_email: "",
     country_code: "+94",
@@ -36,7 +36,7 @@ const EditEmployee = () => {
 
     // Official
     appointment_date: "",
-    department: "",
+    department_name: "",
     designation: "",
     working_office: "",
     branch: "",
@@ -50,7 +50,7 @@ const EditEmployee = () => {
 
     // Kin
     kin_name: "",
-    kin_relationship: "",
+    relationship: "",
     kin_nic: "",
     kin_dob: "",
 
@@ -157,6 +157,9 @@ const EditEmployee = () => {
 
   if (loading) return <div className="edit-loading">Loading…</div>;
 
+  
+
+
   // ✅ FORM SECTIONS
   const renderStep = () => {
     switch (step) {
@@ -169,7 +172,7 @@ const EditEmployee = () => {
               <input name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleInputChange} />
               <input name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleInputChange} />
               <input name="initials" placeholder="Initials" value={formData.initials} onChange={handleInputChange} />
-              <input name="preferred_name" placeholder="Preferred Name" value={formData.preferred_name} onChange={handleInputChange} />
+              <input name="calling_name" placeholder="Preferred Name" value={formData.calling_name} onChange={handleInputChange} />         {/* changed the prefered name as calling name  */}
 
               <PhoneInput
                 country={"lk"}
@@ -224,7 +227,7 @@ const EditEmployee = () => {
             <h2>Official Details</h2>
             <div className="two-column">
               <input type="date" name="appointment_date" value={formData.appointment_date?.slice(0, 10)} onChange={handleInputChange} />
-              <select name="department" value={formData.department} onChange={handleInputChange}>
+              <select name="department" value={formData.department_name} onChange={handleInputChange}>
                 <option value="">Select Department</option>
                 <option value="IT">IT Department</option>
                 <option value="Finance">Finance</option>
@@ -255,7 +258,7 @@ const EditEmployee = () => {
       case 3:
         return (
           <div className="step-section">
-            <h2>Next of Kin Details</h2>
+            <h2>Relatives Details</h2>
             <div className="two-column">
               <input name="kin_name" placeholder="Name" value={formData.kin_name} onChange={handleInputChange} />
               <input name="kin_relationship" placeholder="Relationship" value={formData.kin_relationship} onChange={handleInputChange} />
