@@ -21,7 +21,7 @@ const Sidebar = () => {
       hasSubmenu: true,
       submenu: [
         { label: 'Attendance', path: '/attendance-overview' },
-        { label: 'Leave', path: '/leave' },
+        { label: 'Leave', path: '/employee-leaves' },
       ],
     },
     { id: 'compliance-reporting', label: 'Compliance & Reporting', icon: '📋', path: '/compliance-reporting' },
