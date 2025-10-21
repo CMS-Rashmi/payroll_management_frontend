@@ -331,3 +331,103 @@ select {
     flex-direction: column;
   }
 }
+
+
+/* === Document preview grid === */
+.doc-grid-wrapper {
+  grid-column: 1 / -1;
+}
+
+.doc-grid-title {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.doc-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.doc-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+}
+
+.doc-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.doc-thumb iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.doc-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.doc-meta {
+  font-size: 12px;
+  color: #4b5563;
+  display: grid;
+  gap: 2px;
+}
+
+.doc-name {
+  font-weight: 600;
+  color: #111827;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.doc-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.doc-link {
+  font-size: 12px;
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* thumbnails / previews */
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 16px; }
+.doc-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; }
+.doc-thumb { width: 100%; height: 180px; display: grid; place-items: center; background: #f8fafc; border-radius: 8px; overflow: hidden; }
+.doc-thumb img, .doc-thumb iframe { width: 100%; height: 100%; object-fit: contain; border: 0; }
+.doc-icon { font-size: 56px; }
+.doc-meta { margin-top: 8px; line-height: 1.2; }
+.doc-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-type, .doc-date { color: #6b7280; font-size: 12px; }
+.doc-actions { margin-top: 8px; display: flex; gap: 10px; }
+.doc-link { color: #2563eb; font-size: 13px; }
+.doc-chip { background:#eef2ff; color:#3730a3; border-radius: 999px; padding:2px 8px; font-size:12px; }
+.profile-photo img { width: 84px; height: 84px; border-radius: 999px; object-fit: cover; }
+
