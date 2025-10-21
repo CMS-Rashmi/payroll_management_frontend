@@ -28,6 +28,8 @@ import AbsenceReport from "./pages/AbsenceReport";
 import AttendanceAdjustment from "./pages/AttendanceAdjustment";
 import EmployeeAdjustment from "./pages/EmployeeAdjustment";
 import CheckinCheckoutReport from "./pages/CheckinCheckoutReport";
+import EmployeeLeaves from "./pages/EmployeeLeaves";
+import LeaveApproval from "./pages/LeaveApproval";
 
 function App() {
   return (
@@ -59,6 +61,8 @@ function App() {
       <Route path="/attendance-adjustment" element={<AttendanceAdjustment/>}/>
       <Route path="/attendance-adjustment/:id" element={<EmployeeAdjustment />} />
       <Route path="/checkin-checkout-report" element={<CheckinCheckoutReport />} />
+      <Route path="/employee-leaves" element={<EmployeeLeaves/>} />
+      <Route path="/leave-approval" element={<LeaveApproval/>} />
 
 
       {/* Admin helpers*/}
