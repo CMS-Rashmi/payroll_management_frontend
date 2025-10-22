@@ -30,6 +30,9 @@ import EmployeeAdjustment from "./pages/EmployeeAdjustment";
 import CheckinCheckoutReport from "./pages/CheckinCheckoutReport";
 import EmployeeLeaves from "./pages/EmployeeLeaves";
 import LeaveApproval from "./pages/LeaveApproval";
+import LeaveCalendar from "./pages/LeaveCalendar";
+import LeaveRequest from "./pages/LeaveRequest";
+
 
 function App() {
   return (
@@ -64,44 +67,15 @@ function App() {
       <Route path="/checkin-checkout-report" element={<CheckinCheckoutReport />} />
       <Route path="/employee-leaves" element={<EmployeeLeaves/>} />
       <Route path="/leave-approval" element={<LeaveApproval/>} />
+      <Route path="/leave-calendar" element={<LeaveCalendar/>} />
+      <Route path="/leave-request" element={<LeaveRequest/>} />
+      
 
 
       {/* Admin helpers*/}
       <Route path="/bulk-actions" element={<BulkActions/>}/>
       <Route path="/policies" element={<Policies/>}/>
       <Route path="/designations" element={<Designations/>}/>
-
-=======
-        <Route path="/" element={<Login />} />
-        <Route path="/header" element={<Header />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/employee-info" element={<EmployeeInfo />} />
-        <Route path="/add-employee" element={<AddEmployee />} />
-        <Route path="/attendance-leave" element={<AttendanceLeave />} />
-        <Route path="/performance-training" element={<PerformanceTraining />} />
-        <Route path="/documents-contracts" element={<DocumentsContracts />} />
-        <Route path="/audit-logs" element={<AuditLogs />} />
-        <Route path="/earnings" element={<Earnings />} />
-        <Route path="/deductions" element={<Deductions />} />
-        <Route path="/allowances" element={<Allowances />} />
-        <Route path="/employees" element={<AddEmployee />} />
-        <Route path="/employees/:id/edit" element={<EditEmployee />} />
-        <Route path="/add-deduction" element={<AddDeduction />} />
-        <Route path="/add-leave" element={<AddLeave />} />
-        <Route path="/overtime-adjustments" element={<OvertimeAdjustments />}/>
-        <Route path="/compensation-adjustment" element={<CompensationAdjustment />}/>
-        <Route path="/net-salary-summary" element={<NetSalarySummary />}/>
-        {/* ✅ fixed double slash */}
-        <Route path="/employees/:id/view" element={<ViewEmployee />}/>
-        <Route path="/attendance-overview" element={<AttendanceOverview />}/>
-        <Route path="/time-management" element={<TimeManagement />}/>
-        <Route path="/absence-report" element={<AbsenceReport />}/>
-        <Route path="/attendance-adjustment" element={<AttendanceAdjustment />}/>
-        <Route path="/attendance-adjustment/:id" element={<EmployeeAdjustment />}/>
-        <Route path="/checkin-checkout-report" element={<CheckinCheckoutReport />}/>
-        <Route path="/bulk-actions" element={<BulkActions />}/>
-        <Route path="/policies" element={<Policies />}/>
-        <Route path="/designations" element={<Designations />}/>
 
       </Routes>
     </Router>
