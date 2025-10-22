@@ -38,7 +38,7 @@ const Allowances = () => {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     employee_id: '',
-    name: '',
+    description: '',
     category: 'Transportation',
     amount: '',
     taxable: 0,
@@ -72,7 +72,8 @@ const Allowances = () => {
     const s = q.toLowerCase();
     return rows.filter(r =>
       String(r.employee_id).toLowerCase().includes(s) ||
-      r.name?.toLowerCase().includes(s) ||
+      r.full_name?.toLowerCase().includes(s) ||
+      r.description?.toLowerCase().includes(s) ||
       r.category?.toLowerCase().includes(s) ||
       r.frequency?.toLowerCase().includes(s) ||
       r.status?.toLowerCase().includes(s)
@@ -102,7 +103,7 @@ const Allowances = () => {
   const submit = async (e) => {
     e.preventDefault();
     // quick required guard
-    if (!form.employee_id || !form.name || !form.amount) {
+    if (!form.employee_id || !form.description || !form.amount) {
       alert('Employee, Name and Amount are required');
       return;
     }
@@ -111,7 +112,7 @@ const Allowances = () => {
       // POST exactly with your DB columns
       const payload = {
         employee_id: Number(form.employee_id),
-        name: form.name,
+        description: form.description,
         category: form.category || null,
         amount: Number(form.amount),
         taxable: Number(form.taxable) ? 1 : 0,
@@ -190,7 +191,8 @@ const Allowances = () => {
             <thead>
               <tr>
                 <th>Employee ID</th>
-                <th>Name</th>
+                <th>Employee Name</th>
+                <th>Description</th>
                 <th>Category</th>
                 <th>Amount</th>
                 <th>Taxable</th>
@@ -207,7 +209,8 @@ const Allowances = () => {
                 filtered.map(r => (
                   <tr key={r.id}>
                     <td>{r.employee_id}</td>
-                    <td>{r.name}</td>
+                    <td>{r.full_name || '-'}</td>
+                    <td>{r.description}</td>
                     <td>{r.category || '-'}</td>
                     <td>{Number(r.amount || 0).toLocaleString()}</td>
                     <td><span className={`badge ${Number(r.taxable) ? 'yes' : 'no'}`}>{Number(r.taxable) ? 'Yes' : 'No'}</span></td>
@@ -218,7 +221,7 @@ const Allowances = () => {
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="9" style={{ textAlign: 'center', padding: 20 }}>No allowances found.</td></tr>
+                <tr><td colSpan="10" style={{ textAlign: 'center', padding: 20 }}>No allowances found.</td></tr>
               )}
             </tbody>
           </table>
@@ -243,10 +246,10 @@ const Allowances = () => {
                   />
                 </div>
                 <div>
-                  <label>Allowance Name *</label>
+                  <label>Description *</label>
                   <input
-                    value={form.name}
-                    onChange={e => setForm({ ...form, name: e.target.value })}
+                    value={form.description}
+                    onChange={e => setForm({ ...form, description: e.target.value })}
                     placeholder="e.g., Travel Allowance"
                     required
                   />
