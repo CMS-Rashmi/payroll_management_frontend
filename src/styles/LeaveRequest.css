@@ -200,13 +200,13 @@
   color: #111827;
 }
 .lr-close-link {
-  background: none;
+  background: red;
   border: none;
-  color: #6b7280;
+  color: white;
   cursor: pointer;
   font-size: 14px;
 }
-.lr-close-link:hover { color: #111827; }
+.lr-close-link:hover { color: #f9fafc; }
 
 /* 3 columns grid like screenshot */
 .lr-fields {
@@ -234,6 +234,28 @@
 .lr-col-span-3 {
   grid-column: span 3;
 }
+/* Match font style for comment labels */
+.lr-field label {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+/* Ensure consistency for textarea */
+.lr-field textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #374151;
+  background: #fff;
+  resize: vertical;
+}
+
 
 /* inline action radios */
 .lr-actions-inline {

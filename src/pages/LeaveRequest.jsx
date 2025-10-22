@@ -45,7 +45,7 @@ const LeaveRequest = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  /** Tabs like the rest of Leave Management */
+  /** Tabs */
   const tabs = [
     { label: "Overview", path: "/employee-leaves" },
     { label: "Leave Approval", path: "/leave-approval" },
@@ -73,22 +73,32 @@ const LeaveRequest = () => {
   }, [q, date, cat, dept]);
 
   /** Modal state */
-  const [selected, setSelected] = useState(null); // the clicked row
-  const [action, setAction] = useState("Approve"); // Approve | Communicate | Reject
+  const [selected, setSelected] = useState(null);
+  const [action, setAction] = useState("Approve");
+  const [comment, setComment] = useState(""); // Approver comment
+  const [rejectComment, setRejectComment] = useState(""); // Only if Reject selected
 
   const closeModal = () => {
     setSelected(null);
     setAction("Approve");
+    setComment("");
+    setRejectComment("");
   };
 
   const onSend = () => {
-    // Hook up to API
-    alert(`Sent: ${action} for ${selected?.name}`);
+    if (action === "Reject" && !rejectComment.trim()) {
+      alert("Please enter a reject comment before sending.");
+      return;
+    }
+    alert(
+      `Sent: ${action} for ${selected?.name}\nComment: ${
+        action === "Reject" ? rejectComment : comment || "N/A"
+      }`
+    );
     closeModal();
   };
 
   const onExportCSV = () => {
-    // Hook up later
     alert("Export to CSV clicked");
   };
 
@@ -125,7 +135,7 @@ const LeaveRequest = () => {
           ))}
         </div>
 
-        {/* Today’s statistics placeholder (match layout spacing) */}
+        {/* Statistics */}
         <div className="stats-strip">
           <div className="stat">
             <div className="stat-icon received" />
@@ -229,9 +239,8 @@ const LeaveRequest = () => {
                     <button
                       className="action-btn"
                       onClick={() => setSelected(r)}
-                      title="Action"
                     >
-                     Send
+                      Send
                     </button>
                   </td>
                 </tr>
@@ -240,7 +249,7 @@ const LeaveRequest = () => {
           </tbody>
         </table>
 
-        {/* Action Modal */}
+        {/* Modal */}
         {selected && (
           <div className="lr-modal-overlay" onClick={closeModal}>
             <div className="lr-modal" onClick={(e) => e.stopPropagation()}>
@@ -251,7 +260,6 @@ const LeaveRequest = () => {
                 </button>
               </div>
 
-              {/* Grid, 3 columns exactly like screenshot */}
               <div className="lr-fields">
                 <div className="lr-field">
                   <label>Employee ID:</label>
@@ -265,7 +273,6 @@ const LeaveRequest = () => {
                   <label>Department:</label>
                   <input readOnly value={selected.department} />
                 </div>
-
                 <div className="lr-field">
                   <label>Requested Date:</label>
                   <input readOnly value={selected.requestedDate} />
@@ -278,12 +285,38 @@ const LeaveRequest = () => {
                   <label>Day Type:</label>
                   <input readOnly value={selected.dayType} />
                 </div>
-
                 <div className="lr-field lr-col-span-3">
                   <label>Reason:</label>
                   <input readOnly value={selected.reason} />
                 </div>
 
+                {/* Approver's Comment */}
+                {action !== "Reject" && (
+                  <div className="lr-field lr-col-span-3">
+                    <label>Approver's Comment:</label>
+                    <input
+                      type="text"
+                      placeholder="Enter your comment..."
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                    />
+                  </div>
+                )}
+
+                {/* ✅ Reject Comment — only when Reject is selected */}
+                {action === "Reject" && (
+                  <div className="lr-field lr-col-span-3">
+                    <label>Reject Comment:</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Enter reason for rejection..."
+                      value={rejectComment}
+                      onChange={(e) => setRejectComment(e.target.value)}
+                    />
+                  </div>
+                )}
+
+                {/* Action Radio */}
                 <div className="lr-field lr-col-span-3">
                   <label>Action:</label>
                   <div className="lr-actions-inline">
@@ -318,7 +351,6 @@ const LeaveRequest = () => {
                 </div>
               </div>
 
-              {/* Footer with Send on the left like screenshot */}
               <div className="lr-footer">
                 <button className="lr-send-btn" onClick={onSend}>
                   Send
