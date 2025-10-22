@@ -1,15 +1,19 @@
 // src/pages/AddDeduction.jsx
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { apiGet, apiJSON } from '../services/api';
 import '../styles/AddDeduction.css';
 
 export default function AddDeduction() {
   const navigate = useNavigate();
+  const [search] = useSearchParams();           //new
+  const editId = search.get("id");             //new
+
   const [employees, setEmployees] = useState([]);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
+
   const [form, setForm] = useState({
     employee_id: '',
     name: '',
@@ -33,7 +37,48 @@ export default function AddDeduction() {
     })();
   }, []);
 
-  const onChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+   // Load existing deduction in edit mode
+  useEffect(() => {
+    if (!editId) return;
+    (async () => {
+      try {
+        const res = await apiGet(`/salary/deductions/${editId}`);
+        const d = res.data;
+        if (d) {
+          setForm({
+            employee_id: d.employee_id ?? "",
+            name: d.name ?? "",
+            type: d.type ?? "Tax",
+            basis: d.basis ?? "Fixed",
+            percent: d.percent ?? "",
+            amount: d.amount ?? "",
+            effective_date: (d.effective_date || "").slice(0, 10),
+            status: d.status ?? "Active",
+          });
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Failed to load deduction");
+      }
+    })();
+  }, [editId]);
+  
+
+  {/*const onChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));*/}
+  const onChange = (e) => {
+  const { name, value } = e.target;
+  if (name === "employee_id") {
+    const selected = employees.find(emp => emp.id === Number(value));
+    setForm(f => ({
+      ...f,
+      employee_id: value,
+      employee_name: selected ? selected.full_name : ""
+    }));
+  } else {
+    setForm(f => ({ ...f, [name]: value }));
+  }
+};
+
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -44,7 +89,8 @@ export default function AddDeduction() {
       const payload = {
         ...form,
         percent: form.basis === 'Percent' ? Number(form.percent) : null,
-        amount: form.basis === 'Fixed' ? Number(form.amount) : null
+        amount: form.basis === 'Fixed' ? Number(form.amount) : null,
+        employee_name: form.employee_name          //new line
       };
 
       const res = await apiJSON('/salary/deductions', 'POST', payload);
