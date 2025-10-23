@@ -32,7 +32,10 @@ import EmployeeLeaves from "./pages/EmployeeLeaves";
 import LeaveApproval from "./pages/LeaveApproval";
 import LeaveCalendar from "./pages/LeaveCalendar";
 import LeaveRequest from "./pages/LeaveRequest";
-
+import SecurityAccessControl from "./pages/SecurityAccessControl";
+import UserManagement from "./pages/UserManagement";
+import RoleManagement from "./pages/RoleManagement";
+import AccessControl from "./pages/AccessControl";
 
 function App() {
   return (
@@ -69,6 +72,10 @@ function App() {
       <Route path="/leave-approval" element={<LeaveApproval/>} />
       <Route path="/leave-calendar" element={<LeaveCalendar/>} />
       <Route path="/leave-request" element={<LeaveRequest/>} />
+      <Route path="/security-access-control" element={<SecurityAccessControl/>} />
+      <Route path="/user-management" element={<UserManagement/>} />
+      <Route path="/role-management" element={<RoleManagement/>} />
+      <Route path="/access-control" element={<AccessControl/>} />
       
 
 

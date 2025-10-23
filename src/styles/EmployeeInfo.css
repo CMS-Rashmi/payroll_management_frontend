@@ -1,3 +1,4 @@
+
 .employee-info-container {
   display: flex;
   min-height: 100vh;
@@ -6,7 +7,7 @@
 }
 
 .employee-info-content {
- flex: 1;
+  flex: 1;
   margin-left: 210px;
   width: calc(100vw - 210px);
   min-height: 100vh;
@@ -14,6 +15,9 @@
   background-color: #f8f9fa;
 }
 
+/* ============================
+   Header Section
+============================ */
 .employee-info-header {
   display: flex;
   justify-content: space-between;
@@ -51,34 +55,10 @@
   gap: 15px;
 }
 
-.notification-icon {
-  font-size: 18px;
-  cursor: pointer;
-}
 
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #ddd;
-}
-
-.username {
-  font-weight: 500;
-}
-
-.dropdown-arrow {
-  font-size: 12px;
-  color: #666;
-}
-/* Overview Section - Tab Style */
+/* ============================
+   Overview Tabs
+============================ */
 .overview-section {
   margin-bottom: 25px;
   background: white;
@@ -112,7 +92,6 @@
   cursor: pointer;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   transition: all 0.2s ease;
 }
 
@@ -127,7 +106,9 @@
   font-weight: 500;
 }
 
-/* Section Styles */
+/* ============================
+   Section Styles
+============================ */
 .section {
   margin-bottom: 25px;
   padding: 20px;
@@ -142,26 +123,9 @@
   color: #333;
 }
 
-.section-items {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.section-item {
-  padding: 8px 15px;
-  background: #f0f4f8;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #4361ee;
-  cursor: pointer;
-}
-
-.section-item:hover {
-  background: #e6ecf8;
-}
-
-/* Employee Table Section */
+/* ============================
+   Employee Table
+============================ */
 .employee-table-section {
   padding: 20px;
   background: white;
@@ -240,7 +204,9 @@
   background-color: #ddd;
 }
 
-/* Status Badges */
+/* ============================
+   Status Badges
+============================ */
 .status-badge {
   padding: 4px 8px;
   border-radius: 12px;
@@ -268,53 +234,74 @@
   color: #7b1fa2;
 }
 
-/* Action Buttons */
+/* ============================
+   Action Buttons (View / Edit)
+============================ */
 .action-buttons {
   display: flex;
-  gap: 8px;
+  flex-direction: row; /* Always horizontal */
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: nowrap;
 }
 
 .action-btn {
-  padding: 6px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
   cursor: pointer;
-  font-size: 12px;
-  background: white;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
+
+/* View Button */
 .action-btn.view-btn {
-  color: #ffffff;
-  border-color: #ffffff;
-}
-.action-btn.view {
-  color: #4361ee;
-  border-color: #4361ee;
+  background-color: #0f4fb6;
+  color: white;
 }
 
-.action-btn.edit {
-  color: #28a745;
-  border-color: #28a745;
+.action-btn.view-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
 }
 
-.action-btn:hover {
-  opacity: 0.8;
+/* Edit Button */
+.action-btn.edit-btn {
+  background-color: #099734;
+  color: white;
 }
 
+.action-btn.edit-btn:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+}
+
+/* ============================
+   Export Button
+============================ */
 .export-btn {
   padding: 8px 16px;
   background-color: white;
   color: black;
-  border-color: rgb(145, 144, 144);
+  border: 1px solid #919090;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
 }
 
 .export-btn:hover {
-  background-color: #959696;
+  background-color: #e6e6e6;
 }
 
-/* Pagination */
+/* ============================
+   Pagination
+============================ */
 .pagination {
   display: flex;
   align-items: center;
@@ -355,69 +342,62 @@
   padding: 4px;
 }
 
-/* Search and Filter Section */
+/* ============================
+   Search & Filters
+============================ */
 .search-filter-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
+/* Give all filter inputs consistent height and style */
+.search-input,
+.filter-select,
+.filter-date {
+  height: 38px; /* consistent height */
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #f8f9fa;
+  color: #333;
+  box-sizing: border-box;
+  flex: 1; /* equal width for all */
+  min-width: 160px; /* prevent being too small */
+}
+
+/* Make all select and date inputs same width */
+.filter-select,
+.filter-date {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* Keep search bar visually similar in size */
 .search-input {
   flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #333;
 }
 
-.filter-select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  background-color: white;
-  cursor: pointer;
-  color: #333;
+/* Optional: nice hover/focus styling */
+.search-input:focus,
+.filter-select:focus,
+.filter-date:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-/* Search & Multi-Filter */
-.search-filter-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.search-input, .filter-select, .filter-date {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-   background-color: #f8f9fa;
-   color: #333;
-
-}
-
-.search-input { flex: 2; }
-.filter-select { flex: 1; }
-.filter-date { flex: 1; }
-
-
-
-/* Responsive Design */
+/* ============================
+   Responsive Design
+============================ */
 @media (max-width: 992px) {
   .employee-info-content {
     margin-left: 0;
     padding: 15px;
-  }
-  
-  .overview-items,
-  .section-items {
-    flex-direction: column;
   }
 }
 
@@ -426,19 +406,22 @@
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .header-right {
     align-self: flex-end;
   }
-  
+
   .employee-table {
     font-size: 12px;
   }
-  
+
+  /* Keep buttons horizontal even on mobile */
   .action-buttons {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
   }
-  
+
   .pagination {
     flex-wrap: wrap;
   }

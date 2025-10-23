@@ -5,8 +5,8 @@ import '../components/Sidebar.css';
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const [openSubmenu, setOpenSubmenu] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false); // ✅ Added: to handle hover expand/collapse
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '🏠', path: '/dashboard' },
@@ -27,7 +27,7 @@ const Sidebar = () => {
     { id: 'compliance-reporting', label: 'Compliance & Reporting', icon: '📋', path: '/compliance-reporting' },
     { id: 'report-analytics', label: 'Report & Analytics', icon: '📈', path: '/report-analytics' },
     { id: 'administration', label: 'Administration', icon: '⚙️', path: '/administration', hasSubmenu: true },
-    { id: 'security-access', label: 'Security & Access', icon: '🔒', path: '/security-access', hasSubmenu: true },
+    { id: 'security-access-control', label: 'Security & Access', icon: '🔒', path: '/security-access-control' },
   ];
 
   const employeeInfoPaths = [
@@ -48,21 +48,18 @@ const Sidebar = () => {
 
   const activeItem = getActiveItem();
 
-  const handleItemClick = (path) => {
-    navigate(path);
-  };
+  const handleItemClick = (path) => navigate(path);
 
-  const toggleSubmenu = (id) => {
-    setOpenSubmenu(openSubmenu === id ? null : id);
-  };
+  const toggleSubmenu = (id) => setOpenSubmenu(openSubmenu === id ? null : id);
 
-  const handleLogout = () => {
-    // localStorage.removeItem('authToken');
-    navigate('/');
-  };
+  const handleLogout = () => navigate('/');
 
   return (
-    <div className="sidebar">
+    <div
+      className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`} // ✅ dynamic class
+      onMouseEnter={() => setIsExpanded(true)} // expand on hover
+      onMouseLeave={() => setIsExpanded(false)} // collapse when leaving
+    >
       <div className="sidebar-header">
         <div className="cms-logo">
           <div className="logo-icon">CMS</div>
@@ -75,12 +72,10 @@ const Sidebar = () => {
             <div
               className={`nav-item ${activeItem === item.id ? 'active' : ''}`}
               onClick={() => {
-                if (item.hasSubmenu) {
-                  toggleSubmenu(item.id);
-                } else {
-                  handleItemClick(item.path);
-                }
+                if (item.hasSubmenu) toggleSubmenu(item.id);
+                else handleItemClick(item.path);
               }}
+              title={item.label}
             >
               <span className="nav-icon">{item.icon}</span>
               <span className="nav-label">{item.label}</span>
@@ -89,8 +84,8 @@ const Sidebar = () => {
               )}
             </div>
 
-            {/* ✅ Render Submenu */}
-            {item.hasSubmenu && openSubmenu === item.id && item.submenu && (
+            {/* ✅ Render Submenu only when expanded */}
+            {item.hasSubmenu && openSubmenu === item.id && item.submenu && isExpanded && (
               <div className="submenu">
                 {item.submenu.map((sub) => (
                   <div
@@ -109,7 +104,7 @@ const Sidebar = () => {
 
       <div className="sidebar-footer">
         <button className="logout-btn" onClick={handleLogout}>
-          🚪 Logout
+          🚪 <span className="logout-text">Logout</span>
         </button>
       </div>
     </div>
