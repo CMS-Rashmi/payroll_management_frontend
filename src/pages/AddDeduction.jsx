@@ -1,35 +1,35 @@
 // src/pages/AddDeduction.jsx
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import { apiGet, apiJSON } from '../services/api';
-import '../styles/AddDeduction.css';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
+import { apiGet, apiJSON } from "../services/api";
+import "../styles/AddDeduction.css";
 
 export default function AddDeduction() {
   const navigate = useNavigate();
-  const [search] = useSearchParams();           //new
-  const editId = search.get("id");             //new
+  const [search] = useSearchParams();
+  const editId = search.get("id"); // if present => edit mode
 
   const [employees, setEmployees] = useState([]);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState('');
+  const [msg, setMsg] = useState("");
 
   const [form, setForm] = useState({
-    employee_id: '',
-    name: '',
-    type: 'Tax',
-    basis: 'Fixed',      // 'Fixed' | 'Percent'
-    percent: '',
-    amount: '',
-    effective_date: '',
-    status: 'Active',
+    employee_id: "",
+    name: "",
+    type: "Tax",
+    basis: "Fixed", // 'Fixed' | 'Percent'
+    percent: "",
+    amount: "",
+    effective_date: "",
+    status: "Active",
   });
 
+  // Load employees
   useEffect(() => {
-    // Load employees for the dropdown
     (async () => {
       try {
-        const res = await apiGet('/employees?status=Active'); // make sure this route exists in your backend
+        const res = await apiGet("/employees?status=Active");
         setEmployees(res.data || []);
       } catch (e) {
         setEmployees([]);
@@ -37,7 +37,7 @@ export default function AddDeduction() {
     })();
   }, []);
 
-   // Load existing deduction in edit mode
+  // Load existing deduction in edit mode
   useEffect(() => {
     if (!editId) return;
     (async () => {
@@ -62,45 +62,49 @@ export default function AddDeduction() {
       }
     })();
   }, [editId]);
-  
 
-  {/*const onChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));*/}
   const onChange = (e) => {
-  const { name, value } = e.target;
-  if (name === "employee_id") {
-    const selected = employees.find(emp => emp.id === Number(value));
-    setForm(f => ({
-      ...f,
-      employee_id: value,
-      employee_name: selected ? selected.full_name : ""
-    }));
-  } else {
-    setForm(f => ({ ...f, [name]: value }));
-  }
-};
-
+    const { name, value } = e.target;
+    if (name === "employee_id") {
+      const selected = employees.find((emp) => emp.id === Number(value));
+      setForm((f) => ({
+        ...f,
+        employee_id: value,
+        employee_name: selected ? selected.full_name : "", // harmless extra for UI if needed
+      }));
+    } else {
+      setForm((f) => ({ ...f, [name]: value }));
+    }
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setMsg('');
+    if (saving) return; // guard against double submit
+    setMsg("");
     setSaving(true);
     try {
-      // Clean numeric fields
       const payload = {
-        ...form,
-        percent: form.basis === 'Percent' ? Number(form.percent) : null,
-        amount: form.basis === 'Fixed' ? Number(form.amount) : null,
-        employee_name: form.employee_name          //new line
+        employee_id: Number(form.employee_id),
+        name: form.name,
+        type: form.type,
+        basis: form.basis,
+        percent: form.basis === "Percent" ? Number(form.percent) : null,
+        amount: form.basis === "Fixed" ? Number(form.amount) : null,
+        effective_date: form.effective_date,
+        status: form.status,
       };
 
-      const res = await apiJSON('/salary/deductions', 'POST', payload);
-      if (!res.ok) throw new Error(res.message || 'Save failed');
+      // PUT when editing, POST when creating
+      const method = editId ? "PUT" : "POST";
+      const path = editId ? `/salary/deductions/${editId}` : "/salary/deductions";
 
-      setMsg('✅ Deduction saved');
-      // small delay so user sees it
-      setTimeout(() => navigate('/deductions'), 400);
+      const res = await apiJSON(path, method, payload);
+      if (!res.ok) throw new Error(res.message || "Save failed");
+
+      setMsg(editId ? "✅ Deduction updated" : "✅ Deduction saved");
+      setTimeout(() => navigate("/deductions"), 400);
     } catch (err) {
-      setMsg(`❌ ${err.message || 'Failed to save'}`);
+      setMsg(`❌ ${err.message || "Failed to save"}`);
     } finally {
       setSaving(false);
     }
@@ -111,19 +115,30 @@ export default function AddDeduction() {
       <Sidebar />
       <div className="overlay">
         <div className="add-deduction-modal">
-          <h2>Add Deduction</h2>
-          {msg && <div style={{marginBottom:12, color: msg.startsWith('✅') ? '#0a7d10' : '#c62828'}}>{msg}</div>}
+          <h2>{editId ? "Edit Deduction" : "Add Deduction"}</h2>
+          {msg && (
+            <div style={{ marginBottom: 12, color: msg.startsWith("✅") ? "#0a7d10" : "#c62828" }}>{msg}</div>
+          )}
+
           <form onSubmit={onSubmit} className="add-deduction-form">
             <label>Employee</label>
             <select name="employee_id" value={form.employee_id} onChange={onChange} required>
               <option value="">Select employee</option>
-              {employees.map(e => (
-                <option key={e.id} value={e.id}>{e.full_name} (#{e.id})</option>
+              {employees.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.full_name} (#{e.id})
+                </option>
               ))}
             </select>
 
             <label>Deduction Name</label>
-            <input name="name" value={form.name} onChange={onChange} placeholder="Income Tax / EPF / Insurance..." required />
+            <input
+              name="name"
+              value={form.name}
+              onChange={onChange}
+              placeholder="Income Tax / EPF / Insurance..."
+              required
+            />
 
             <label>Type</label>
             <select name="type" value={form.type} onChange={onChange} required>
@@ -135,20 +150,47 @@ export default function AddDeduction() {
             </select>
 
             <label>Basis</label>
-            <select name="basis" value={form.basis} onChange={onChange} required>
+            <select
+              name="basis"
+              value={form.basis}
+              onChange={(e) => {
+                const val = e.target.value;
+                // Clear the opposite numeric field when switching basis
+                setForm((f) =>
+                  val === "Percent" ? { ...f, basis: "Percent", amount: "" } : { ...f, basis: "Fixed", percent: "" }
+                );
+              }}
+              required
+            >
               <option>Fixed</option>
               <option>Percent</option>
             </select>
 
-            {form.basis === 'Percent' ? (
+            {form.basis === "Percent" ? (
               <>
                 <label>Percent (%)</label>
-                <input type="number" step="0.01" name="percent" value={form.percent} onChange={onChange} placeholder="e.g. 10" required />
+                <input
+                  type="number"
+                  step="0.01"
+                  name="percent"
+                  value={form.percent}
+                  onChange={onChange}
+                  placeholder="e.g. 10"
+                  required
+                />
               </>
             ) : (
               <>
                 <label>Amount</label>
-                <input type="number" step="0.01" name="amount" value={form.amount} onChange={onChange} placeholder="e.g. 200" required />
+                <input
+                  type="number"
+                  step="0.01"
+                  name="amount"
+                  value={form.amount}
+                  onChange={onChange}
+                  placeholder="e.g. 200"
+                  required
+                />
               </>
             )}
 
@@ -163,9 +205,9 @@ export default function AddDeduction() {
 
             <div className="button-group">
               <button type="submit" className="save-btn" disabled={saving}>
-                {saving ? 'Saving…' : 'Save'}
+                {saving ? "Saving…" : editId ? "Update" : "Save"}
               </button>
-              <button type="button" className="cancel-btn" onClick={() => navigate('/deductions')}>
+              <button type="button" className="cancel-btn" onClick={() => navigate("/deductions")}>
                 Cancel
               </button>
             </div>
