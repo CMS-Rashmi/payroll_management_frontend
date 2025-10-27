@@ -8,6 +8,7 @@ const SecurityAccessControl = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Tabs navigation
   const tabs = [
     { label: "Security & Access Control", path: "/security-access-control" },
     { label: "User Management", path: "/user-management" },
@@ -19,12 +20,18 @@ const SecurityAccessControl = () => {
     { label: "Backup & Recovery", path: "/backup-recovery" },
   ];
 
+  // Recent activity data
   const activities = [
-    { name: "John Smith", action: "Updated user permissions", time: "2023-09-15 14:32:41" },
-    { name: "Sarah Johnson", action: "Created new role", time: "2023-09-15 11:15:22" },
+    { name: "Kamal Perera", action: "Updated user permissions", time: "2023-09-15 14:32:41" },
+    { name: "Maneesha Gamage", action: "Created new role", time: "2023-09-15 11:15:22" },
     { name: "Admin", action: "System backup completed", time: "2023-09-15 14:32:41" },
     { name: "Admin", action: "Login from unrecognized location", time: "2023-09-15 03:00:00" },
   ];
+
+  // ✅ Handlers for Quick Access card clicks
+  const handleAddUser = () => navigate("/user-management");
+  const handleAddRole = () => navigate("/role-management");
+  const handleAccessControl = () => navigate("/access-control");
 
   return (
     <div className="security-container">
@@ -44,7 +51,7 @@ const SecurityAccessControl = () => {
           </div>
         </header>
 
-        {/* --- Tabs with Navigation --- */}
+        {/* --- Tabs Navigation --- */}
         <div className="security-tabs">
           {tabs.map((t) => (
             <button
@@ -57,30 +64,33 @@ const SecurityAccessControl = () => {
           ))}
         </div>
 
-        {/* --- Overview --- */}
+        {/* --- Overview Section --- */}
         <div className="security-overview">
-          <div className="box">
+          <div className="box" onClick={() => navigate("/user-management")}>
             <div className="box-icon">👤</div>
             <div>
               <div className="box-stat">58</div>
               <p>View all users →</p>
             </div>
           </div>
-          <div className="box active-box">
+
+          <div className="box active-box" onClick={() => navigate("/role-management")}>
             <div className="box-icon">🧑‍💼</div>
             <div>
               <div className="box-stat">4</div>
               <p>Manage roles →</p>
             </div>
           </div>
-          <div className="box alert">
+
+          <div className="box alert" onClick={() => navigate("/security-logs")}>
             <div className="box-icon">⚠️</div>
             <div>
               <div className="box-stat">2</div>
               <p>View alerts →</p>
             </div>
           </div>
-          <div className="box encryption">
+
+          <div className="box encryption" onClick={() => navigate("/encryption-status")}>
             <div className="box-icon">🔒</div>
             <div>
               <div className="box-stat active-text">Active</div>
@@ -92,9 +102,17 @@ const SecurityAccessControl = () => {
         {/* --- Quick Access --- */}
         <h3 className="section-title">Quick Access</h3>
         <div className="quick-access">
-          <div className="quick-card">Add New User <span>Create user account</span></div>
-          <div className="quick-card">Add New Role <span>Define Permissions</span></div>
-          <div className="quick-card">Access Control <span>Manage Permissions</span></div>
+          <div className="quick-card" onClick={handleAddUser}>
+            Add New User <span>Create user account</span>
+          </div>
+
+          <div className="quick-card" onClick={handleAddRole}>
+            Add New Role <span>Define Permissions</span>
+          </div>
+
+          <div className="quick-card" onClick={handleAccessControl}>
+            Access Control <span>Manage Permissions</span>
+          </div>
         </div>
 
         {/* --- Recent Activities --- */}
@@ -115,9 +133,18 @@ const SecurityAccessControl = () => {
         {/* --- System Status --- */}
         <h3 className="section-title">System Status</h3>
         <div className="system-status">
-          <div className="status-row"><span>Last System Backup</span><span>2023-09-15 03:00:00</span></div>
-          <div className="status-row"><span>Encryption Status</span><span className="active">Active</span></div>
-          <div className="status-row"><span>Last Login Activity</span><span>2023-09-15 14:32:41</span></div>
+          <div className="status-row">
+            <span>Last System Backup</span>
+            <span>2023-09-15 03:00:00</span>
+          </div>
+          <div className="status-row">
+            <span>Encryption Status</span>
+            <span className="active">Active</span>
+          </div>
+          <div className="status-row">
+            <span>Last Login Activity</span>
+            <span>2023-09-15 14:32:41</span>
+          </div>
         </div>
       </div>
     </div>

@@ -36,6 +36,8 @@ import SecurityAccessControl from "./pages/SecurityAccessControl";
 import UserManagement from "./pages/UserManagement";
 import RoleManagement from "./pages/RoleManagement";
 import AccessControl from "./pages/AccessControl";
+import AddUser from "./pages/AddUser";
+import EditUser from "./pages/EditUser";
 
 function App() {
   return (
@@ -76,6 +78,8 @@ function App() {
       <Route path="/user-management" element={<UserManagement/>} />
       <Route path="/role-management" element={<RoleManagement/>} />
       <Route path="/access-control" element={<AccessControl/>} />
+      <Route path="/add-user" element={<AddUser/>} />
+      <Route path="/edit-user" element={<EditUser/>} />
       
 
 
