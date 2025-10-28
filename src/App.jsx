@@ -38,6 +38,7 @@ import RoleManagement from "./pages/RoleManagement";
 import AccessControl from "./pages/AccessControl";
 import AddUser from "./pages/AddUser";
 import EditUser from "./pages/EditUser";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
@@ -52,34 +53,34 @@ function App() {
        <Route path="/attendance-leave" element={<AttendanceLeave />} />
        <Route path="/performance-training" element={<PerformanceTraining />} />
        <Route path="/documents-contracts" element={<DocumentsContracts />} />
-      <Route path="/audit-logs" element={<AuditLogs />} />
-      <Route path="/earnings" element={<Earnings />} />
-      <Route path="/deductions" element={<Deductions />} />
-      <Route path="/allowances" element={<Allowances />} />
-      <Route path="/employees" element={<AddEmployee/>} />     
-      <Route path="/employees/:id/edit" element={<EditEmployee/>} />        
-      <Route path="/add-deduction" element={<AddDeduction/>} />  
-      <Route path="/add-leave" element={<AddLeave/>} />     
-      <Route path="/overtime-adjustments" element={<OvertimeAdjustments/>}/>
-      <Route path="/compensation-adjustment" element={<CompensationAdjustment/>}/>
-      <Route path="/net-salary-summary" element={<NetSalarySummary/>}/>
-      <Route path="//employees/:id/view" element={<ViewEmployee/>}/>
-      <Route path="/attendance-overview" element={<AttendanceOverview/>}/>
-      <Route path="/time-management" element={<TimeManagement/>}/>
-      <Route path="/absence-report" element={<AbsenceReport/>}/>
-      <Route path="/attendance-adjustment" element={<AttendanceAdjustment/>}/>
-      <Route path="/attendance-adjustment/:id" element={<EmployeeAdjustment />} />
-      <Route path="/checkin-checkout-report" element={<CheckinCheckoutReport />} />
-      <Route path="/employee-leaves" element={<EmployeeLeaves/>} />
-      <Route path="/leave-approval" element={<LeaveApproval/>} />
-      <Route path="/leave-calendar" element={<LeaveCalendar/>} />
-      <Route path="/leave-request" element={<LeaveRequest/>} />
-      <Route path="/security-access-control" element={<SecurityAccessControl/>} />
-      <Route path="/user-management" element={<UserManagement/>} />
-      <Route path="/role-management" element={<RoleManagement/>} />
-      <Route path="/access-control" element={<AccessControl/>} />
-      <Route path="/add-user" element={<AddUser/>} />
-      <Route path="/edit-user" element={<EditUser/>} />
+       <Route path="/audit-logs" element={<AuditLogs />} />
+       <Route path="/earnings" element={<Earnings />} />
+       <Route path="/deductions" element={<Deductions />} />
+       <Route path="/allowances" element={<Allowances />} />
+       <Route path="/employees" element={<AddEmployee/>} />     
+       <Route path="/employees/:id/edit" element={<EditEmployee/>} />        
+       <Route path="/add-deduction" element={<AddDeduction/>} />  
+       <Route path="/add-leave" element={<AddLeave/>} />     
+       <Route path="/overtime-adjustments" element={<OvertimeAdjustments/>}/>
+       <Route path="/compensation-adjustment" element={<CompensationAdjustment/>}/>
+       <Route path="/net-salary-summary" element={<NetSalarySummary/>}/>
+       <Route path="/employees/:id/view" element={<ViewEmployee/>}/>
+       <Route path="/attendance-overview" element={<AttendanceOverview/>}/>
+       <Route path="/time-management" element={<TimeManagement/>}/>
+       <Route path="/absence-report" element={<AbsenceReport/>}/>
+       <Route path="/attendance-adjustment" element={<AttendanceAdjustment/>}/>
+       <Route path="/attendance-adjustment/:id" element={<EmployeeAdjustment />} />
+       <Route path="/checkin-checkout-report" element={<CheckinCheckoutReport />} />
+       <Route path="/employee-leaves" element={<EmployeeLeaves/>} />
+       <Route path="/leave-approval" element={<LeaveApproval/>} />
+       <Route path="/leave-calendar" element={<LeaveCalendar/>} />
+       <Route path="/leave-request" element={<LeaveRequest/>} />
+       <Route path="/security-access-control" element={<SecurityAccessControl/>} />
+       <Route path="/user-management" element={<UserManagement/>} />
+       <Route path="/role-management" element={<RoleManagement/>} />
+       <Route path="/access-control" element={<AccessControl/>} />
+       <Route path="/add-user" element={<AddUser/>} />
+       <Route path="/edit-user" element={<EditUser/>} />
       
 
 
