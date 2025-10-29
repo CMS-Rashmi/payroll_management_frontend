@@ -94,6 +94,20 @@
 .edit-loading { padding: 20px; }
 .edit-error { color: crimson; padding: 8px 0; }
 
+
+.doc-act {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.doc-act:hover { background:#f3f4f6; }
+.doc-act.danger { color:#b91c1c; border-color:#fecaca; }
+.doc-act[disabled] { opacity:.6; cursor:not-allowed; }
+
+
 /* Responsive */
 @media (max-width: 992px) {
   .edit-employee-content { margin-left: 0; padding: 15px; }

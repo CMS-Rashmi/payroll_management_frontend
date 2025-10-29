@@ -5,28 +5,25 @@ import Header from '../components/Header';
 import '../styles/EmployeeInfo.css';
 import { apiGet } from '../services/api';
 
-
-
 const EmployeeInfo = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState('');
 
-  // filters
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterDesignation, setFilterDesignation] = useState('');
-  const [filterJoinStart, setFilterJoinStart] = useState('');
-  const [filterJoinEnd, setFilterJoinEnd] = useState('');
+  const [filterJoinDate, setFilterJoinDate] = useState(''); // ✅ Single join date filter
 
   useEffect(() => {
     (async () => {
       try {
         const data = await apiGet('/employees');
-        setEmployees(data.data || []); // backend returns { ok, data }
+        setEmployees(data.data || []);
       } catch (e) {
         console.error(e);
         setError('Failed to load employees');
@@ -44,48 +41,51 @@ const EmployeeInfo = () => {
     return `${m}/${day}/${date.getFullYear()}`;
   };
 
-  // computed lists for filters
-  const departments = [...new Set(employees.map(e => e.department_name).filter(Boolean))];       {/* change the department name as e.department_name */}
+  const departments = [...new Set(employees.map(e => e.department_name).filter(Boolean))];
   const designations = [...new Set(employees.map(e => e.designation).filter(Boolean))];
 
+  // ✅ Filtering logic
   const filtered = employees.filter(emp => {
     const matchesSearch =
-      `${emp.full_name} ${emp.employee_code || ''} ${emp.department || ''} ${emp.designation || ''}`
+      `${emp.full_name} ${emp.employee_code || ''} ${emp.department_name || ''} ${emp.designation || ''}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
     const matchesStatus = filterStatus ? emp.status === filterStatus : true;
-    const matchesDepartment = filterDepartment ? emp.department === filterDepartment : true;
+    const matchesDepartment = filterDepartment ? emp.department_name === filterDepartment : true;
     const matchesDesignation = filterDesignation ? emp.designation === filterDesignation : true;
 
+    // ✅ Match specific join date
     let matchesJoin = true;
-    if (filterJoinStart) matchesJoin = new Date(emp.joining_date) >= new Date(filterJoinStart);
-    if (filterJoinEnd) matchesJoin = matchesJoin && new Date(emp.joining_date) <= new Date(filterJoinEnd);
+    if (filterJoinDate) {
+      const empDate = new Date(emp.joining_date);
+      const selectedDate = new Date(filterJoinDate);
+      matchesJoin =
+        empDate.getFullYear() === selectedDate.getFullYear() &&
+        empDate.getMonth() === selectedDate.getMonth() &&
+        empDate.getDate() === selectedDate.getDate();
+    }
 
     return matchesSearch && matchesStatus && matchesDepartment && matchesDesignation && matchesJoin;
   });
 
   return (
-  <div className="employee-info-container">
-    <Sidebar />
-
-    <div className="employee-info-content">
-      {/* ✅ Reusable Header Component */}
-      <Header />
-
-      <header className="employee-info-header">
-        <div className="header-left">
-          <div className="breadcrumb">
-            <span className="breadcrumb-item">Employee Information</span>
-            <span className="breadcrumb-separator">›</span>
-            <span className="breadcrumb-item active">Employee Information Management</span>
+    <div className="employee-info-container">
+      <Sidebar />
+      <div className="employee-info-content">
+        <Header />
+        <header className="employee-info-header">
+          <div className="header-left">
+            <div className="breadcrumb">
+              <span className="breadcrumb-item">Employee Information</span>
+              <span className="breadcrumb-separator">›</span>
+              <span className="breadcrumb-item active">Employee Information Management</span>
+            </div>
+            <h1 className="page-title">Employee Information Management</h1>
           </div>
-          <h1 className="page-title">Employee Information Management</h1>
-        </div>
-      </header>
+        </header>
 
-
-        {/* ✅ Updated Tab Navigation Section */}
+        {/* Tabs Navigation */}
         <div className="tab-navigation">
           {[
             { label: 'Overview', path: '/employee-info' },
@@ -94,17 +94,18 @@ const EmployeeInfo = () => {
             { label: 'Performance & Training', path: '/performance-training' },
             { label: 'Documents & Contracts', path: '/documents-contracts' },
             { label: 'Audit Logs', path: '/audit-logs' },
-          ].map((tab) => (
+          ].map((t) => (
             <button
-              key={tab.label}
-              className={`tab-btn ${location.pathname === tab.path ? 'active' : ''}`}
-              onClick={() => navigate(tab.path)}
+              key={t.label}
+              className={`tab-btn ${location.pathname === t.path ? 'active' : ''}`}
+              onClick={() => navigate(t.path)}
             >
-              {tab.label}
+              {t.label}
             </button>
           ))}
         </div>
 
+        {/* Employee Table Section */}
         <div className="employee-table-section">
           <div className="section-header">
             <h2>All Employees</h2>
@@ -113,7 +114,7 @@ const EmployeeInfo = () => {
             </button>
           </div>
 
-          {/* Search/filters */}
+          {/* ✅ Search + Filters */}
           <div className="search-filter-container">
             <input
               className="search-input"
@@ -150,20 +151,24 @@ const EmployeeInfo = () => {
               <option value="">All Designations</option>
               {designations.map(d => <option key={d}>{d}</option>)}
             </select>
+
+            {/* ✅ Single Join Date Filter */}
             <input
               className="filter-date"
               type="date"
-              value={filterJoinStart}
-              onChange={e => setFilterJoinStart(e.target.value)}
+              value={filterJoinDate}
+              onChange={e => setFilterJoinDate(e.target.value)}
             />
-            <input
-              className="filter-date"
-              type="date"
-              value={filterJoinEnd}
-              onChange={e => setFilterJoinEnd(e.target.value)}
-            />
+
+            {/* Optional Clear Button */}
+            {filterJoinDate && (
+              <button className="clear-filter-btn" onClick={() => setFilterJoinDate('')}>
+                Clear
+              </button>
+            )}
           </div>
 
+          {/* Table Content */}
           {loading ? (
             <div style={{ padding: 16 }}>Loading…</div>
           ) : error ? (
@@ -178,8 +183,8 @@ const EmployeeInfo = () => {
                     <th>Status</th>
                     <th>Department</th>
                     <th>Phone</th>
-                    <th>Joining date</th>
-                    <th>Designations</th>
+                    <th>Joining Date</th>
+                    <th>Designation</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -188,34 +193,40 @@ const EmployeeInfo = () => {
                     <tr key={emp.id}>
                       <td>
                         <div className="employee-profile">
-                          <div className="employee-avatar-small"></div>
+                          <div className="employee-avatar-small">
+                            {emp.profile_photo_url ? (
+                              <img src={emp.profile_photo_url} alt="" />
+                            ) : null}
+                          </div>
                           <span>{emp.full_name}</span>
                         </div>
                       </td>
                       <td>{emp.employee_code || emp.id}</td>
                       <td>
-                        <span className={`status-badge ${String(emp.status).toLowerCase().replaceAll(' ', '-')}`}>
+                        <span
+                          className={`status-badge ${String(emp.status)
+                            .toLowerCase()
+                            .replaceAll(' ', '-')}`}
+                        >
                           {emp.status}
                         </span>
                       </td>
-                      <td>{emp.department_name}</td>            {/*change the emp.department as emp.department_name */}
+                      <td>{emp.department_name}</td>
                       <td>{emp.phone}</td>
                       <td>{formatDate(emp.joining_date)}</td>
                       <td>{emp.designation}</td>
                       <td>
                         <div className="action-buttons">
                           <button
-                              className="action-btn view-btn"
-                              onClick={() => navigate(`/employees/${emp.id}/view`)}
-                            >
-                              View
-                            </button>
-
+                            className="action-btn view-btn"
+                            onClick={() => navigate(`/employees/${emp.id}/view`)}
+                          >
+                            View
+                          </button>
                           <button
-                            className="action-btn view"
+                            className="action-btn edit-btn"
                             onClick={() => navigate(`/employees/${emp.id}/edit`)}
                           >
-
                             Edit
                           </button>
                         </div>

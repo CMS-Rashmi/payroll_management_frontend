@@ -241,7 +241,7 @@
 .filter-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
+  gap: 28px;
   align-items: end;
 }
 
@@ -358,6 +358,7 @@
 .actions-icon {
   font-size: 16px;
 }
+
 
 /* Pagination */
 .pagination {
