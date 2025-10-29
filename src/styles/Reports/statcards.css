@@ -1,0 +1,61 @@
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 24px;
+    color: black;
+}
+
+@media (max-width: 1200px) {
+    .card-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 600px) {
+    .card-container {
+        grid-template-columns: 1fr;
+    }
+}
+.report-stat-head {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #374151; 
+}
+.report-stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.report-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.report-stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+    line-height: 1;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.report-stat-change {
+    color: #10b981; 
+    font-size: 14px;
+}
+
+.report-stat-change.negative {
+    color: #ef4444; 
+}
+
+.stat-sentence {
+    color: black;
+    margin-left: 4px;
+    font-size: 14px;
+}

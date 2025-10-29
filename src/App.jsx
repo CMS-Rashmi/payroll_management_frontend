@@ -41,6 +41,7 @@ import EditUser from "./pages/EditUser";
 import PrivateRoute from "./components/PrivateRoute";
 import AuditLog from "./pages/AuditLog";
 import AuditLogDetails from "./pages/AuditLogDetails";
+import ReportPage from "./pages/Reports/ReportPage";
 
 function App() {
   return (
@@ -116,6 +117,9 @@ function App() {
       <Route path="/audit-log/:id" element={<AuditLogDetails />} />
 
 
+
+      {/* Reports and Analysis */}
+      <Route path="/report-analytics" element={<ReportPage/>} />
 
       {/* Admin helpers*/}
       <Route path="/bulk-actions" element={<BulkActions/>}/>
