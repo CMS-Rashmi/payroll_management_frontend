@@ -13,7 +13,7 @@
 
 .dashboard-content {
   flex: 1;
-  margin-left: 210px;
+  
   width: calc(100vw - 210px);
   min-height: 100vh;
   overflow-x: auto;
@@ -23,6 +23,7 @@
 /* Header Styles */
 .dashboard-header {
   display: flex;
+  margin-left:210px ;
   justify-content: space-between;
   align-items: flex-start;
   padding: 20px 24px;
