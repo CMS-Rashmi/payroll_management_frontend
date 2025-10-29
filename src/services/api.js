@@ -48,3 +48,35 @@ export async function apiPost(path, body = {}) {
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, ...data };
 }
+
+// api with parameters
+export async function apiGetWithParams(path, params = {}, opts = {}) {
+  // Build query string
+  let url = `${API_BASE}${path}`;
+  const query = new URLSearchParams();
+
+  for (const key in params) {
+    const value = params[key];
+    if (value !== undefined && value !== null && value !== '') {
+      query.append(key, value);
+    }
+  }
+
+  const queryString = query.toString();
+  if (queryString) url += `?${queryString}`;
+
+  const res = await fetch(url, {
+    credentials: 'include',
+    headers: authHeaders(opts.headers || {}),
+    ...opts,
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(text || `Request failed: ${res.status}`);
+  }
+
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('application/json') ? res.json() : res.text();
+}
+
