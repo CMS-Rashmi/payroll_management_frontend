@@ -4,68 +4,50 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { FaMale, FaFemale } from 'react-icons/fa';
 
 import { apiGetWithParams } from '../../../services/api';
+import TotalCard from './TotalCard';
+import DepartmentPicker from '../DepartmentPicker';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-
-const EmployeePage = ({ departmentId }) => {
+const EmployeePage = () => {
   const [data, setData] = useState(null);
+  const [selectedDeptId, setSelectedDeptId] = useState('all');
 
+  // Fetch data whenever selectedDeptId changes
   useEffect(() => {
     const fetchInsights = async () => {
       try {
-        const res = await apiGetWithParams('/reports/employees', { departmentId });
+        const params = selectedDeptId !== 'all' ? { departmentId: selectedDeptId } : {};
+        const res = await apiGetWithParams('/reports/employees', params);
         setData(res);
-        console.log(res);
       } catch (err) {
         console.error(err);
       }
     };
     fetchInsights();
-  }, [departmentId]);
+  }, [selectedDeptId]);
 
   if (!data) return <p>Loading...</p>;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-      {/* Top cards */}
-      <div>
+    <div>
+      {/* Department Picker */}
+      {/* <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '5px' }}>
+        <DepartmentPicker onChange={setSelectedDeptId} />
+      </div> */}
 
-        <div style={{ display: 'flex', gap: '20px', flexDirection: 'column' }}>
-          <div
-            style={{
-              backgroundColor: '#f0f0f0', // light gray background
-              padding: '15px 25px',
-              borderRadius: '50%',      // rounded corners
-              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-              textAlign: 'center',
-              minWidth: '120px',
-              fontWeight: 'bold',
-            }}
-          >
-            Employees <br /> {data.total_employees}
-          </div>
-
-          <div
-            style={{
-              backgroundColor: '#f0f0f0',
-              padding: '15px 25px',
-              borderRadius: '50%',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-              textAlign: 'center',
-              minWidth: '120px',
-              fontWeight: 'bold',
-            }}
-          >
-            Departments <br /> {data.total_departments}
-          </div>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <TotalCard name="Employees" amount={data.total_employees} />
+          <TotalCard name="Departments" amount={data.total_departments} />
         </div>
 
-
-        {/* Gender distribution */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0px', marginTop:'15px', marginLeft:'10px' }}>
+        {/* Gender Distribution */}
+        <div style={{ display: 'flex', gap: '20px', marginTop: '15px' }}>
           {data.gender?.map((g) => {
-            const percent = data.total_employees ? ((g.total / data.total_employees) * 100).toFixed(0) : 0;
+            const percent = data.total_employees
+              ? ((g.total / data.total_employees) * 100).toFixed(0)
+              : 0;
             return (
               <div key={g.gender} style={{ textAlign: 'center' }}>
                 {g.gender === 'Male' ? (
@@ -80,17 +62,18 @@ const EmployeePage = ({ departmentId }) => {
             );
           })}
         </div>
-      </div>
 
-      {/* Doughnut charts for type and grade */}
-      <div style={{ display: 'flex', gap: '50px' }}>
-        <DoughnutChart title="Employee Type" data={data.types || []} labelKey="type" />
-        <DoughnutChart title="Employee Grade" data={data.grades || []} labelKey="grade" />
+        {/* Doughnut Charts */}
+        <div style={{ display: 'flex', gap: '50px' }}>
+          <DoughnutChart title="Employee Type" data={data.types || []} labelKey="type" />
+          <DoughnutChart title="Employee Grade" data={data.grades || []} labelKey="grade" />
+        </div>
       </div>
     </div>
   );
 };
 
+// Doughnut Chart Component with dynamic colors
 const DoughnutChart = ({ title, data, labelKey }) => {
   if (!data || data.length === 0) {
     return (
@@ -101,12 +84,15 @@ const DoughnutChart = ({ title, data, labelKey }) => {
     );
   }
 
+  // Generate dynamic colors for any number of slices
+  const colors = data.map((_, i) => `hsl(${(i * 360) / data.length}, 70%, 60%)`);
+
   const chartData = {
     labels: data.map((d) => d[labelKey]),
     datasets: [
       {
         data: data.map((d) => d.total),
-        backgroundColor: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28EFF'],
+        backgroundColor: colors,
       },
     ],
   };
@@ -118,6 +104,5 @@ const DoughnutChart = ({ title, data, labelKey }) => {
     </div>
   );
 };
-
 
 export default EmployeePage;

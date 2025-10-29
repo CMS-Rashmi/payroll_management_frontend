@@ -3,8 +3,8 @@ import PayRollSummaryPage from './PayRollSummaryPage/PayRollSummaryPage';
 import CompensateTrendsPage from './CompentsationTrendsPage/CompensateTrendsPage';
 import CostCenterAnalysisPage from './CostCenterAnalysisPage/CostCenterAnalysisPage';
 import ForecastingPage from './ForecastingPage/ForecastingPage';
-import EmployeePage from './EmployeePage/EmployeePage';
 import '../../styles/Reports/tabs.css'
+import EmployeePage from './EmployeePage/EmployeePage';
 
 function CustomTabPanel({ children, value, index }) {
   return (
@@ -19,20 +19,10 @@ function CustomTabPanel({ children, value, index }) {
   );
 }
 
-function ReportPanel() {
-  const [value, setValue] = useState(0);
-
+function ReportPanel({ value, onChange, tabs }) {
   const handleChange = (index) => {
-    setValue(index);
+    onChange(index);
   };
-
-  const tabs = [
-    'Employee Summary',
-    'Payroll Summary',
-    'Compensate Trends',
-    'Cost Center Analysis',
-    'Forecasting & Budgeting',
-  ];
 
   return (
     <div className="tabs-container">

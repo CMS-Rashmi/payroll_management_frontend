@@ -9,74 +9,87 @@ import {
   Legend,
 } from 'chart.js';
 import { apiGetWithParams } from '../../../services/api';
+import QuarterSelector from '../QuarterSelector';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const COLORS = ['#FF1493', '#00C49F', '#FF8042', '#FFBB28', '#A28EFF', '#FF6B6B', '#FFA500'];
 
-const BonusesChart = ({ year }) => {
+const BonusesChart = ({ year: initialYear }) => {
   const [data, setData] = useState([]);
+  const [quarter, setQuarter] = useState(null);
+  const [year, setYear] = useState(initialYear || new Date().getFullYear());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBonuses = async () => {
       setLoading(true);
       try {
-        const res = await apiGetWithParams('/reports/bonuses/by-type', { year });
+        const params = { year };
+        if (quarter) params.quarter = quarter;
+        const res = await apiGetWithParams('/reports/bonuses/by-type', params);
         setData(res.map(d => ({ ...d, total_amount: Number(d.total_amount) || 0 })));
       } catch (err) {
         console.error('Error fetching bonuses:', err);
+        setData([]);
       } finally {
         setLoading(false);
       }
     };
     fetchBonuses();
-  }, [year]);
+  }, [year, quarter]);
 
-  if (loading) return <p>Loading Bonuses...</p>;
+  const handleQuarterYearChange = ({ quarter, year }) => {
+    setQuarter(quarter);
+    setYear(year);
+  };
 
   const filtered = data.filter(d => d.total_amount > 0);
-  if (!filtered.length) return <p>No bonuses data</p>;
 
   const chartData = {
-    labels: filtered.map(d => d.type),
+    labels: filtered.length ? filtered.map(d => d.type) : ['No Data'],
     datasets: [
       {
         label: 'Total Amount (LKR)',
-        data: filtered.map(d => d.total_amount),
-        backgroundColor: COLORS.slice(0, filtered.length),
+        data: filtered.length ? filtered.map(d => d.total_amount) : [0],
+        backgroundColor: filtered.length ? COLORS.slice(0, filtered.length) : ['#ddd'],
         borderWidth: 1,
       },
     ],
   };
 
   const chartOptions = {
-    indexAxis: 'y', // horizontal bars
+    indexAxis: 'y',
     responsive: true,
     plugins: {
       legend: { position: 'bottom' },
       tooltip: {
         callbacks: {
-          label: (context) => `${context.label}: ${context.formattedValue}`,
+          label: (context) => filtered.length ? `${context.label}: ${context.formattedValue}` : '',
         },
       },
     },
     scales: {
       x: {
         title: { display: true, text: 'Total Amount (LKR)' },
-        beginAtZero: true,
+        beginAtZero: true
       },
       y: {
         title: { display: true, text: 'Bonus Type' },
-        ticks: { autoSkip: false },
-      },
-    },
+        ticks: {
+          autoSkip: false,
+          align: 'start' // ensures labels are aligned nicely
+        }
+      }
+    }
+
   };
 
   return (
     <div style={{ width: '600px', margin: '20px' }}>
       <h3 style={{ textAlign: 'center' }}>Bonuses by Type</h3>
-      <Bar data={chartData} options={chartOptions} />
+      <QuarterSelector onChange={handleQuarterYearChange} />
+      {loading ? <p>Loading Bonuses...</p> : <Bar data={chartData} options={chartOptions} />}
     </div>
   );
 };
