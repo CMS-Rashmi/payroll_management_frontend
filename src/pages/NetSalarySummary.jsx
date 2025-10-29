@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import '../styles/CompensationCommon.css';
+import { apiGet, apiPost } from '../services/api';
+
 
 const NetSalarySummary = () => {
   const navigate = useNavigate();
