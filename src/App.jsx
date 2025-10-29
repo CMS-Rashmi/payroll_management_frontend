@@ -38,6 +38,8 @@ import RoleManagement from "./pages/RoleManagement";
 import AccessControl from "./pages/AccessControl";
 import AddUser from "./pages/AddUser";
 import EditUser from "./pages/EditUser";
+import AuditLog from "./pages/AuditLog";
+import AuditLogDetails from "./pages/AuditLogDetails";
 
 function App() {
   return (
@@ -80,7 +82,9 @@ function App() {
       <Route path="/access-control" element={<AccessControl/>} />
       <Route path="/add-user" element={<AddUser/>} />
       <Route path="/edit-user" element={<EditUser/>} />
-      
+      <Route path="/audit-log" element={<AuditLog/>} />
+      <Route path="/audit-log/:id" element={<AuditLogDetails />} />
+
 
 
       {/* Admin helpers*/}
