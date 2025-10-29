@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { apiGet } from '../../../services/api';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
-} from 'recharts';
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const SalaryHistogram = ({ binSize = 20000 }) => {
-  const [data, setData] = useState([]);
+  const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,20 +29,24 @@ const SalaryHistogram = ({ binSize = 20000 }) => {
           bins[label] = (bins[label] || 0) + 1;
         });
 
-        // Convert to "k" labels
-        const chartData = Object.keys(bins)
-          .sort((a, b) => parseInt(a) - parseInt(b))
-          .map(key => {
-            const [start, end] = key.split('-').map(Number);
-            return {
-              salary_range: `${Math.floor(start / 1000)}k-${Math.floor(end / 1000)}k`,
-              employee_count: bins[key],
-            };
-          });
+        const sortedKeys = Object.keys(bins).sort((a, b) => parseInt(a) - parseInt(b));
+        const labels = sortedKeys.map(key => {
+          const [start, end] = key.split('-').map(Number);
+          return `${Math.floor(start / 1000)}k-${Math.floor(end / 1000)}k`;
+        });
 
-        console.log(chartData);
+        const dataValues = sortedKeys.map(key => bins[key]);
 
-        setData(chartData);
+        setChartData({
+          labels,
+          datasets: [
+            {
+              label: 'Employees',
+              data: dataValues,
+              backgroundColor: '#82ca9d',
+            },
+          ],
+        });
       } catch (err) {
         console.error('Failed to fetch salary histogram:', err);
       } finally {
@@ -46,19 +58,36 @@ const SalaryHistogram = ({ binSize = 20000 }) => {
   }, [binSize]);
 
   if (loading) return <p>Loading salary histogram...</p>;
+  if (!chartData) return <p>No data available</p>;
 
   return (
     <div style={{ width: '50%', height: 350, padding: 10 }}>
-    Basic Salary distribution
-      <ResponsiveContainer>
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="salary_range" angle={-45} textAnchor="end" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="employee_count" fill="#82ca9d" name="Employees" />
-        </BarChart>
-      </ResponsiveContainer>
+      <h3>Basic Salary Distribution</h3>
+      <Bar
+        data={chartData}
+        options={{
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: { enabled: true },
+          },
+          scales: {
+            x: {
+              ticks: { maxRotation: 45, minRotation: 45 },
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                // Force only integers
+                callback: function (value) {
+                  return Number.isInteger(value) ? value : null;
+                },
+              },
+            },
+          },
+        }}
+      />
+
     </div>
   );
 };

@@ -12,7 +12,6 @@ const PayrollSummaryCards = ({ month, year }) => {
       try {
         const res = await apiGetWithParams('/reports/payroll/month', { month, year });
         setPayroll(res);
-        console.log(res);
       } catch (err) {
         console.error('Failed to fetch payroll summary:', err);
       } finally {
@@ -51,7 +50,7 @@ const PayrollSummaryCards = ({ month, year }) => {
   ];
 
   return (
-    <div style={{ display: 'flex', gap: '15px', padding: '10px', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', gap: '10px', padding: '10px', flexWrap: 'wrap' , marginBottom:10}}>
       {payrollCards.map((card, index) => (
         <StatCard key={index} title={card.title} amount={card.amount} />
       ))}

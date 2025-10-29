@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -9,66 +9,65 @@ import {
     Legend,
 } from 'chart.js';
 import { apiGetWithParams } from '../../../services/api';
+import DaySelector from '../DaySelector';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const COLORS = [
-    '#0088FE',
-    '#00C49F',
-    '#A28EFF',
-    '#FFBB28',
-    '#FF8042',
-    '#FF6B6B',
-    '#8884D8',
-    '#82CA9D',
-    '#A4DE6C',
-    '#D0ED57'
+    '#0088FE', '#00C49F', '#A28EFF', '#FFBB28', '#FF8042',
+    '#FF6B6B', '#8884D8', '#82CA9D', '#A4DE6C', '#D0ED57'
 ];
 
 const AllowancesChart = ({ year }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [month, setMonth] = useState(new Date().getMonth() + 1);
 
+    // Fetch data when year or month changes
     useEffect(() => {
         const fetchAllowances = async () => {
             setLoading(true);
             try {
-                const res = await apiGetWithParams('/reports/allowances/by-type', { year });
-                setData(res.map(d => ({ ...d, total_amount: Number(d.total_amount) || 0 })));
+                const res = await apiGetWithParams('/reports/allowances/by-type', { year, month });
+                const formatted = res.map(d => ({
+                    ...d,
+                    total_amount: d.total_amount != null ? Number(d.total_amount) : 0
+                }));
+                setData(formatted);
             } catch (err) {
                 console.error('Error fetching allowances:', err);
+                setData([]);
             } finally {
                 setLoading(false);
             }
         };
         fetchAllowances();
-    }, [year]);
+    }, [year, month]);
 
-    if (loading) return <p>Loading Allowances...</p>;
+    // Filter only items with amount > 0 (memoized)
+    const filtered = useMemo(() => data.filter(d => d.total_amount > 0), [data]);
 
-    const filtered = data.filter(d => d.total_amount > 0);
-    if (!filtered.length) return <p>No allowances data</p>;
-
-    const chartData = {
-        labels: filtered.map(d => d.type),
+    // Prepare chart data (memoized)
+    const chartData = useMemo(() => ({
+        labels: filtered.length ? filtered.map(d => d.type) : ['No Data'],
         datasets: [
             {
                 label: 'Total Amount (LKR)',
-                data: filtered.map(d => d.total_amount),
-                backgroundColor: COLORS.slice(0, filtered.length),
+                data: filtered.length ? filtered.map(d => d.total_amount) : [0],
+                backgroundColor: filtered.length ? COLORS.slice(0, filtered.length) : ['#ddd'],
                 borderWidth: 1,
             },
         ],
-    };
+    }), [filtered]);
 
-    const chartOptions = {
-        indexAxis: 'y', // 🔥 flips the chart to horizontal
+    const chartOptions = useMemo(() => ({
+        indexAxis: 'y',
         responsive: true,
         plugins: {
             legend: { position: 'bottom' },
             tooltip: {
                 callbacks: {
-                    label: (context) => `${context.label}: ${context.formattedValue}`,
+                    label: (context) => filtered.length ? `${context.label}: ${context.formattedValue}` : '',
                 },
             },
         },
@@ -82,12 +81,16 @@ const AllowancesChart = ({ year }) => {
                 ticks: { autoSkip: false },
             },
         },
-    };
+    }), [filtered]);
 
     return (
         <div style={{ width: '600px', margin: '20px' }}>
             <h3 style={{ textAlign: 'center' }}>Allowances by Type</h3>
-            <Bar data={chartData} options={chartOptions} />
+            <DaySelector
+                type='monthYear'
+                onChange={({ month: m }) => setMonth(m)}
+            />
+            {loading ? <p>Loading Allowances...</p> : <Bar data={chartData} options={chartOptions} />}
         </div>
     );
 };

@@ -9,14 +9,19 @@ import {
   Legend,
 } from 'chart.js';
 import { apiGetWithParams } from '../../../services/api';
-
+import DaySelector from '../DaySelector';
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const COLORS = ['#FF6B6B', '#FFA500', '#FF1493', '#FF8042', '#FFBB28', '#FF8C00', '#E74C3C'];
 
-const DeductionsChart = ({ year }) => {
+const DeductionsChart = ({ year: initialYear }) => {
+  const [year, setYear] = useState(initialYear || new Date().getFullYear());
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleYearChange = ({ year: newYear }) => {
+    setYear(newYear);
+  };
 
   useEffect(() => {
     const fetchDeductions = async () => {
@@ -26,6 +31,7 @@ const DeductionsChart = ({ year }) => {
         setData(res.map(d => ({ ...d, total_amount: Number(d.total_amount) || 0 })));
       } catch (err) {
         console.error('Error fetching deductions:', err);
+        setData([]);
       } finally {
         setLoading(false);
       }
@@ -33,25 +39,29 @@ const DeductionsChart = ({ year }) => {
     fetchDeductions();
   }, [year]);
 
+
   if (loading) return <p>Loading Deductions...</p>;
 
+  // Prepare chart data even if empty
   const filtered = data.filter(d => d.total_amount > 0);
-  if (!filtered.length) return <p>No deductions data</p>;
+  const hasData = filtered.length > 0;
 
   const chartData = {
-    labels: filtered.map(d => d.type),
+    labels: hasData ? filtered.map(d => d.type) : ['No Data'],
     datasets: [
       {
         label: 'Total Amount (LKR)',
-        data: filtered.map(d => d.total_amount),
-        backgroundColor: COLORS.slice(0, filtered.length),
+        data: hasData ? filtered.map(d => d.total_amount) : [0],
+        backgroundColor: hasData
+          ? COLORS.slice(0, filtered.length)
+          : ['#e0e0e0'], // grey color for empty
         borderWidth: 1,
       },
     ],
   };
 
   const chartOptions = {
-    indexAxis: 'y', // 🔥 Makes the chart horizontal
+    indexAxis: 'y',
     responsive: true,
     plugins: {
       legend: { position: 'bottom' },
@@ -76,6 +86,7 @@ const DeductionsChart = ({ year }) => {
   return (
     <div style={{ width: '600px', margin: '20px' }}>
       <h3 style={{ textAlign: 'center' }}>Deductions by Type</h3>
+      <DaySelector type="year" initialYear={year} onChange={handleYearChange} />
       <Bar data={chartData} options={chartOptions} />
     </div>
   );

@@ -1,42 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Header from '../../components/Header';
 import Sidebar from '../../components/Sidebar';
-import { Download, Printer } from 'lucide-react';
 import '../../styles/Reports/button.css';
 import '../../styles/Reports/reportpage.css';
 import ReportHeader from './ReportHeader';
 import ReportPanel from './ReportsPanel';
 
-
 const ReportPage = () => {
+  const [activeTab, setActiveTab] = useState(0);
+
+  const tabs = [
+    'Employee Summary',
+    'Payroll Summary',
+    'Compensate Trends',
+    'Cost Center Analysis',
+    'Forecasting & Budgeting',
+  ];
 
   return (
     <div className="report-page">
       <Sidebar />
-
-      <div className="employee-info-content">
+      <div className="report-info-content">
         <Header />
 
-        <ReportHeader />
+        <ReportHeader tabName={tabs[activeTab]} />
 
-        <div style={{ padding: '25px 24px' }}>
+        <div style={{ padding: '10px 14px' }}>
           <div className='report-content'>
 
-            <ReportPanel />
-
-
-
-            {/* <div className='buttonsSection'>
-              <button onClick={() => alert('Download functionality to be implemented')} className='button'>
-                <Download size={16} /> Download
-              </button>
-
-              <button onClick={() => alert('Print functionality to be implemented')} className='button'>
-                <Printer size={16} /> Print
-              </button>
-            </div> */}
-
-
+            <ReportPanel value={activeTab} onChange={setActiveTab} tabs={tabs} />
           </div>
         </div>
       </div>

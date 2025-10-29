@@ -1,24 +1,5 @@
-.card-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    width: 100%;
-    margin-bottom: 24px;
-    color: black;
-}
-
-@media (max-width: 1200px) {
-    .card-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-@media (max-width: 600px) {
-    .card-container {
-        grid-template-columns: 1fr;
-    }
-}
 .report-stat-head {
-    font-size: 18px;
+    font-size: 12px;
     font-weight: 500;
     margin-bottom: 12px;
     color: #374151; 
@@ -26,7 +7,7 @@
 .report-stat-card {
     background: white;
     border-radius: 8px;
-    padding: 20px;
+    padding: 15px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -37,7 +18,7 @@
 }
 
 .report-stat-number {
-    font-size: 32px;
+    font-size: 25px;
     font-weight: 700;
     color: #111827;
     margin-bottom: 8px;
