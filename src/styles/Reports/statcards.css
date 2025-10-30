@@ -4,6 +4,7 @@
     margin-bottom: 12px;
     color: #374151; 
 }
+
 .report-stat-card {
     background: white;
     border-radius: 8px;
@@ -39,4 +40,32 @@
     color: black;
     margin-left: 4px;
     font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .report-stat-card {
+        padding: 12px;
+    }
+    .report-stat-number {
+        font-size: 22px;
+    }
+    .report-stat-change,
+    .stat-sentence {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .report-stat-card {
+        padding: 10px;
+        margin-bottom: 15px; 
+    }
+    .report-stat-number {
+        font-size: 20px;
+    }
+    .report-stat-change,
+    .stat-sentence {
+        font-size: 12px;
+    }
 }

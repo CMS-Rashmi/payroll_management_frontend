@@ -1,8 +1,17 @@
 .report-content {
-    background-color: #FFF;
-    border-radius: 10px;
-    width: 95%;
-    color: black;
+  background-color: #FFF;
+  border-radius: 10px;
+  width: 95%;
+  color: black;
+}
+
+.report-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .report-info-content {
@@ -30,3 +39,10 @@
   font-weight: 500;
 }
 
+
+@media (max-width: 768px) {
+  .employee-info-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+}

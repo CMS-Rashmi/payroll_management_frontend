@@ -4,7 +4,7 @@ import CompensateTrendsPage from './CompentsationTrendsPage/CompensateTrendsPage
 import CostCenterAnalysisPage from './CostCenterAnalysisPage/CostCenterAnalysisPage';
 import ForecastingPage from './ForecastingPage/ForecastingPage';
 import '../../styles/Reports/tabs.css'
-import EmployeePage from './EmployeePage/EmployeePage';
+import EmployeeSummaryPage from './EmployeeSummaryPage/EmployeeSummaryPage';
 
 function CustomTabPanel({ children, value, index }) {
   return (
@@ -43,7 +43,7 @@ function ReportPanel({ value, onChange, tabs }) {
       </div>
 
       <CustomTabPanel value={value} index={0}>
-        <EmployeePage/>
+        <EmployeeSummaryPage/>
       </CustomTabPanel>
 
       <CustomTabPanel value={value} index={1}>
