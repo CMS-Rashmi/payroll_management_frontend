@@ -199,6 +199,17 @@ const LeaveRequest = () => {
             <option>HR Department</option>
           </select>
 
+          <button
+            className="apply-btn"
+            onClick={() => {
+              setQ('');
+              setDate('');
+              setDept("All Departments")
+              setCat('All Categories');
+            }}>
+            Clear
+          </button>
+
           <button className="export-btn" onClick={onExportCSV}>
             Export to CSV
           </button>

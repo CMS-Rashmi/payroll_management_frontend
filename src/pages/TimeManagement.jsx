@@ -101,7 +101,7 @@ const TimeManagement = () => {
               <span className="breadcrumb-separator">›</span>
               <span className="breadcrumb-item active">Time Management</span>
             </div>
-            <h1 className="page-title">Timetable Management</h1>
+            <h1 className="page-title">Time Management</h1>
           </div>
         </header>
 

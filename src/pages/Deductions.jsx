@@ -69,7 +69,7 @@ const Deductions = () => {
 
         {/* Tabs */}
         <div className="deductions-tabs">
-          {["earnings", "deductions", "allowances", "overtime", "compensation", "summary"].map((tab) => (
+          {["earnings", "deductions", "allowances", "overtime-adjustments", "compensation-adjustment", "net-salary-summary"].map((tab) => (
             <div
               key={tab}
               className={`tab ${activeTab === tab ? "active" : ""}`}
