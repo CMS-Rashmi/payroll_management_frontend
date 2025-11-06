@@ -154,9 +154,8 @@ const AbsenceReport = () => {
           {tabs.map((tab) => (
             <button
               key={tab.path}
-              className={`tab-link ${
-                location.pathname === tab.path ? "active" : ""
-              }`}
+              className={`tab-link ${location.pathname === tab.path ? "active" : ""
+                }`}
               onClick={() => navigate(tab.path)}
             >
               {tab.label}
@@ -179,7 +178,7 @@ const AbsenceReport = () => {
                   textTransform: "uppercase",
                 }}
               />
-             
+
             </div>
 
             <input
@@ -205,6 +204,17 @@ const AbsenceReport = () => {
               value={filterOffice}
               onChange={(e) => setFilterOffice(e.target.value)}
             />
+
+            <button
+              className="apply-btn"
+              onClick={() => {
+                setSelectedDate();
+                setFilterDept("");
+                setFilterOffice("");
+                setSearchEmployee("");
+              }}>
+              Clear
+            </button>
           </div>
 
           {/* Export Button */}

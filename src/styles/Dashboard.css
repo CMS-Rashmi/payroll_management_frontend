@@ -1,8 +1,3 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 .dashboard-container {
   display: flex;
@@ -139,6 +134,7 @@
   gap: 24px;
   padding: 24px;
   align-items: flex-start;
+  margin-left: 210px;
 }
 
 .left-column {
@@ -486,10 +482,12 @@
   .dashboard-content {
     margin-left: 60px;
     width: calc(100vw - 60px);
+
   }
   
   .main-content {
     padding: 16px;
+    margin-left: 0;
   }
   
   .dashboard-header {
@@ -497,6 +495,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+    margin-left: 0;
   }
   
   .stats-grid,

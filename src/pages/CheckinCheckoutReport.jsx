@@ -7,6 +7,10 @@ import "../styles/CheckinCheckoutReport.css";
 const CheckinCheckoutReport = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchEmpNo, setSearchEmpNo] = useState("");
+  const [checkInType, setCheckInType] = useState("All Check-in Types");
+  const [checkOutType, setCheckOutType] = useState("All Check-out Types");
+  const [status, setStatus] = useState("All Statuses");
 
   const tabs = [
     { label: "Overview", path: "/attendance-overview" },
@@ -45,6 +49,33 @@ const CheckinCheckoutReport = () => {
     return `${mm}/${dd}/${yyyy}`.toUpperCase();
   };
 
+  const filteredData = reportData.filter((row) => {
+    const rowDate = new Date(row.date);
+    const from = fromDate ? new Date(fromDate) : null;
+    const to = toDate ? new Date(toDate) : null;
+
+    // Date filter
+    if (from && to && !(rowDate >= from && rowDate <= to)) return false;
+    if (from && !to && rowDate < from) return false;
+    if (!from && to && rowDate > to) return false;
+
+    // Employee No filter
+    if (searchEmpNo && !row.empNo.includes(searchEmpNo)) return false;
+
+    // Check-in Type filter
+    if (checkInType !== "All Check-in Types" && row.checkInType !== checkInType) return false;
+
+    // Check-out Type filter
+    if (checkOutType !== "All Check-out Types" && row.checkOutType !== checkOutType) return false;
+
+    // Status filter
+    if (status !== "All Statuses" && row.status !== status) return false;
+
+    return true;
+  });
+
+
+
   return (
     <div className="checkin-checkout-container">
       <Sidebar />
@@ -70,9 +101,8 @@ const CheckinCheckoutReport = () => {
           {tabs.map((tab) => (
             <button
               key={tab.path}
-              className={`tab-link ${
-                location.pathname === tab.path ? "active" : ""
-              }`}
+              className={`tab-link ${location.pathname === tab.path ? "active" : ""
+                }`}
               onClick={() => navigate(tab.path)}
             >
               {tab.label}
@@ -88,6 +118,7 @@ const CheckinCheckoutReport = () => {
               type="text"
               placeholder="Search by Employee No..."
               className="filter-input"
+              onChange={(e) => setSearchEmpNo(e.target.value)}
             />
 
             <div className="date-group">
@@ -121,20 +152,20 @@ const CheckinCheckoutReport = () => {
 
           {/* 🔹 Second Line */}
           <div className="filters-row bottom-row">
-            <select className="filter-select">
+            <select className="filter-select"  onChange={(e) => setCheckInType(e.target.value)}>
               <option>All Check-in Types</option>
               <option>Normal</option>
               <option>Late</option>
               <option>Short-in</option>
             </select>
 
-            <select className="filter-select">
+            <select className="filter-select"  onChange={(e) => setCheckOutType(e.target.value)}>
               <option>All Check-out Types</option>
               <option>Normal</option>
               <option>Early-out</option>
             </select>
 
-            <select className="filter-select">
+            <select className="filter-select"  onChange={(e) => setSt(e.target.value)}>
               <option>All Statuses</option>
               <option>Present</option>
               <option>Leave</option>
@@ -165,30 +196,32 @@ const CheckinCheckoutReport = () => {
               </tr>
             </thead>
             <tbody>
-              {reportData.length > 0 ? (
-                reportData.map((row, i) => (
-                  <tr key={i}>
-                    <td>{row.empNo}</td>
-                    <td>{row.name}</td>
-                    <td>{row.activeStatus}</td>
-                    <td>{formatDate(row.date)}</td>
-                    <td>{row.checkInTime}</td>
-                    <td>{row.checkInType}</td>
-                    <td>{row.checkOutTime}</td>
-                    <td>{row.checkOutType}</td>
-                    <td>{row.status}</td>
-                    <td>{row.ot}</td>
-                    <td>{row.checkInAddress}</td>
-                    <td>{row.checkOutAddress}</td>
+              {
+                filteredData.length > 0 ? (
+                  filteredData.map((row, i) => (
+                    <tr key={i}>
+                      <td>{row.empNo}</td>
+                      <td>{row.name}</td>
+                      <td>{row.activeStatus}</td>
+                      <td>{formatDate(row.date)}</td>
+                      <td>{row.checkInTime}</td>
+                      <td>{row.checkInType}</td>
+                      <td>{row.checkOutTime}</td>
+                      <td>{row.checkOutType}</td>
+                      <td>{row.status}</td>
+                      <td>{row.ot}</td>
+                      <td>{row.checkInAddress}</td>
+                      <td>{row.checkOutAddress}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="12" style={{ textAlign: "center", color: "#9ca3af" }}>
+                      No records found
+                    </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="12" style={{ textAlign: "center", color: "#9ca3af" }}>
-                    Loading...
-                  </td>
-                </tr>
-              )}
+                )
+              }
             </tbody>
           </table>
         </div>

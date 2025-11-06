@@ -11,6 +11,8 @@ const PayrollTrendsChart = () => {
       setLoading(true);
       try {
         const res = await apiGet("/reports/payroll/trends");
+                console.log(res)
+
 
         // Format dataset source for ECharts
         const years = res.map(r => `${r.period_year}-${String(r.period_month).padStart(2, "0")}`);
@@ -21,6 +23,7 @@ const PayrollTrendsChart = () => {
           ["Deductions", ...res.map(r => Number(r.deductions))],
           ["Bonuses", ...res.map(r => Number(r.bonuses))],
         ];
+
 
         const chartOption = {
           legend: {},

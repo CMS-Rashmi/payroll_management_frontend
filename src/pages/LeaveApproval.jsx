@@ -145,6 +145,18 @@ const LeaveApproval = () => {
             <option>HR Department</option>
             <option>Finance Department</option>
           </select>
+
+          <button
+            className="apply-btn"
+            onClick={() => {
+              setSearchTerm('');
+              setSelectedDate('');
+              setCategoryFilter('All Categories');
+              setDeptFilter("All Departments");
+            }}>
+            Clear
+          </button>
+
         </div>
 
         {/* ✅ Table */}

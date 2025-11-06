@@ -4,6 +4,7 @@
   min-height: 100vh;
   background-color: #f5f5f5;
   font-family: Arial, sans-serif;
+  width: 100vw;
 }
 
 .employee-info-content {
@@ -402,6 +403,11 @@
 }
 
 @media (max-width: 768px) {
+
+  .employee-info-container {
+    margin-left: 60px;
+  }
+
   .employee-info-header {
     flex-direction: column;
     gap: 15px;
