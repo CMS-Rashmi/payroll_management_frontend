@@ -482,10 +482,12 @@
   .dashboard-content {
     margin-left: 60px;
     width: calc(100vw - 60px);
+
   }
   
   .main-content {
     padding: 16px;
+    margin-left: 0;
   }
   
   .dashboard-header {
@@ -493,6 +495,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+    margin-left: 0;
   }
   
   .stats-grid,

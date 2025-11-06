@@ -322,7 +322,7 @@
 /* ======== Responsive Design ======== */
 @media (max-width: 992px) {
   .add-employee-content {
-    margin-left: 0;
+    margin-left: 60px;
     padding: 20px;
   }
 

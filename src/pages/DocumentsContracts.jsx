@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import '../styles/DocumentsContracts.css';
+import Header from '../components/Header';
 
 const DocumentsContracts = () => {
   const navigate = useNavigate();
@@ -131,6 +132,7 @@ const DocumentsContracts = () => {
       <Sidebar />
       
       <div className="documents-contracts-content">
+      <Header/>
         {/* Header */}
         <header className="documents-contracts-header">
           <div className="header-left">
@@ -142,14 +144,6 @@ const DocumentsContracts = () => {
             <h1 className="page-title">Employee Information Management</h1>
           </div>
           
-          <div className="header-right">
-            <div className="notification-icon">🔔</div>
-            <div className="user-profile">
-              <div className="user-avatar"></div>
-              <span className="username">John</span>
-              <span className="dropdown-arrow">▼</span>
-            </div>
-          </div>
         </header>
 
         {/* Tab Navigation */}
