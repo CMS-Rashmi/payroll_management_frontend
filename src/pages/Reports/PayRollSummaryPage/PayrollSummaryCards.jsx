@@ -50,7 +50,7 @@ const PayrollSummaryCards = ({ month, year }) => {
   ];
 
   return (
-    <div style={{ display: 'flex', gap: '10px', padding: '10px', flexWrap: 'wrap' , marginBottom:10}}>
+    <div className='flex gap-1 p-2 flex-wrap mb-2'>
       {payrollCards.map((card, index) => (
         <StatCard key={index} title={card.title} amount={card.amount} />
       ))}

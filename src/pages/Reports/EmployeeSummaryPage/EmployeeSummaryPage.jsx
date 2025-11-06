@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FaMale, FaFemale } from 'react-icons/fa';
-
 import { apiGetWithParams } from '../../../services/api';
 import TotalCard from './TotalCard';
 import DepartmentPicker from '../DepartmentPicker';
@@ -26,36 +25,55 @@ const EmployeeSummaryPage = () => {
   if (!data) return <p>Loading...</p>;
 
   return (
-    <div>
+    <div className="m-4">
       {/* Department Picker */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '5px' }}>
+      <div className="flex justify-end mb-2">
         <DepartmentPicker onChange={setSelectedDeptId} />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div className="flex flex-row flex-wrap gap-6">
+        {/* Totals Section */}
+        <div className="flex flex-col gap-6">
           <TotalCard name="Employees" amount={data.total_employees} />
           <TotalCard name="Departments" amount={data.total_departments} />
         </div>
 
         {/* Gender Distribution */}
-        <div style={{ display: 'flex', gap: '20px', marginTop: '15px' }}>
-          {data.gender?.map((g) => (
-            <div key={g.gender} style={{ textAlign: 'center' }}>
-              {g.gender === 'Male' ? (
-                <FaMale style={{ fontSize: '50px', color: '#3399FF' }} />
-              ) : (
-                <FaFemale style={{ fontSize: '50px', color: '#FF9933' }} />
-              )}
-              <div style={{ marginTop: '5px', fontWeight: 'bold', fontSize: '18px' }}>
-                {g.total}
-              </div>
-            </div>
-          ))}
+        <div className="flex gap-6 mt-4">
+          {(() => {
+            // Calculate total employees first
+            const totalEmp = data.gender?.reduce((sum, g) => sum + g.total, 0) || 0;
+
+            return data.gender?.map((g) => {
+              const Icon =
+                g.gender === "Male"
+                  ? FaMale
+                  : g.gender === "Female"
+                    ? FaFemale
+                    : null;
+
+              if (!Icon) return null;
+
+              return (
+                <div key={g.gender} className="text-center">
+                  <Icon
+                    className={`text-[50px] ${g.gender === "Male" ? "text-blue-500" : "text-orange-500"
+                      }`}
+                  />
+                  {/* Show Percentage */}
+                  <div className="mt-1 font-bold text-lg">
+                    {((g.total / totalEmp) * 100).toFixed(2)}%
+                  </div>
+                </div>
+              );
+            });
+          })()}
         </div>
 
+
+
         {/* Donut Charts */}
-        <div style={{ display: 'flex', gap: '50px', flexWrap: 'wrap' }}>
+        <div className="flex flex-wrap gap-12">
           <DonutChart title="Employee Type" data={data.types || []} labelKey="type" />
           <DonutChart title="Employee Grade" data={data.grades || []} labelKey="grade" />
         </div>
@@ -68,9 +86,9 @@ const EmployeeSummaryPage = () => {
 const DonutChart = ({ title, data, labelKey }) => {
   if (!data || data.length === 0) {
     return (
-      <div style={{ minWidth: '200px', textAlign: 'center' }}>
-        <h3>{title}</h3>
-        <p>No data available</p>
+      <div className="min-w-[200px] text-center">
+        <h3 className="text-lg font-semibold mb-2">{title}</h3>
+        <p className="text-gray-500">No data available</p>
       </div>
     );
   }
@@ -78,8 +96,8 @@ const DonutChart = ({ title, data, labelKey }) => {
   const COLORS = data.map((_, i) => `hsl(${(i * 360) / data.length}, 70%, 60%)`);
 
   return (
-    <div style={{ width: '250px', textAlign: 'center' }}>
-      <h3>{title}</h3>
+    <div className="w-[250px] text-center">
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -88,9 +106,9 @@ const DonutChart = ({ title, data, labelKey }) => {
             nameKey={labelKey}
             cx="50%"
             cy="50%"
-            innerRadius={60}  
+            innerRadius={60}
             outerRadius={100}
-            label={({ value }) => value} 
+            label={({ value }) => value}
           >
             {data.map((entry, index) => (
               <Cell key={index} fill={COLORS[index % COLORS.length]} />

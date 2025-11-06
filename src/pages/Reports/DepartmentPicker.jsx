@@ -24,7 +24,6 @@ const DepartmentPicker = ({ onChange }) => {
 
   const handleChange = (deptId) => {
     setSelectedDept(deptId);
-    console.log(deptId); // optional
     if (onChange) onChange(deptId); // send only id
   };
 
