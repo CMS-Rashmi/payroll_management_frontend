@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
-import '../styles/AttendanceLeave.css';
+// src/pages/AttendanceLeave.jsx
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
 
-const AttendanceLeave = () => {
+export default function AttendanceLeave() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('Attendance & Leave Records');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const location = useLocation();
   const [selectedRecord, setSelectedRecord] = useState(null);
-
-  const tabs = [
-    'Overview', 'Add Employee', 'Attendance & Leave Records',
-    'Performance & Training', 'Documents & Contracts', 'Audit Logs'
-  ];
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // ✅ Date formatter function
   const formatDate = (dateString) => {
@@ -29,148 +24,177 @@ const AttendanceLeave = () => {
   const attendanceData = [
     {
       id: 1,
-      employee: 'Jeremy Neigh',
-      department: 'Support',
-      date: '2018-09-23',
-      attendanceStatus: 'Present',
-      leaveStatus: '-',
-      details: 'Check In: 09:00 AM\nCheck Out: 06:00 PM\nHours: 9h 0m'
+      employee: "Jeremy Neigh",
+      department: "Support",
+      date: "2018-09-23",
+      attendanceStatus: "Present",
+      leaveStatus: "-",
+      details: "Check In: 09:00 AM\nCheck Out: 06:00 PM\nHours: 9h 0m",
     },
     {
       id: 2,
-      employee: 'Annette Black',
-      department: 'QA',
-      date: '2013-07-27',
-      attendanceStatus: '-',
-      leaveStatus: 'Approved',
-      details: 'Type: Annual Leave\nDuration: Full Day\nApproved by: Michael Wilson'
+      employee: "Annette Black",
+      department: "QA",
+      date: "2013-07-27",
+      attendanceStatus: "-",
+      leaveStatus: "Approved",
+      details: "Type: Annual Leave\nDuration: Full Day\nApproved by: Michael Wilson",
     },
     {
       id: 3,
-      employee: 'Theresa Webb',
-      department: 'People Ops',
-      date: '2016-11-07',
-      attendanceStatus: 'Late',
-      leaveStatus: '-',
-      details: 'Check In: 10:15 AM\nCheck Out: 06:30 PM\nHours: 8h 15m'
+      employee: "Theresa Webb",
+      department: "People Ops",
+      date: "2016-11-07",
+      attendanceStatus: "Late",
+      leaveStatus: "-",
+      details: "Check In: 10:15 AM\nCheck Out: 06:30 PM\nHours: 8h 15m",
     },
     {
       id: 4,
-      employee: 'Kathryn Murphy',
-      department: 'IT',
-      date: '2014-06-19',
-      attendanceStatus: 'Present',
-      leaveStatus: '-',
-      details: 'Check In: 08:45 AM\nCheck Out: 05:30 PM\nHours: 8h 45m'
+      employee: "Kathryn Murphy",
+      department: "IT",
+      date: "2014-06-19",
+      attendanceStatus: "Present",
+      leaveStatus: "-",
+      details: "Check In: 08:45 AM\nCheck Out: 05:30 PM\nHours: 8h 45m",
     },
     {
       id: 5,
-      employee: 'Courtney Henry',
-      department: 'Customer Success',
-      date: '2019-07-11',
-      attendanceStatus: '-',
-      leaveStatus: 'Pending',
-      details: 'Type: Sick Leave\nDuration: Half Day (AM)\nRequested: 2023-10-14'
+      employee: "Courtney Henry",
+      department: "Customer Success",
+      date: "2019-07-11",
+      attendanceStatus: "-",
+      leaveStatus: "Pending",
+      details: "Type: Sick Leave\nDuration: Half Day (AM)\nRequested: 2023-10-14",
     },
     {
       id: 6,
-      employee: 'Jane Cooper',
-      department: 'Product',
-      date: '2019-08-02',
-      attendanceStatus: '-',
-      leaveStatus: 'Approved',
-      details: 'Check In: 09:00 AM\nCheck Out: 06:00 PM\nHours: 9h 0m'
-    }
+      employee: "Jane Cooper",
+      department: "Product",
+      date: "2019-08-02",
+      attendanceStatus: "-",
+      leaveStatus: "Approved",
+      details: "Check In: 09:00 AM\nCheck Out: 06:00 PM\nHours: 9h 0m",
+    },
   ];
-
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    if (tab === 'Overview') navigate('/employee-info');
-    else if (tab === 'Add Employee') navigate('/add-employee');
-    else if (tab === 'Attendance & Leave Records') navigate('/attendance-leave');
-    else if (tab === 'Performance & Training') navigate('/performance-training');
-    else if (tab === 'Documents & Contracts') navigate('/documents-contracts');
-    else if (tab === 'Audit Logs') navigate('/audit-logs');
-  };
 
   const handleRecordClick = (record) => {
     setSelectedRecord(record);
   };
 
   return (
-    <div className="attendance-leave-container">
-      <Sidebar />
+    <Layout>
+      {/* Fixed Header Section */}
+      <PageHeader
+        breadcrumb={["Employee Information", "Attendance & Leave Records"]}
+        title="Employee Information Management"
+      />
 
-      <div className="attendance-leave-content">
-        {/* Header */}
-         <Header />
-        <header className="attendance-leave-header">
-          <div className="header-left">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">Employee Information Management</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">Attendance & Leave Records</span>
-            </div>
-            <h1 className="page-title">Employee Information Management</h1>
-          </div>
+      {/* Tabs - Single Line */}
+      <div className="card" style={{ display: "flex", gap: "8px", overflowX: "auto", whiteSpace: "nowrap" }}>
+        {[
+          { label: "Overview", path: "/employee-info" },
+          { label: "Add Employee", path: "/add-employee" },
+          { label: "Attendance & Leave Records", path: "/attendance-leave" },
+          { label: "Performance & Training", path: "/performance-training" },
+          { label: "Documents & Contracts", path: "/documents-contracts" },
+          { label: "Audit Logs", path: "/audit-logs" },
+        ].map((t) => (
+          <button
+            key={t.path}
+            className={`btn ${location.pathname === t.path ? "btn-primary" : "btn-soft"}`}
+            onClick={() => navigate(t.path)}
+            style={{ whiteSpace: "nowrap", flexShrink: 0 }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-          
-        </header>
-
-        {/* Tab Navigation */}
-        <div className="tab-navigation">
-          {tabs.map(tab => (
-            <button
-              key={tab}
-              className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
-              onClick={() => handleTabClick(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Main Content */}
-        <div className="attendance-leave-main-content">
-          <div className="section-header">
-            <h2>Attendance & Leave Records</h2>
-          </div>
-
-          {/* ✅ Toolbar (Date Range + Buttons) */}
-          <div className="attendance-toolbar">
-            <div className="left-toolbar">
-              <span className="date-range-label">📅 Date Range:</span>
+      {/* Filters Card */}
+      <div className="card">
+        <div className="grid-3" style={{ alignItems: "end", marginBottom: "12px" }}>
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+              Date Range
+            </label>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <input
-                type="text"
-                placeholder="mm/dd/yyyy"
+                className="input"
+                type="date"
+                placeholder="Start Date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="date-input"
               />
-              <span className="date-range-to">to</span>
+              <span style={{ color: "var(--muted)", fontSize: "12px" }}>to</span>
               <input
-                type="text"
-                placeholder="mm/dd/yyyy"
+                className="input"
+                type="date"
+                placeholder="End Date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="date-input"
               />
-            </div>
-
-            <div className="right-toolbar">
-              <button className="filter-btn">Filter</button>
-              <button
-                className="add-leave-btn1"
-                onClick={() => navigate('/add-leave')}
-              >
-                + Add Leave
-              </button>
             </div>
           </div>
 
-          {/* Attendance Table */}
-          <div className="attendance-table-container">
-            <table className="attendance-table">
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+              Attendance Status
+            </label>
+            <select className="select">
+              <option value="">All Status</option>
+              <option>Present</option>
+              <option>Late</option>
+              <option>Absent</option>
+              <option>Half Day</option>
+            </select>
+          </div>
+
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+              Leave Status
+            </label>
+            <select className="select">
+              <option value="">All Status</option>
+              <option>Approved</option>
+              <option>Pending</option>
+              <option>Rejected</option>
+            </select>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "8px" }}>
+            {(startDate || endDate) && (
+              <button 
+                className="btn btn-soft" 
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                }}
+              >
+                Clear Dates
+              </button>
+            )}
+          </div>
+          <button className="btn btn-primary" onClick={() => navigate("/add-leave")}>
+            + Add Leave
+          </button>
+        </div>
+      </div>
+
+      {/* Scrollable Table Section */}
+      <div className="table-container">
+        <div className="card" style={{ padding: 0 }}>
+          <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center" }}>
+            <div style={{ fontWeight: "700" }}>Attendance & Leave Records</div>
+            <div style={{ marginLeft: "auto", fontSize: "12px", color: "var(--muted)" }}>
+              {attendanceData.length} record(s)
+            </div>
+          </div>
+
+          <div style={{ overflowX: "auto", flex: 1 }}>
+            <table className="table">
               <thead>
                 <tr>
                   <th>Employee</th>
@@ -182,35 +206,62 @@ const AttendanceLeave = () => {
                 </tr>
               </thead>
               <tbody>
-                {attendanceData.map(record => (
+                {attendanceData.map((record) => (
                   <tr
                     key={record.id}
-                    className={selectedRecord?.id === record.id ? 'selected' : ''}
+                    className={selectedRecord?.id === record.id ? "selected" : ""}
                     onClick={() => handleRecordClick(record)}
+                    style={{ cursor: "pointer" }}
                   >
-                    <td>{record.employee}</td>
+                    <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div className="user-avatar" />
+                      <div>
+                        <div style={{ fontWeight: "600" }}>{record.employee}</div>
+                      </div>
+                    </td>
                     <td>{record.department}</td>
                     <td>{formatDate(record.date)}</td>
                     <td>
-                      <span className={`status-badge ${record.attendanceStatus.toLowerCase()}`}>
+                      <span
+                        className={`pill ${
+                          record.attendanceStatus === "Present"
+                            ? "pill-ok"
+                            : record.attendanceStatus === "Late"
+                            ? "pill-warn"
+                            : ""
+                        }`}
+                      >
                         {record.attendanceStatus}
                       </span>
                     </td>
                     <td>
-                      <span className={`status-badge ${record.leaveStatus.toLowerCase()}`}>
+                      <span
+                        className={`pill ${
+                          record.leaveStatus === "Approved"
+                            ? "pill-ok"
+                            : record.leaveStatus === "Pending"
+                            ? "pill-warn"
+                            : ""
+                        }`}
+                      >
                         {record.leaveStatus}
                       </span>
                     </td>
-                    <td>{record.details.split('\n')[0]}</td>
+                    <td>{record.details.split("\n")[0]}</td>
                   </tr>
                 ))}
+                {!attendanceData.length && (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                      No attendance records found.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
-};
-
-export default AttendanceLeave;
+}

@@ -1,11 +1,12 @@
 .sidebar {
-  width: 205px;
-  min-height: 100vh;
-  background-color: #f8f9fa;
-  border-right: 1px solid #e5e7eb;
+  width: 100%;                 /* it will stretch to the grid column */
+  height: 100%;
+  background: #fff;
   display: flex;
   flex-direction: column;
-  position: fixed;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  flex-direction: column;
   left: 0;
   top: 0;
   z-index: 100;

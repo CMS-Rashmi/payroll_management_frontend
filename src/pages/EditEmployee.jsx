@@ -1,38 +1,37 @@
-// src/pages/EditEmployee.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import "../styles/AddEmployee.css";
+import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
 import { apiGet, apiUpload, apiDelete } from "../services/api";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
 const DocCard = ({ doc, onReplace, onDelete, busyId }) => (
-  <li className="doc-card">
-    <div className="thumb">
+  <li className="card" style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+    <div style={{ width: 80, height: 80, background: "#f3f4f6", borderRadius: 6, overflow: "hidden" }}>
       {doc.kind === "image" ? (
-        <img src={doc.url} alt={doc.file_name} />
+        <img src={doc.url} alt={doc.file_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       ) : doc.kind === "pdf" ? (
-        <iframe src={`${doc.url}#view=FitH&navpanes=0&toolbar=0`} title={doc.file_name} />
+        <iframe title={doc.file_name} src={`${doc.url}#view=FitH&navpanes=0&toolbar=0`} style={{ width: "100%", height: "100%" }} />
       ) : (
-        <div className="file-icon">📄</div>
+        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>📄</div>
       )}
     </div>
-    <div className="meta">
-      <div className="name" title={doc.file_name}>{doc.file_name}</div>
-      <div className="type">
+    <div style={{ flex: 1 }}>
+      <div style={{ fontWeight: 700 }}>{doc.file_name}</div>
+      <div style={{ fontSize: 12, color: "var(--muted)" }}>
         <strong>{doc.category}</strong> • {doc.file_type}
       </div>
-      <div className="actions">
-        <a className="doc-link" href={doc.url} target="_blank" rel="noopener noreferrer">View/Download</a>
-        <button className="doc-act" onClick={() => onReplace(doc)} disabled={busyId===doc.id}>Replace</button>
-        <button className="doc-act danger" onClick={() => onDelete(doc)} disabled={busyId===doc.id}>Delete</button>
+      <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+        <a className="btn btn-soft" href={doc.url} target="_blank" rel="noopener noreferrer">Open</a>
+        <button className="btn btn-soft" onClick={() => onReplace(doc)} disabled={busyId === doc.id}>Replace</button>
+        <button className="btn btn-danger" onClick={() => onDelete(doc)} disabled={busyId === doc.id}>Delete</button>
       </div>
     </div>
   </li>
 );
 
-const EditEmployee = () => {
+export default function EditEmployee() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -71,7 +70,7 @@ const EditEmployee = () => {
         const res = await apiGet(`/employees/${id}`);
         const e = res.data || {};
 
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           first_name: e.first_name || "",
           last_name: e.last_name || "",
@@ -112,8 +111,8 @@ const EditEmployee = () => {
         }));
 
         const docs = e.documents || [];
-        setExistingBankDocs(docs.filter(d => d.category === 'Bank Document' || d.file_name?.startsWith('BANK -')));
-        setExistingDocs(docs.filter(d => !(d.category === 'Bank Document' || d.file_name?.startsWith('BANK -'))));
+        setExistingBankDocs(docs.filter((d) => d.category === "Bank Document" || d.file_name?.startsWith("BANK -")));
+        setExistingDocs(docs.filter((d) => !(d.category === "Bank Document" || d.file_name?.startsWith("BANK -"))));
       } catch (err) {
         console.error(err);
         setError("Failed to load employee data");
@@ -147,8 +146,8 @@ const EditEmployee = () => {
   const refreshDocs = async () => {
     const fresh = await apiGet(`/employees/${id}`);
     const docs = fresh.data.documents || [];
-    setExistingBankDocs(docs.filter(d => d.category === 'Bank Document' || d.file_name?.startsWith('BANK -')));
-    setExistingDocs(docs.filter(d => !(d.category === 'Bank Document' || d.file_name?.startsWith('BANK -'))));
+    setExistingBankDocs(docs.filter((d) => d.category === "Bank Document" || d.file_name?.startsWith("BANK -")));
+    setExistingDocs(docs.filter((d) => !(d.category === "Bank Document" || d.file_name?.startsWith("BANK -"))));
   };
 
   const handleSave = async (e) => {
@@ -178,7 +177,6 @@ const EditEmployee = () => {
     }
   };
 
-  // Delete & Replace handlers
   const handleDeleteDoc = async (doc) => {
     if (!window.confirm(`Delete "${doc.file_name}"?`)) return;
     try {
@@ -227,221 +225,228 @@ const EditEmployee = () => {
     }
   };
 
-  if (loading) return <div className="edit-loading">Loading…</div>;
+  if (loading) return <Layout><PageHeader breadcrumb={["Employee Information"]} title="Edit Employee" /><div className="card">Loading…</div></Layout>;
 
-  const renderStep = () => {
-    switch (step) {
-      case 1:
-        return (
-          <div className="step-section">
-            <h2>Personal Details</h2>
-            <p className="section-subtitle">Edit employee personal details</p>
-            <div className="two-column">
-              <input name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleInputChange} />
-              <input name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleInputChange} />
-              <input name="initials" placeholder="Initials" value={formData.initials} onChange={handleInputChange} />
-              <input name="calling_name" placeholder="Preferred Name" value={formData.calling_name} onChange={handleInputChange} />
-              <PhoneInput
-                country={"lk"}
-                value={formData.phone}
-                onChange={(phone, countryData) =>
-                  setFormData((prev) => ({ ...prev, phone, country_code: `+${countryData.dialCode}` }))
-                }
-                inputStyle={{ width: "100%", height: "42px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
-              />
-              <select name="gender" value={formData.gender} onChange={handleInputChange}>
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-              <input type="date" name="dob" value={formData.dob?.slice(0, 10)} onChange={handleInputChange} />
-              <input name="nic" placeholder="NIC" value={formData.nic} onChange={handleInputChange} />
-              <input name="email" type="email" placeholder="Work Email" value={formData.email} onChange={handleInputChange} />
-              <input name="personal_email" type="email" placeholder="Personal Email" value={formData.personal_email} onChange={handleInputChange} />
-              <input name="address_permanent" placeholder="Permanent Address" value={formData.address_permanent} onChange={handleInputChange} />
-              <input name="address_temporary" placeholder="Temporary Address" value={formData.address_temporary} onChange={handleInputChange} />
-              <select name="nationality" value={formData.nationality} onChange={handleInputChange}>
-                <option value="">Select Nationality</option>
-                <option value="Sri Lankan">Sri Lankan</option>
-                <option value="Indian">Indian</option>
-              </select>
-              <select name="religion" value={formData.religion} onChange={handleInputChange}>
-                <option value="">Select Religion</option>
-                <option value="Buddhism">Buddhism</option>
-                <option value="Hinduism">Hinduism</option>
-                <option value="Christianity">Christianity</option>
-                <option value="Islam">Islam</option>
-              </select>
-            </div>
-          </div>
-        );
-      case 2:
-        return (
-          <div className="step-section">
-            <h2>Official Details</h2>
-            <div className="two-column">
-              <input type="date" name="appointment_date" value={formData.appointment_date?.slice(0, 10)} onChange={handleInputChange} />
-              <select name="department" value={formData.department} onChange={handleInputChange}>
-                <option value="">Select Department</option>
-                <option value="IT">IT</option>
-                <option value="Finance">Finance</option>
-                <option value="HR">HR</option>
-              </select>
-              <select name="designation" value={formData.designation} onChange={handleInputChange}>
-                <option value="">Select Designation</option>
-                <option value="Executive">Executive</option>
-                <option value="Manager">Manager</option>
-                <option value="Assistant">Assistant</option>
-              </select>
-              <select name="employment_type" value={formData.employment_type} onChange={handleInputChange}>
-                <option value="">Select Employment Type</option>
-                <option value="Permanent">Permanent</option>
-                <option value="Contract">Contract</option>
-              </select>
-              <input name="basic_salary" type="number" placeholder="Basic Salary" value={formData.basic_salary} onChange={handleInputChange} />
-              <select name="status" value={formData.status} onChange={handleInputChange}>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-              <input name="supervisor" placeholder="Supervisor" value={formData.supervisor} onChange={handleInputChange} />
-              <input name="epf_no" placeholder="EPF No" value={formData.epf_no} onChange={handleInputChange} />
-            </div>
-          </div>
-        );
-      case 3:
-        return (
-          <div className="step-section">
-            <h2>Relatives Details</h2>
-            <div className="two-column">
-              <input name="kin_name" placeholder="Name" value={formData.kin_name} onChange={handleInputChange} />
-              <input name="kin_relationship" placeholder="Relationship" value={formData.kin_relationship} onChange={handleInputChange} />
-              <input name="kin_nic" placeholder="NIC" value={formData.kin_nic} onChange={handleInputChange} />
-              <input type="date" name="kin_dob" value={formData.kin_dob?.slice(0, 10)} onChange={handleInputChange} />
-            </div>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="step-section">
-            <h2>Bank Details</h2>
-            <div className="two-column">
-              <input name="account_number" placeholder="Account Number" value={formData.account_number} onChange={handleInputChange} />
-              <input name="account_name" placeholder="Account Holder Name" value={formData.account_name} onChange={handleInputChange} />
-              <input name="bank_name" placeholder="Bank Name" value={formData.bank_name} onChange={handleInputChange} />
-              <input name="branch_name" placeholder="Branch Name" value={formData.branch_name} onChange={handleInputChange} />
-            </div>
+  const Field = (props) => <input className="input" {...props} />;
+  const Select = (props) => <select className="select" {...props} />;
 
-            <div className="upload-box" style={{ marginTop: 20 }}>
-              <label>Existing Bank Documents</label>
-              {existingBankDocs.length ? (
-                <ul className="doc-grid">
-                  {existingBankDocs.map(d => (
-                    <DocCard key={d.id} doc={d} onReplace={handleReplaceDoc} onDelete={handleDeleteDoc} busyId={busyDoc} />
-                  ))}
-                </ul>
-              ) : <p>No bank document uploaded</p>}
-            </div>
-
-            <div className="upload-box" style={{ marginTop: 20 }}>
-              <label>Upload Bank Document (Optional)</label>
-              <input type="file" onChange={(e) => setBankDocument(e.target.files[0])} accept=".pdf,.jpg,.jpeg,.png" />
-            </div>
-          </div>
-        );
-      case 5:
-        return (
-          <div className="step-section">
-            <h2>Documents Upload</h2>
-            <p className="section-subtitle">Upload and manage personal documents</p>
-
-            <div className="upload-box">
-              <label>Already Uploaded Documents</label>
-              {existingDocs.length ? (
-                <ul className="doc-grid">
-                  {existingDocs.map(d => (
-                    <DocCard key={d.id} doc={d} onReplace={handleReplaceDoc} onDelete={handleDeleteDoc} busyId={busyDoc} />
-                  ))}
-                </ul>
-              ) : <p>No personal documents uploaded</p>}
-            </div>
-
-            <div className="upload-box" style={{ marginTop: 20 }}>
-              <label>Profile Photo (JPG/JPEG/PNG)</label>
-              <input type="file" onChange={(e) => setProfilePhoto(e.target.files[0])} accept=".jpg,.jpeg,.png" />
-            </div>
-
-            <div className="upload-box" style={{ marginTop: 20 }}>
-              <label>Select Document Type</label>
-              <select value={documentType} onChange={(e) => setDocumentType(e.target.value)}>
-                <option value="">Select Document Type</option>
-                <option value="NIC Copy">NIC Copy</option>
-                <option value="Birth Certificate">Birth Certificate</option>
-                <option value="Educational Certificates">Educational Certificates</option>
-                <option value="Appointment Letter">Appointment Letter</option>
-                <option value="Experience Letter">Experience Letter</option>
-                <option value="Passport Copy">Passport Copy</option>
-                <option value="Other">Other</option>
-              </select>
-              <label style={{ marginTop: 10 }}>Upload Supporting Document (PDF/JPG/JPEG/PNG)</label>
-              <input type="file" onChange={(e) => setDocument(e.target.files[0])} accept=".pdf,.jpg,.jpeg,.png" />
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="add-employee-container">
-      <Sidebar />
-      <div className="add-employee-content">
-        <h1>Edit Employee</h1>
-
-        <div className="stepper">
-          {["Personal", "Official", "Next of Kin", "Bank", "Documents"].map((label, index) => (
-            <div key={label} className={`step ${step === index + 1 ? "active" : ""}`}>
-              <span>{index + 1}</span> {label}
-            </div>
-          ))}
-        </div>
-
-        {error && <p className="error-text">{error}</p>}
-
-        {/* hidden input for "Replace" */}
-        <input
-          ref={replaceInputRef}
-          type="file"
-          accept=".pdf,.jpg,.jpeg,.png"
-          style={{ display: 'none' }}
-          onChange={onPickReplacement}
-        />
-
-        <form onSubmit={handleSave}>
-          {renderStep()}
-          <div className="form-actions">
-            {step > 1 && <button type="button" className="cancel-btn" onClick={prevStep}>Previous</button>}
-            {step < 5 && <button type="button" className="submit-btn" onClick={nextStep}>Next</button>}
-            {step === 5 && <button type="submit" className="submit-btn" disabled={saving}>{saving ? "Saving..." : "Save Changes"}</button>}
-            <button
-              type="button"
-              className="btn-danger"
-              onClick={() => {
-                if (window.confirm('Delete this employee?')) {
-                  apiGet(`/employees/${id}`, { method: 'DELETE' })
-                    .then(() => { alert('Employee deleted'); navigate('/employee-info'); })
-                    .catch(() => alert('Failed to delete employee'));
-                }
-              }}
-            >
-              Delete
-            </button>
-            <button type="button" className="cancel-btn" onClick={() => navigate("/employee-info")}>Cancel</button>
-          </div>
-        </form>
-      </div>
+  const StepWrap = ({ title, sub, children }) => (
+    <div className="card">
+      <h2 style={{ margin: 0 }}>{title}</h2>
+      {sub && <div style={{ color: "var(--muted)", marginTop: 4 }}>{sub}</div>}
+      <div style={{ height: 12 }} />
+      {children}
     </div>
   );
-};
 
-export default EditEmployee;
+  return (
+    <Layout>
+      <PageHeader breadcrumb={["Employee Information", "Edit"]} title="Edit Employee" />
+
+      {/* stepper */}
+      <div className="card" style={{ marginBottom: 16, display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {["Personal", "Official", "Next of Kin", "Bank", "Documents"].map((label, index) => (
+          <button
+            key={label}
+            className={`btn ${step === index + 1 ? "btn-primary" : "btn-soft"}`}
+            onClick={() => setStep(index + 1)}
+            type="button"
+          >
+            {index + 1}. {label}
+          </button>
+        ))}
+      </div>
+
+      {error && <div className="card" style={{ borderColor: "var(--danger)", color: "var(--danger)" }}>{error}</div>}
+
+      {/* hidden file input for Replace */}
+      <input
+        ref={replaceInputRef}
+        type="file"
+        accept=".pdf,.jpg,.jpeg,.png"
+        style={{ display: "none" }}
+        onChange={onPickReplacement}
+      />
+
+      <form onSubmit={handleSave}>
+        {step === 1 && (
+          <StepWrap title="Personal Details" sub="Edit employee personal details">
+            <div className="grid-2">
+              <Field name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleInputChange} />
+              <Field name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleInputChange} />
+              <Field name="initials" placeholder="Initials" value={formData.initials} onChange={handleInputChange} />
+              <Field name="calling_name" placeholder="Preferred Name" value={formData.calling_name} onChange={handleInputChange} />
+              <div>
+                <PhoneInput
+                  country={"lk"}
+                  value={formData.phone}
+                  onChange={(phone, countryData) =>
+                    setFormData((prev) => ({ ...prev, phone, country_code: `+${countryData.dialCode}` }))
+                  }
+                  inputStyle={{ width: "100%", height: "42px", borderRadius: 6, border: "1px solid #d1d5db", fontSize: 14 }}
+                />
+              </div>
+              <Select name="gender" value={formData.gender} onChange={handleInputChange}>
+                <option value="">Select Gender</option><option>Male</option><option>Female</option>
+              </Select>
+              <Field type="date" name="dob" value={formData.dob?.slice(0, 10) || ""} onChange={handleInputChange} />
+              <Field name="nic" placeholder="NIC" value={formData.nic} onChange={handleInputChange} />
+              <Field name="email" type="email" placeholder="Work Email" value={formData.email} onChange={handleInputChange} />
+              <Field name="personal_email" type="email" placeholder="Personal Email" value={formData.personal_email} onChange={handleInputChange} />
+              <Field name="address_permanent" placeholder="Permanent Address" value={formData.address_permanent} onChange={handleInputChange} />
+              <Field name="address_temporary" placeholder="Temporary Address" value={formData.address_temporary} onChange={handleInputChange} />
+              <Select name="nationality" value={formData.nationality} onChange={handleInputChange}>
+                <option value="">Select Nationality</option><option>Sri Lankan</option><option>Indian</option>
+              </Select>
+              <Select name="religion" value={formData.religion} onChange={handleInputChange}>
+                <option value="">Select Religion</option><option>Buddhism</option><option>Hinduism</option><option>Christianity</option><option>Islam</option>
+              </Select>
+            </div>
+          </StepWrap>
+        )}
+
+        {step === 2 && (
+          <StepWrap title="Official Details">
+            <div className="grid-2">
+              <Field type="date" name="appointment_date" value={formData.appointment_date?.slice(0, 10) || ""} onChange={handleInputChange} />
+              <Select name="department" value={formData.department} onChange={handleInputChange}>
+                <option value="">Select Department</option><option>IT</option><option>Finance</option><option>HR</option>
+              </Select>
+              <Select name="designation" value={formData.designation} onChange={handleInputChange}>
+                <option value="">Select Designation</option><option>Executive</option><option>Manager</option><option>Assistant</option>
+              </Select>
+              <Select name="employment_type" value={formData.employment_type} onChange={handleInputChange}>
+                <option value="">Select Employment Type</option><option>Permanent</option><option>Contract</option>
+              </Select>
+              <Field name="basic_salary" type="number" placeholder="Basic Salary" value={formData.basic_salary} onChange={handleInputChange} />
+              <Select name="status" value={formData.status} onChange={handleInputChange}>
+                <option>Active</option><option>Inactive</option>
+              </Select>
+              <Field name="supervisor" placeholder="Supervisor" value={formData.supervisor} onChange={handleInputChange} />
+              <Field name="epf_no" placeholder="EPF No" value={formData.epf_no} onChange={handleInputChange} />
+            </div>
+          </StepWrap>
+        )}
+
+        {step === 3 && (
+          <StepWrap title="Relatives Details">
+            <div className="grid-2">
+              <Field name="kin_name" placeholder="Name" value={formData.kin_name} onChange={handleInputChange} />
+              <Field name="kin_relationship" placeholder="Relationship" value={formData.kin_relationship} onChange={handleInputChange} />
+              <Field name="kin_nic" placeholder="NIC" value={formData.kin_nic} onChange={handleInputChange} />
+              <Field type="date" name="kin_dob" value={formData.kin_dob?.slice(0, 10) || ""} onChange={handleInputChange} />
+            </div>
+          </StepWrap>
+        )}
+
+        {step === 4 && (
+          <StepWrap title="Bank Details">
+            <div className="grid-2">
+              <Field name="account_number" placeholder="Account Number" value={formData.account_number} onChange={handleInputChange} />
+              <Field name="account_name" placeholder="Account Holder Name" value={formData.account_name} onChange={handleInputChange} />
+              <Field name="bank_name" placeholder="Bank Name" value={formData.bank_name} onChange={handleInputChange} />
+              <Field name="branch_name" placeholder="Branch Name" value={formData.branch_name} onChange={handleInputChange} />
+            </div>
+
+            <div className="card" style={{ marginTop: 16 }}>
+              <div style={{ fontWeight: 700, marginBottom: 8 }}>Existing Bank Documents</div>
+              {existingBankDocs.length ? (
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 12 }}>
+                  {existingBankDocs.map((d) => (
+                    <DocCard key={d.id} doc={d} onReplace={handleReplaceDoc} onDelete={handleDeleteDoc} busyId={busyDoc} />
+                  ))}
+                </ul>
+              ) : (
+                <div style={{ color: "var(--muted)" }}>No bank document uploaded</div>
+              )}
+            </div>
+
+            <div style={{ marginTop: 16 }}>
+              <label style={{ display: "block", fontSize: 12, color: "var(--muted)", marginBottom: 6 }}>
+                Upload Bank Document (Optional)
+              </label>
+              <input className="input" type="file" onChange={(e) => setBankDocument(e.target.files[0])} accept=".pdf,.jpg,.jpeg,.png" />
+            </div>
+          </StepWrap>
+        )}
+
+        {step === 5 && (
+          <StepWrap title="Documents Upload" sub="Upload and manage personal documents">
+            <div className="card" style={{ marginBottom: 12 }}>
+              <div style={{ fontWeight: 700, marginBottom: 8 }}>Already Uploaded Documents</div>
+              {existingDocs.length ? (
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 12 }}>
+                  {existingDocs.map((d) => (
+                    <DocCard key={d.id} doc={d} onReplace={handleReplaceDoc} onDelete={handleDeleteDoc} busyId={busyDoc} />
+                  ))}
+                </ul>
+              ) : (
+                <div style={{ color: "var(--muted)" }}>No personal documents uploaded</div>
+              )}
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 12, color: "var(--muted)", marginBottom: 6 }}>
+                Profile Photo (JPG/JPEG/PNG)
+              </label>
+              <input className="input" type="file" onChange={(e) => setProfilePhoto(e.target.files[0])} accept=".jpg,.jpeg,.png" />
+            </div>
+
+            <div style={{ marginTop: 16 }}>
+              <label style={{ display: "block", fontSize: 12, color: "var(--muted)", marginBottom: 6 }}>
+                Document Type
+              </label>
+              <select className="select" value={documentType} onChange={(e) => setDocumentType(e.target.value)}>
+                <option value="">Select Document Type</option>
+                <option>NIC Copy</option><option>Birth Certificate</option><option>Educational Certificates</option>
+                <option>Appointment Letter</option><option>Experience Letter</option><option>Passport Copy</option><option>Other</option>
+              </select>
+              <label style={{ display: "block", fontSize: 12, color: "var(--muted)", margin: "10px 0 6px" }}>
+                Upload Supporting Document (PDF/JPG/JPEG/PNG)
+              </label>
+              <input className="input" type="file" onChange={(e) => setDocument(e.target.files[0])} accept=".pdf,.jpg,.jpeg,.png" />
+            </div>
+          </StepWrap>
+        )}
+
+        <div style={{ height: 16 }} />
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {step > 1 && (
+            <button type="button" className="btn btn-soft" onClick={prevStep}>
+              Previous
+            </button>
+          )}
+          {step < 5 && (
+            <button type="button" className="btn btn-primary" onClick={nextStep}>
+              Next
+            </button>
+          )}
+          {step === 5 && (
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+          )}
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={() => {
+              if (window.confirm("Delete this employee?")) {
+                apiGet(`/employees/${id}`, { method: "DELETE" })
+                  .then(() => {
+                    alert("Employee deleted");
+                    navigate("/employee-info");
+                  })
+                  .catch(() => alert("Failed to delete employee"));
+              }
+            }}
+          >
+            Delete
+          </button>
+          <button type="button" className="btn btn-soft" onClick={() => navigate("/employee-info")}>
+            Cancel
+          </button>
+        </div>
+      </form>
+    </Layout>
+  );
+}

@@ -1,256 +1,143 @@
-import React, { useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
-import '../styles/Dashboard.css';
+// src/pages/Dashboard.jsx
+import React from "react";
+import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
 
-const Dashboard = () => {
-  const [activeMenuItem, setActiveMenuItem] = useState('dashboard');
-
-  const handleNavigation = (itemId) => {
-    setActiveMenuItem(itemId);
-    console.log('Navigate to:', itemId);
-  };
-
+export default function Dashboard() {
   return (
-    <div className="dashboard-container">
-      <Sidebar activeItem={activeMenuItem} onNavigate={handleNavigation} />
-      
-      <div className="dashboard-content">
-        {/* Header */}
-<Header />
-        <header className="dashboard-header">
-          <div className="header-left">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">Dashboard</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">Employee Information Management</span>
-            </div>
-            <h1 className="page-title">Dashboard</h1>
-          </div>
-          
+    <Layout>
+      <PageHeader
+        breadcrumb={["Dashboard", "Employee Information Management"]}
+        title="Dashboard"
+      />
 
-        </header>
-
-       
-
-        {/* Tab Navigation */}
-        
-        {/* Main Content */}
-        <div className="main-content">
-          {/* Left Column */}
-          <div className="left-column">
-            {/* Employee Info Card */}
-            <div className="employee-card">
-              <div className="employee-avatar"></div>
-              <div className="employee-info">
-                <h3>Nimal Perera</h3>
-                <p>HR Manager</p>
-              </div>
-            </div>
-
-            {/* Employee Details */}
-            <div className="employee-details">
-              <h4>Info</h4>
-              <div className="detail-item">
-                <span className="detail-icon">🏢</span>
-                <div className="detail-text">
-                  <span className="detail-label">HR</span>
-                  <span className="detail-sublabel">Department</span>
-                </div>
-              </div>
-              
-              <div className="detail-item">
-                <span className="detail-icon">👤</span>
-                <div className="detail-text">
-                  <span className="detail-label">Human Resource Manager</span>
-                  <span className="detail-sublabel">role</span>
-                </div>
-              </div>
-              
-              <div className="detail-item">
-                <span className="detail-icon">🆔</span>
-                <div className="detail-text">
-                  <span className="detail-label">CMS 129099</span>
-                  <span className="detail-sublabel">Employee ID</span>
-                </div>
-              </div>
-              
-              <div className="detail-item">
-                <span className="detail-icon">📄</span>
-                <div className="detail-text">
-                  <span className="detail-label">200070301290</span>
-                  <span className="detail-sublabel">NIC</span>
-                </div>
-              </div>
-              
-              <div className="detail-item">
-                <span className="detail-icon">🏦</span>
-                <div className="detail-text">
-                  <span className="detail-label">29049080</span>
-                  <span className="detail-sublabel">Peoples Bank</span>
-                </div>
-              </div>
-              
-              <div className="detail-item">
-                <span className="detail-icon">💵</span>
-                <div className="detail-text">
-                  <span className="detail-label salary">$ 40,000</span>
-                  <span className="detail-sublabel">Salary</span>
-                </div>
-              </div>
-              
-              <div className="detail-item">
-                <span className="detail-icon">⏰</span>
-                <div className="detail-text">
-                  <span className="detail-label">Regular</span>
-                  <span className="detail-sublabel">Work Shift</span>
-                </div>
-              </div>
-              
-              <div className="detail-item">
-                <span className="detail-icon">📋</span>
-                <div className="detail-text">
-                  <span className="detail-label">Permanent</span>
-                  <span className="detail-sublabel">type</span>
-                </div>
-              </div>
-              
-              <h4>Contact</h4>
-              <div className="detail-item">
-                <span className="detail-icon">✉️</span>
-                <div className="detail-text">
-                  <span className="detail-label">Email</span>
-                  <span className="detail-sublabel">alwissuryatmaja@gmail.com</span>
-                </div>
-              </div>
-              
-              <div className="detail-item">
-                <span className="detail-icon">📱</span>
-                <div className="detail-text">
-                  <span className="detail-label">Phone</span>
-                  <span className="detail-sublabel">+6282283386756</span>
-                </div>
-              </div>
+      {/* Main grid: left info + right content */}
+      <div className="grid-2">
+        {/* LEFT COLUMN */}
+        <div className="card">
+          {/* Employee card */}
+          <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:16 }}>
+            <div className="user-avatar" style={{ width:60, height:60 }} />
+            <div>
+              <div style={{ fontWeight:700, fontSize:18 }}>Nimal Perera</div>
+              <div style={{ color:"var(--muted)", fontSize:14 }}>HR Manager</div>
             </div>
           </div>
 
-          {/* Right Column */}
-          <div className="right-column">
-            {/* Stats Cards */}
-            <div className="stats-grid">
-              <div className="stat-card">
-                <h3>Total Employees</h3>
-                <div className="stat-number">1,200</div>
-                <div className="stat-change positive">+2.00% From Last month</div>
-              </div>
-              
-              <div className="stat-card">
-                <h3>Projected Headcount</h3>
-                <div className="stat-number">500</div>
-                <div className="stat-change positive">+5 from current (495)</div>
-              </div>
-              
-              <div className="stat-card">
-                <h3>Ongoing Projects</h3>
-                <div className="stat-number">10</div>
-                <div className="stat-change neutral">This month</div>
+          {/* Info */}
+          <div style={{ fontWeight:700, marginBottom:12 }}>Info</div>
+          {[
+            ["🏢","HR","Department"],
+            ["👤","Human Resource Manager","Role"],
+            ["🆔","CMS 129099","Employee ID"],
+            ["📄","200070301290","NIC"],
+            ["🏦","29049080","Peoples Bank"],
+            ["💵","$ 40,000","Salary", true],
+            ["⏰","Regular","Work Shift"],
+            ["📋","Permanent","Type"],
+          ].map(([icon,label,sub,isGreen],i)=>(
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+              <div style={{ width:24, textAlign:"center" }}>{icon}</div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontWeight:600, color:isGreen ? "var(--success)" : "#111" }}>{label}</div>
+                <div style={{ color:"var(--muted)", fontSize:12 }}>{sub}</div>
               </div>
             </div>
+          ))}
 
-            {/* Leave Cards */}
-            <div className="leave-cards">
-              <div className="leave-card green">
-                <h4>Total Employees on Leave</h4>
-                <div className="leave-number">34</div>
-                <div className="leave-breakdown">
-                  <span className="paid">Paid 11</span>
-                  <span className="unpaid">Unpaid 4</span>
-                </div>
-              </div>
-              
-              <div className="leave-card blue">
-                <h4>Pending Leave Requests</h4>
-                <div className="leave-number">20</div>
-                <div className="leave-breakdown">
-                  <span className="paid">Paid 62</span>
-                  <span className="unpaid">Unpaid 76</span>
-                </div>
-              </div>
-              
-              <div className="leave-card teal">
-                <h4>Approved Leave Requests</h4>
-                <div className="leave-number">87</div>
-                <div className="leave-breakdown">
-                  <span className="paid">Paid 50</span>
-                  <span className="unpaid">Unpaid 51</span>
-                </div>
+          {/* Contact */}
+          <div style={{ fontWeight:700, margin:"20px 0 12px" }}>Contact</div>
+          {[
+            ["✉️","Email","alwissuryatmaja@gmail.com"],
+            ["📱","Phone","+6282283386756"],
+          ].map(([icon,label,value],i)=>(
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+              <div style={{ width:24, textAlign:"center" }}>{icon}</div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontWeight:600 }}>{label}</div>
+                <div style={{ color:"var(--muted)", fontSize:12 }}>{value}</div>
               </div>
             </div>
+          ))}
+        </div>
 
-            {/* Growth Cards */}
-            <div className="growth-cards">
-              <div className="growth-card">
-                <h4>Avg. Salary Growth</h4>
-                <div className="growth-percentage">+ 15.2 %</div>
-                <p>Over past 24 months</p>
+        {/* RIGHT COLUMN */}
+        <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+          {/* Stats */}
+          <div className="grid-3">
+            {[
+              ["Total Employees","1,200","+2.00% From Last month","ok"],
+              ["Projected Headcount","500","+5 from current (495)","ok"],
+              ["Ongoing Projects","10","This month","warn"],
+            ].map(([title, num, change, type],i)=>(
+              <div key={i} className="card">
+                <div style={{ color:"var(--muted)", fontWeight:600, marginBottom:8 }}>{title}</div>
+                <div style={{ fontSize:32, fontWeight:800, lineHeight:1 }}>{num}</div>
+                <div style={{ fontSize:12, marginTop:6, color: type==="ok" ? "var(--success)" : "var(--muted)" }}>
+                  {change}
+                </div>
               </div>
-              
-              <div className="growth-card">
-                <h4>Avg. Profit Growth</h4>
-                <div className="growth-percentage">+ 15.2 %</div>
-                <p>Over past 24 months</p>
-              </div>
-              
-              <div className="growth-card">
-                <h4>Avg. Salary Growth</h4>
-                <div className="growth-percentage">+ 15.2 %</div>
-                <p>Over past 24 months</p>
-              </div>
-            </div>
+            ))}
+          </div>
 
-            {/* Charts Section */}
-            <div className="charts-section">
-              <div className="chart-container">
-                <h4>Department-wise Salary Distribution</h4>
-                <div className="chart-placeholder blue-chart">
-                  <div className="chart-bars">
-                    <div className="bar" style={{height: '60%'}}></div>
-                    <div className="bar" style={{height: '80%'}}></div>
-                    <div className="bar" style={{height: '100%'}}></div>
-                    <div className="bar" style={{height: '45%'}}></div>
-                    <div className="bar" style={{height: '55%'}}></div>
-                  </div>
-                  <div className="chart-labels">
-                    <span>Engineering</span>
-                    <span>Sales</span>
-                    <span>Finance</span>
-                  </div>
+          {/* Leave cards */}
+          <div className="grid-3">
+            {[
+              ["Total Employees on Leave","34","Paid 11","Unpaid 4","linear-gradient(135deg, #10b981, #059669)"],
+              ["Pending Leave Requests","20","Paid 62","Unpaid 76","linear-gradient(135deg, #3b82f6, #2563eb)"],
+              ["Approved Leave Requests","87","Paid 50","Unpaid 51","linear-gradient(135deg, #14b8a6, #0d9488)"],
+            ].map(([title, num, a, b, bg], i)=>(
+              <div key={i} className="card" style={{ color:"#fff", background:bg, border:"none" }}>
+                <div style={{ opacity:.9, fontWeight:600, marginBottom:8 }}>{title}</div>
+                <div style={{ fontSize:36, fontWeight:800, lineHeight:1 }}>{num}</div>
+                <div style={{ opacity:.85, fontSize:12, marginTop:8, display:"flex", gap:6, flexDirection:"column" }}>
+                  <span>{a}</span><span>{b}</span>
                 </div>
               </div>
-              
-              <div className="chart-container">
-                <h4>Department Budget Allocation</h4>
-                <div className="chart-placeholder green-chart">
-                  <div className="chart-bars">
-                    <div className="bar green" style={{height: '90%'}}></div>
-                    <div className="bar green" style={{height: '70%'}}></div>
-                    <div className="bar green" style={{height: '85%'}}></div>
-                    <div className="bar green" style={{height: '60%'}}></div>
-                    <div className="bar green" style={{height: '75%'}}></div>
-                  </div>
-                  <div className="chart-labels">
-                    <span>Engineering</span>
-                    <span>Sales</span>
-                    <span>Finance</span>
-                  </div>
+            ))}
+          </div>
+
+          {/* Growth cards */}
+          <div className="grid-3">
+            {Array.from({length:3}).map((_,i)=>(
+              <div key={i} className="card" style={{ textAlign:"center" }}>
+                <div style={{ color:"var(--muted)", fontWeight:600, marginBottom:8 }}>
+                  {i===1 ? "Avg. Profit Growth" : "Avg. Salary Growth"}
+                </div>
+                <div style={{ fontSize:28, fontWeight:800, color:"var(--success)" }}>+ 15.2 %</div>
+                <div style={{ color:"var(--muted)", fontSize:12, marginTop:6 }}>Over past 24 months</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Charts (placeholders) */}
+          <div className="grid-2">
+            {[
+              ["Department-wise Salary Distribution","blue"],
+              ["Department Budget Allocation","green"]
+            ].map(([title, tone],i)=>(
+              <div key={i} className="card">
+                <div style={{ fontWeight:700, marginBottom:12 }}>{title}</div>
+                <div style={{ height:200, display:"flex", alignItems:"flex-end", gap:8 }}>
+                  {[60,80,100,45,55].map((h,j)=>(
+                    <div
+                      key={j}
+                      style={{
+                        width:40,
+                        height:`${h}%`,
+                        background: tone==="green"
+                          ? "linear-gradient(to top, #10b981, #34d399)"
+                          : "linear-gradient(to top, #3b82f6, #60a5fa)",
+                        borderRadius:"4px 4px 0 0"
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
-};
-
-export default Dashboard;
+}

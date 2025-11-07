@@ -1,14 +1,15 @@
-// src/pages/AddDeduction.jsx
+// src/pages/AddAllowance.jsx - CORRECTED VERSION
 import React, { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 import PageHeader from "../components/PageHeader";
 import { apiGet, apiJSON } from "../services/api";
 
-export default function AddDeduction() {
+export default function AddAllowance() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [search] = useSearchParams();
-  const editId = search.get("id"); // if present => edit mode
+  const editId = search.get("id");
 
   const [employees, setEmployees] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -16,14 +17,19 @@ export default function AddDeduction() {
 
   const [form, setForm] = useState({
     employee_id: "",
-    name: "",
-    type: "Tax",
-    basis: "Fixed", // 'Fixed' | 'Percent'
-    percent: "",
+    description: "",
+    category: "Transportation",
     amount: "",
-    effective_date: "",
+    taxable: 0,
+    frequency: "Monthly",
+    effective_from: "",
+    effective_to: "",
     status: "Active",
   });
+
+  const categoryOptions = ["Transportation", "Meal", "Housing", "Medical", "Communication", "Other"];
+  const frequencyOptions = ["Monthly", "Yearly"];
+  const statusOptions = ["Active", "Inactive"];
 
   // Load employees
   useEffect(() => {
@@ -32,78 +38,98 @@ export default function AddDeduction() {
         const res = await apiGet("/employees?status=Active");
         setEmployees(res.data || []);
       } catch (e) {
+        console.error("Error loading employees:", e);
         setEmployees([]);
+        setMsg("❌ Failed to load employees");
       }
     })();
   }, []);
 
-  // Load existing deduction in edit mode
+  // Load existing allowance in edit mode
   useEffect(() => {
     if (!editId) return;
     (async () => {
       try {
-        const res = await apiGet(`/salary/deductions/${editId}`);
+        const res = await apiGet(`/salary/allowance/${editId}`);
         const d = res.data;
         if (d) {
           setForm({
-            employee_id: d.employee_id ?? "",
-            name: d.name ?? "",
-            type: d.type ?? "Tax",
-            basis: d.basis ?? "Fixed",
-            percent: d.percent ?? "",
-            amount: d.amount ?? "",
-            effective_date: (d.effective_date || "").slice(0, 10),
+            employee_id: d.employee_id?.toString() ?? "",
+            description: d.description ?? "",
+            category: d.category ?? "Transportation",
+            amount: d.amount?.toString() ?? "",
+            taxable: d.taxable ?? 0,
+            frequency: d.frequency ?? "Monthly",
+            effective_from: (d.effective_from || "").slice(0, 10),
+            effective_to: (d.effective_to || "").slice(0, 10),
             status: d.status ?? "Active",
           });
         }
       } catch (e) {
-        console.error(e);
-        alert("Failed to load deduction");
+        console.error("Error loading allowance:", e);
+        setMsg("❌ Failed to load allowance data");
       }
     })();
   }, [editId]);
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    if (name === "employee_id") {
-      const selected = employees.find((emp) => emp.id === Number(value));
-      setForm((f) => ({
-        ...f,
-        employee_id: value,
-        employee_name: selected ? selected.full_name : "",
-      }));
-    } else {
-      setForm((f) => ({ ...f, [name]: value }));
-    }
+    setForm((f) => ({ ...f, [name]: value }));
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     if (saving) return;
+    
+    if (!form.employee_id || !form.description || !form.amount) {
+      setMsg("❌ Please fill in all required fields");
+      return;
+    }
+
     setMsg("");
     setSaving(true);
+    
     try {
       const payload = {
         employee_id: Number(form.employee_id),
-        name: form.name,
-        type: form.type,
-        basis: form.basis,
-        percent: form.basis === "Percent" ? Number(form.percent) : null,
-        amount: form.basis === "Fixed" ? Number(form.amount) : null,
-        effective_date: form.effective_date,
+        description: form.description,
+        category: form.category,
+        amount: Number(form.amount),
+        taxable: Number(form.taxable),
+        frequency: form.frequency,
+        effective_from: form.effective_from || null,
+        effective_to: form.effective_to || null,
         status: form.status,
       };
 
-      const method = editId ? "PUT" : "POST";
-      const path = editId ? `/salary/deductions/${editId}` : "/salary/deductions";
+      let path, method;
+      
+      if (editId) {
+        // EDIT MODE - Use PUT request
+        method = "PUT";
+        path = `/salary/allowance/${editId}`;
+      } else {
+        // CREATE MODE - Use POST request  
+        method = "POST";
+        path = "/salary/allowance";
+      }
 
-      const res = await apiJSON(path, method, payload);
-      if (!res.ok) throw new Error(res.message || "Save failed");
+      console.log(`Making ${method} request to: ${path}`, payload);
 
-      setMsg(editId ? "✅ Deduction updated" : "✅ Deduction saved");
-      setTimeout(() => navigate("/deductions"), 400);
+      const response = await apiJSON(path, method, payload);
+      
+      console.log("API Response:", response);
+
+      if (!response.ok) {
+        throw new Error(response.message || response.error || "Save failed");
+      }
+
+      setMsg(editId ? "✅ Allowance updated successfully" : "✅ Allowance created successfully");
+      setTimeout(() => navigate("/allowances"), 1500);
+      
     } catch (err) {
-      setMsg(`❌ ${err.message || "Failed to save"}`);
+      console.error("Save error:", err);
+      setMsg(`❌ ${err.message || "Failed to save allowance. Please try again."}`);
     } finally {
       setSaving(false);
     }
@@ -111,13 +137,11 @@ export default function AddDeduction() {
 
   return (
     <Layout>
-      {/* Fixed Header Section */}
       <PageHeader 
-        breadcrumb={["Salary & Compensation", "Deductions", editId ? "Edit Deduction" : "Add Deduction"]} 
+        breadcrumb={["Salary & Compensation", "Allowances", editId ? "Edit Allowance" : "Add Allowance"]} 
         title="Salary & Compensation" 
       />
 
-      {/* Fixed Tabs Section */}
       <div
         style={{
           position: "sticky",
@@ -158,7 +182,6 @@ export default function AddDeduction() {
         </div>
       </div>
 
-      {/* Scrollable Content Area */}
       <div style={{ flex: 1, overflow: "auto", padding: "24px" }}>
         <div className="card">
           <div style={{ 
@@ -172,7 +195,7 @@ export default function AddDeduction() {
               fontWeight: "600",
               color: "#333"
             }}>
-              {editId ? "Edit Deduction" : "Add Deduction"}
+              {editId ? "Edit Allowance" : "Add Allowance"}
             </h2>
 
             {msg && (
@@ -201,6 +224,7 @@ export default function AddDeduction() {
                     value={form.employee_id} 
                     onChange={onChange} 
                     required
+                    disabled={editId} // Disable employee selection in edit mode
                   >
                     <option value="">Select employee</option>
                     {employees.map((e) => (
@@ -209,18 +233,23 @@ export default function AddDeduction() {
                       </option>
                     ))}
                   </select>
+                  {editId && (
+                    <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "4px" }}>
+                      Employee cannot be changed when editing
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
-                    Deduction Name *
+                    Description *
                   </label>
                   <input
                     className="input"
-                    name="name"
-                    value={form.name}
+                    name="description"
+                    value={form.description}
                     onChange={onChange}
-                    placeholder="Income Tax / EPF / Insurance..."
+                    placeholder="e.g., Travel Allowance"
                     required
                   />
                 </div>
@@ -229,65 +258,22 @@ export default function AddDeduction() {
               <div className="grid-2" style={{ gap: "16px", marginBottom: "16px" }}>
                 <div>
                   <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
-                    Type *
+                    Category *
                   </label>
                   <select 
                     className="select"
-                    name="type" 
-                    value={form.type} 
+                    name="category" 
+                    value={form.category} 
                     onChange={onChange} 
                     required
                   >
-                    <option>Tax</option>
-                    <option>Statutory</option>
-                    <option>Insurance</option>
-                    <option>Loan</option>
-                    <option>Other</option>
+                    {categoryOptions.map((opt) => (
+                      <option key={opt}>{opt}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
-                    Basis *
-                  </label>
-                  <select
-                    className="select"
-                    name="basis"
-                    value={form.basis}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setForm((f) =>
-                        val === "Percent" 
-                          ? { ...f, basis: "Percent", amount: "" } 
-                          : { ...f, basis: "Fixed", percent: "" }
-                      );
-                    }}
-                    required
-                  >
-                    <option>Fixed</option>
-                    <option>Percent</option>
-                  </select>
-                </div>
-              </div>
-
-              {form.basis === "Percent" ? (
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
-                    Percent (%) *
-                  </label>
-                  <input
-                    className="input"
-                    type="number"
-                    step="0.01"
-                    name="percent"
-                    value={form.percent}
-                    onChange={onChange}
-                    placeholder="e.g. 10"
-                    required
-                  />
-                </div>
-              ) : (
-                <div style={{ marginBottom: "16px" }}>
                   <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
                     Amount *
                   </label>
@@ -298,41 +284,88 @@ export default function AddDeduction() {
                     name="amount"
                     value={form.amount}
                     onChange={onChange}
-                    placeholder="e.g. 200"
+                    placeholder="0.00"
                     required
                   />
                 </div>
-              )}
+              </div>
 
               <div className="grid-2" style={{ gap: "16px", marginBottom: "16px" }}>
                 <div>
                   <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
-                    Effective Date *
+                    Taxable
+                  </label>
+                  <select
+                    className="select"
+                    name="taxable"
+                    value={form.taxable}
+                    onChange={onChange}
+                  >
+                    <option value={0}>No</option>
+                    <option value={1}>Yes</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+                    Frequency *
+                  </label>
+                  <select
+                    className="select"
+                    name="frequency"
+                    value={form.frequency}
+                    onChange={onChange}
+                    required
+                  >
+                    {frequencyOptions.map((opt) => (
+                      <option key={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid-2" style={{ gap: "16px", marginBottom: "16px" }}>
+                <div>
+                  <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+                    Effective From
                   </label>
                   <input 
                     className="input"
                     type="date" 
-                    name="effective_date" 
-                    value={form.effective_date} 
+                    name="effective_from" 
+                    value={form.effective_from} 
                     onChange={onChange} 
-                    required 
                   />
                 </div>
 
                 <div>
                   <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
-                    Status
+                    Effective To
                   </label>
-                  <select 
-                    className="select"
-                    name="status" 
-                    value={form.status} 
-                    onChange={onChange}
-                  >
-                    <option>Active</option>
-                    <option>Inactive</option>
-                  </select>
+                  <input 
+                    className="input"
+                    type="date" 
+                    name="effective_to" 
+                    value={form.effective_to} 
+                    onChange={onChange} 
+                  />
                 </div>
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+                  Status
+                </label>
+                <select 
+                  className="select"
+                  name="status" 
+                  value={form.status} 
+                  onChange={onChange}
+                >
+                  {statusOptions.map((opt) => (
+                    <option key={opt}>{opt}</option>
+                  ))}
+                </select>
               </div>
 
               <div style={{ 
@@ -346,7 +379,7 @@ export default function AddDeduction() {
                 <button 
                   type="button" 
                   className="btn btn-soft" 
-                  onClick={() => navigate("/deductions")}
+                  onClick={() => navigate("/allowances")}
                   disabled={saving}
                 >
                   Cancel
@@ -356,7 +389,7 @@ export default function AddDeduction() {
                   className="btn btn-primary" 
                   disabled={saving}
                 >
-                  {saving ? "Saving…" : editId ? "Update Deduction" : "Save Deduction"}
+                  {saving ? "Saving…" : editId ? "Update Allowance" : "Save Allowance"}
                 </button>
               </div>
             </form>
