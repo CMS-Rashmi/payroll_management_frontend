@@ -1,15 +1,15 @@
+// src/pages/LeaveCalendar.jsx
 import React, { useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import "../styles/LeaveCalendar.css";
+import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
 
 /** Helpers */
 const pad = (n) => String(n).padStart(2, "0");
 const toKey = (y, m, d) => `${y}-${pad(m)}-${pad(d)}`;
 const MONTHS = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December"
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
 ];
 
 const LeaveCalendar = () => {
@@ -31,9 +31,9 @@ const LeaveCalendar = () => {
 
   // Assigned dates (mock)
   const [assigned, setAssigned] = useState([
-    // Initial sample values
-    { date: toKey(today.getFullYear(), today.getMonth() + 1, 5),  type: "special",    reason: "Wellness day" },
+    { date: toKey(today.getFullYear(), today.getMonth() + 1, 5), type: "special", reason: "Wellness day" },
     { date: toKey(today.getFullYear(), today.getMonth() + 1, 12), type: "restricted", reason: "Company meeting" },
+    { date: toKey(today.getFullYear(), today.getMonth() + 1, 25), type: "special", reason: "Public holiday" },
   ]);
 
   // State for modals
@@ -62,6 +62,11 @@ const LeaveCalendar = () => {
     });
   };
 
+  const goToToday = () => {
+    setDisplayYear(today.getFullYear());
+    setDisplayMonth(today.getMonth());
+  };
+
   // Build grid for selected month
   const grid = useMemo(() => {
     const first = new Date(displayYear, displayMonth, 1);
@@ -73,7 +78,6 @@ const LeaveCalendar = () => {
     // Leading (previous month)
     for (let i = firstDay - 1; i >= 0; i--) {
       const d = prevDays - i;
-      // If January -> previous is December (month=11) of previous year
       const prevMonth = displayMonth === 0 ? 11 : displayMonth - 1;
       const prevYear = displayMonth === 0 ? displayYear - 1 : displayYear;
       cells.push({ y: prevYear, m: prevMonth, d, other: true });
@@ -145,209 +149,407 @@ const LeaveCalendar = () => {
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [assigned, displayYear, displayMonth]);
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      weekday: 'short'
+    });
+  };
+
   return (
-    <div className="leaves-calendar-container">
-      <Sidebar />
-      <div className="leaves-calendar-content">
-        <Header />
+    <Layout>
+      {/* Fixed Header Section */}
+      <PageHeader
+        breadcrumb={["Leave Management", "Calendar"]}
+        title="Date Restrictions"
+      />
 
-        {/* Header */}
-        <header className="leaves-calendar-header">
-          <div className="header-left">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">Leave Management</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">Calendar</span>
-            </div>
-            <h1 className="page-title">Date Restrictions</h1>
+      {/* Tabs */}
+      <div className="card" style={{ display: "flex", gap: "8px", overflowX: "auto", whiteSpace: "nowrap" }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.path}
+            className={`btn ${location.pathname === tab.path ? "btn-primary" : "btn-soft"}`}
+            onClick={() => navigate(tab.path)}
+            style={{ whiteSpace: "nowrap", flexShrink: 0 }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Calendar Navigation Card */}
+      <div className="card">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button className="btn btn-soft" onClick={goToPrevMonth}>◀ Previous</button>
+            <h2 style={{ fontSize: "20px", fontWeight: "600", margin: 0 }}>
+              {MONTHS[displayMonth]} {displayYear}
+            </h2>
+            <button className="btn btn-soft" onClick={goToNextMonth}>Next ▶</button>
           </div>
-        </header>
+          <button className="btn btn-primary" onClick={goToToday}>
+            Today
+          </button>
+        </div>
 
-        {/* Tabs */}
-        <div className="tab-bar">
-          {tabs.map((t) => (
-            <button
-              key={t.path}
-              className={`tab-link ${location.pathname === t.path ? "active" : ""}`}
-              onClick={() => navigate(t.path)}
-            >
-              {t.label}
-            </button>
+        {/* Legend */}
+        <div style={{ display: "flex", gap: "20px", fontSize: "12px", color: "var(--muted)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <div style={{ width: "12px", height: "12px", borderRadius: "2px", background: "var(--success)" }} />
+            Special Day
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <div style={{ width: "12px", height: "12px", borderRadius: "2px", background: "var(--danger)" }} />
+            Restricted Date
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <div style={{ width: "12px", height: "12px", borderRadius: "2px", background: "var(--soft)" }} />
+            Other Month
+          </div>
+        </div>
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="card" style={{ padding: "0" }}>
+        {/* Week header */}
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "repeat(7, 1fr)",
+          borderBottom: "1px solid var(--border)"
+        }}>
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <div key={day} style={{ 
+              padding: "12px", 
+              textAlign: "center", 
+              fontWeight: "600", 
+              fontSize: "12px",
+              color: "var(--muted)",
+              borderRight: "1px solid var(--border)",
+              background: "var(--soft)"
+            }}>
+              {day}
+            </div>
           ))}
         </div>
 
-        {/* Calendar */}
-        <div className="calendar-wrap">
-          <div className="calendar-card">
-            <div className="calendar-nav">
-              <button className="nav-btn" onClick={goToPrevMonth}>◀</button>
-              <h3>{MONTHS[displayMonth]} {displayYear}</h3>
-              <button className="nav-btn" onClick={goToNextMonth}>▶</button>
-            </div>
-
-            <div className="legend">
-              <span><i className="legend-dot special" /> Special Day</span>
-              <span><i className="legend-dot restricted" /> Restricted</span>
-              <span className="muted">Other Month</span>
-            </div>
-
-            {/* Week header */}
-            <div className="week-row head">
-              {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((d) => (
-                <div key={d} className="cell head">{d}</div>
-              ))}
-            </div>
-
-            {/* Grid */}
-            <div className="weeks">
-              {Array.from({ length: 6 }).map((_, r) => (
-                <div key={r} className="week-row">
-                  {grid.slice(r * 7, r * 7 + 7).map((c, idx) => {
-                    const a = getAssigned(c.y, c.m, c.d);
-                    const classes = [
-                      "cell",
-                      c.other ? "other" : "",
-                      a?.type === "special" ? "special" : "",
-                      a?.type === "restricted" ? "restricted" : "",
-                    ].join(" ");
-                    return (
-                      <div key={idx} className={classes} onClick={() => onCellClick(c)}>
-                        <div className="day">{c.d}</div>
-                      </div>
-                    );
-                  })}
+        {/* Calendar Grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
+          {grid.map((cell, index) => {
+            const assigned = getAssigned(cell.y, cell.m, cell.d);
+            const isToday = cell.y === today.getFullYear() && 
+                           cell.m === today.getMonth() && 
+                           cell.d === today.getDate();
+            
+            return (
+              <div
+                key={index}
+                onClick={() => onCellClick(cell)}
+                style={{
+                  height: "80px",
+                  padding: "8px",
+                  borderRight: "1px solid var(--border)",
+                  borderBottom: "1px solid var(--border)",
+                  background: cell.other ? "var(--soft)" : "var(--panel)",
+                  cursor: cell.other ? "default" : "pointer",
+                  position: "relative",
+                  opacity: cell.other ? 0.5 : 1,
+                  ...(isToday && {
+                    border: "2px solid var(--brand)",
+                    background: "var(--soft)"
+                  })
+                }}
+              >
+                <div style={{ 
+                  fontSize: "12px", 
+                  fontWeight: "600",
+                  color: cell.other ? "var(--muted)" : "var(--text)",
+                  marginBottom: "4px"
+                }}>
+                  {cell.d}
                 </div>
-              ))}
+                
+                {assigned && (
+                  <div style={{
+                    fontSize: "10px",
+                    padding: "2px 4px",
+                    borderRadius: "3px",
+                    background: assigned.type === "special" ? "var(--success)" : "var(--danger)",
+                    color: "white",
+                    fontWeight: "600",
+                    textAlign: "center"
+                  }}>
+                    {assigned.type === "special" ? "Special" : "Restricted"}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Assigned Dates Table */}
+      <div className="table-container">
+        <div className="card" style={{ padding: 0 }}>
+          <div style={{ 
+            padding: "12px 16px", 
+            borderBottom: "1px solid var(--border)", 
+            display: "flex", 
+            alignItems: "center",
+            justifyContent: "space-between"
+          }}>
+            <div style={{ fontWeight: "700" }}>Assigned Dates - {MONTHS[displayMonth]} {displayYear}</div>
+            <div style={{ fontSize: "12px", color: "var(--muted)" }}>
+              {assignedRows.length} date(s) assigned
+            </div>
+          </div>
+
+          <div style={{ overflowX: "auto", flex: 1 }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Day</th>
+                  <th>Type</th>
+                  <th>Reason</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {assignedRows.length > 0 ? (
+                  assignedRows.map((row) => (
+                    <tr key={row.date}>
+                      <td style={{ fontWeight: "600" }}>{formatDate(row.date)}</td>
+                      <td style={{ fontSize: "12px", color: "var(--muted)" }}>
+                        {new Date(row.date).toLocaleDateString('en-US', { weekday: 'long' })}
+                      </td>
+                      <td>
+                        <span className={`pill ${row.type === "special" ? "pill-ok" : "pill-danger"}`}>
+                          {row.type === "special" ? "Special Day" : "Restricted Date"}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: "12px", color: "var(--muted)" }}>
+                        {row.reason}
+                      </td>
+                      <td>
+                        <button 
+                          className="btn btn-soft" 
+                          onClick={() => {
+                            const date = new Date(row.date);
+                            setDeleteFor({
+                              y: date.getFullYear(),
+                              m: date.getMonth(),
+                              d: date.getDate()
+                            });
+                          }}
+                          style={{ fontSize: "11px", padding: "4px 8px", background: "var(--danger)", color: "white" }}
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" style={{ textAlign: "center", padding: "40px", color: "var(--muted)" }}>
+                      No assigned dates for {MONTHS[displayMonth]} {displayYear}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {/* Pick Type Modal */}
+      {pickFor && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'var(--panel)',
+            borderRadius: '8px',
+            padding: '20px',
+            width: '90%',
+            maxWidth: '400px'
+          }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600' }}>
+              Select Date Type
+            </h3>
+            <p style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '20px' }}>
+              Choose the type for {MONTHS[pickFor.m]} {pickFor.d}, {pickFor.y}
+            </p>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+              <button 
+                className="btn"
+                onClick={() => chooseType("special")}
+                style={{ 
+                  flex: 1, 
+                  background: 'var(--success)', 
+                  color: 'white',
+                  border: 'none'
+                }}
+              >
+                Special Day
+              </button>
+              <button 
+                className="btn"
+                onClick={() => chooseType("restricted")}
+                style={{ 
+                  flex: 1, 
+                  background: 'var(--danger)', 
+                  color: 'white',
+                  border: 'none'
+                }}
+              >
+                Restricted
+              </button>
+            </div>
+            <button 
+              className="btn btn-soft" 
+              onClick={() => setPickFor(null)}
+              style={{ width: '100%' }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Reason Modal */}
+      {reasonFor && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'var(--panel)',
+            borderRadius: '8px',
+            padding: '20px',
+            width: '90%',
+            maxWidth: '400px'
+          }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600' }}>
+              {reasonFor.type === "special" ? "Special Day" : "Restricted Date"}
+            </h3>
+            <p style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '16px' }}>
+              Add reason for {MONTHS[reasonFor.m]} {reasonFor.d}, {reasonFor.y}
+            </p>
+            <div style={{ marginBottom: '20px' }}>
+              <input
+                className="input"
+                placeholder="Enter reason..."
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') saveReason(e.target.value);
+                }}
+                autoFocus
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                className="btn btn-soft" 
+                onClick={() => setReasonFor(null)}
+                style={{ flex: 1 }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-primary" 
+                onClick={() => saveReason(document.querySelector('.input').value)}
+                style={{ flex: 1 }}
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Assigned Dates Table */}
-        <div className="assigned-card">
-          <h3>All Assigned Dates</h3>
-          <table className="assigned-table">
-            <thead>
-              <tr>
-                <th>Assigned Date</th>
-                <th>Date Type</th>
-                <th>Reason</th>
-              </tr>
-            </thead>
-            <tbody>
-              {assignedRows.length === 0 ? (
-                <tr>
-                  <td colSpan="3" className="empty">No data</td>
-                </tr>
-              ) : (
-                assignedRows.map((row) => (
-                  <tr key={row.date}>
-                    <td>{row.date}</td>
-                    <td>
-                      <span className={`badge ${row.type}`}>
-                        {row.type === "special" ? "Special Day" : "Restricted"}
-                      </span>
-                    </td>
-                    <td>{row.reason || "-"}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {/* Delete Modal */}
+      {deleteFor && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'var(--panel)',
+            borderRadius: '8px',
+            padding: '20px',
+            width: '90%',
+            maxWidth: '400px'
+          }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600', color: 'var(--danger)' }}>
+              Remove Date
+            </h3>
+            <p style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '16px' }}>
+              Are you sure you want to remove this assigned date?
+            </p>
+            <div style={{ 
+              background: 'var(--soft)', 
+              padding: '12px', 
+              borderRadius: '6px',
+              textAlign: 'center',
+              marginBottom: '20px',
+              fontWeight: '600'
+            }}>
+              {MONTHS[deleteFor.m]} {deleteFor.d}, {deleteFor.y}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                className="btn btn-soft" 
+                onClick={() => setDeleteFor(null)}
+                style={{ flex: 1 }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn"
+                onClick={confirmDelete}
+                style={{ 
+                  flex: 1, 
+                  background: 'var(--danger)', 
+                  color: 'white',
+                  border: 'none'
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
         </div>
-
-        {/* Pick Type Modal */}
-        {pickFor && (
-          <PickTypeModal
-            onClose={() => setPickFor(null)}
-            onChoose={chooseType}
-          />
-        )}
-
-        {/* Reason Modal */}
-        {reasonFor && (
-          <ReasonModal
-            label={reasonFor.type === "special" ? "Special Day" : "Restricted Date"}
-            onCancel={() => setReasonFor(null)}
-            onSave={saveReason}
-          />
-        )}
-
-        {/* Delete Confirm Modal */}
-        {deleteFor && (
-          <DeleteModal
-            date={toKey(deleteFor.y, deleteFor.m + 1, deleteFor.d)}
-            onCancel={() => setDeleteFor(null)}
-            onDelete={confirmDelete}
-          />
-        )}
-      </div>
-    </div>
+      )}
+    </Layout>
   );
 };
 
 export default LeaveCalendar;
-
-/* ---------- Sub-components ---------- */
-
-function PickTypeModal({ onClose, onChoose }) {
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">Please select the assigning date type</div>
-        <div className="modal-row">
-          <button className="btn special" onClick={() => onChoose("special")}>
-            Special Day
-          </button>
-          <button className="btn restricted" onClick={() => onChoose("restricted")}>
-            Restriction
-          </button>
-        </div>
-        <button className="modal-close" onClick={onClose}>✕</button>
-      </div>
-    </div>
-  );
-}
-
-function ReasonModal({ label, onCancel, onSave }) {
-  const [val, setVal] = useState("");
-  return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">{label}</div>
-        <div className="field">
-          <label>Reason</label>
-          <input
-            className="input"
-            placeholder="Add a short reason…"
-            value={val}
-            onChange={(e) => setVal(e.target.value)}
-          />
-        </div>
-        <div className="modal-actions">
-          <button className="btn ghost" onClick={onCancel}>Cancel</button>
-          <button className="btn primary" onClick={() => onSave(val || "-")}>
-            Save
-          </button>
-        </div>
-        <button className="modal-close" onClick={onCancel}>✕</button>
-      </div>
-    </div>
-  );
-}
-
-function DeleteModal({ date, onCancel, onDelete }) {
-  return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">Delete Restricted Date</div>
-        <p className="confirm-text">Are you sure you want to delete this date?</p>
-        <div className="delete-date">{date}</div>
-        <div className="modal-actions">
-          <button className="btn ghost" onClick={onCancel}>Cancel</button>
-          <button className="btn danger" onClick={onDelete}>Delete</button>
-        </div>
-        <button className="modal-close" onClick={onCancel}>✕</button>
-      </div>
-    </div>
-  );
-}

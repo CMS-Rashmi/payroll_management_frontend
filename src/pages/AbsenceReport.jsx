@@ -1,8 +1,8 @@
-import React, { useRef, useState } from "react";
+// src/pages/AbsenceReport.jsx
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import "../styles/AbsenceReport.css";
+import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
 
 const AbsenceReport = () => {
   const navigate = useNavigate();
@@ -21,7 +21,6 @@ const AbsenceReport = () => {
   const [searchEmployee, setSearchEmployee] = useState("");
   const [filterDept, setFilterDept] = useState("");
   const [filterOffice, setFilterOffice] = useState("");
-  const dateInputRef = useRef(null);
 
   // ✅ Dummy absence data
   const [absenceData] = useState([
@@ -66,22 +65,6 @@ const AbsenceReport = () => {
       date: "10/15/2025",
     },
   ]);
-
-  // ✅ Always display date in uppercase MM/DD/YYYY format
-  const formatDate = (rawValue) => {
-    if (!rawValue) return "";
-    const date = new Date(rawValue);
-    const formatted = `${String(date.getMonth() + 1).padStart(2, "0")}/${String(
-      date.getDate()
-    ).padStart(2, "0")}/${date.getFullYear()}`;
-    return formatted.toUpperCase(); // ✅ Force uppercase
-  };
-
-  // ✅ Handle date selection
-  const handleDateChange = (e) => {
-    const value = e.target.value;
-    setSelectedDate(formatDate(value));
-  };
 
   // ✅ Filter logic
   const filteredData = absenceData.filter((item) => {
@@ -131,146 +114,180 @@ const AbsenceReport = () => {
     link.click();
   };
 
+  const clearFilters = () => {
+    setSelectedDate("");
+    setSearchEmployee("");
+    setFilterDept("");
+    setFilterOffice("");
+  };
+
   return (
-    <div className="absence-report-container">
-      <Sidebar />
-      <div className="absence-report-content">
-        <Header />
+    <Layout>
+      {/* Fixed Header Section */}
+      <PageHeader
+        breadcrumb={["Time & Attendance", "Absence Report"]}
+        title="Absence Report"
+      />
 
-        {/* Header */}
-        <header className="absence-report-header">
-          <div className="header-left">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">Time & Attendance</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">Absence Report</span>
-            </div>
-            <h1 className="page-title">Absence Report</h1>
-          </div>
-        </header>
+      {/* Tabs */}
+      <div className="card" style={{ display: "flex", gap: "8px", overflowX: "auto", whiteSpace: "nowrap" }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.path}
+            className={`btn ${location.pathname === tab.path ? "btn-primary" : "btn-soft"}`}
+            onClick={() => navigate(tab.path)}
+            style={{ whiteSpace: "nowrap", flexShrink: 0 }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        {/* Tabs */}
-        <div className="tab-bar">
-          {tabs.map((tab) => (
-            <button
-              key={tab.path}
-              className={`tab-link ${
-                location.pathname === tab.path ? "active" : ""
-              }`}
-              onClick={() => navigate(tab.path)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Filters */}
-        <div className="filters-section">
-          <div className="filters-row">
-            {/* ✅ Custom Date Picker with uppercase placeholder */}
-            <div className="date-picker-field" onClick={() => dateInputRef.current?.showPicker()}>
-              <input
-                ref={dateInputRef}
-                type="date"
-                className="filter-date"
-                onChange={handleDateChange}
-                style={{
-                  color: "transparent",
-                  textTransform: "uppercase",
-                }}
-              />
-             
-            </div>
-
+      {/* Filters Card */}
+      <div className="card">
+        <div className="grid-4" style={{ alignItems: "end", marginBottom: "12px" }}>
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Date</label>
             <input
-              type="text"
-              className="filter-input"
-              placeholder="Search by Employee..."
+              className="input"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Search Employee</label>
+            <input
+              className="input"
+              placeholder="Search by employee name..."
               value={searchEmployee}
               onChange={(e) => setSearchEmployee(e.target.value)}
             />
+          </div>
 
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Department</label>
             <input
-              type="text"
-              className="filter-input"
-              placeholder="Filter by Department..."
+              className="input"
+              placeholder="Filter by department..."
               value={filterDept}
               onChange={(e) => setFilterDept(e.target.value)}
             />
+          </div>
 
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Working Office</label>
             <input
-              type="text"
-              className="filter-input"
-              placeholder="Filter by Working Office..."
+              className="input"
+              placeholder="Filter by office..."
               value={filterOffice}
               onChange={(e) => setFilterOffice(e.target.value)}
             />
           </div>
+        </div>
 
-          {/* Export Button */}
-          <div className="export-btn-container">
-            <button className="export-btn" onClick={handleExportCSV}>
-              ⬇ EXPORT CSV
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ fontSize: "14px", color: "var(--muted)" }}>
+            {filteredData.length} absence record(s) found
+          </div>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button className="btn btn-soft" onClick={clearFilters}>
+              Clear Filters
+            </button>
+            <button className="btn btn-primary" onClick={handleExportCSV}>
+              Export CSV
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Table */}
-        <div className="absence-table-container">
-          <table className="absence-table">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Employee Name</th>
-                <th>Calling Name</th>
-                <th>Department</th>
-                <th>Designation</th>
-                <th>Working Office</th>
-                <th>Branch</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.length > 0 ? (
-                filteredData.map((row) => (
-                  <tr key={row.no}>
-                    <td>{row.no}</td>
-                    <td>{row.employeeName}</td>
-                    <td>{row.callingName}</td>
-                    <td>{row.department}</td>
-                    <td>{row.designation}</td>
-                    <td>{row.workingOffice}</td>
-                    <td>{row.branch}</td>
-                    <td>{row.date.toUpperCase()}</td> {/* ✅ Always uppercase */}
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" style={{ textAlign: "center" }}>
-                    No records found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-
-          <div className="pagination">
-            <span className="page-info">
-              Showing {filteredData.length} of {absenceData.length} results
-            </span>
-            <div className="page-controls">
-              <button className="page-btn" disabled>
-                Previous
-              </button>
-              <span className="page-number">1</span>
-              <button className="page-btn" disabled>
-                Next
-              </button>
+      {/* Absence Report Table */}
+      <div className="table-container">
+        <div className="card" style={{ padding: 0 }}>
+          <div style={{ 
+            padding: "12px 16px", 
+            borderBottom: "1px solid var(--border)", 
+            display: "flex", 
+            alignItems: "center",
+            justifyContent: "space-between"
+          }}>
+            <div style={{ fontWeight: "700" }}>Absence Report</div>
+            <div style={{ fontSize: "12px", color: "var(--muted)" }}>
+              Showing {filteredData.length} records
             </div>
+          </div>
+
+          <div style={{ overflowX: "auto", flex: 1 }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Employee Name</th>
+                  <th>Calling Name</th>
+                  <th>Department</th>
+                  <th>Designation</th>
+                  <th>Working Office</th>
+                  <th>Branch</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.length > 0 ? (
+                  filteredData.map((row) => (
+                    <tr key={row.no}>
+                      <td>{row.no}</td>
+                      <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div className="user-avatar" />
+                        <div>
+                          <div style={{ fontWeight: "600" }}>{row.employeeName}</div>
+                          <div style={{ fontSize: "12px", color: "var(--muted)" }}>{row.designation}</div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="pill pill-soft">{row.callingName}</span>
+                      </td>
+                      <td>
+                        <span className="pill" style={{ background: 'var(--soft)', color: 'var(--text)' }}>
+                          {row.department}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: "12px", color: "var(--muted)" }}>{row.designation}</td>
+                      <td>
+                        <span className="pill" style={{ background: 'var(--soft)', color: 'var(--text)' }}>
+                          {row.workingOffice}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: "12px", color: "var(--muted)" }}>{row.branch}</td>
+                      <td>
+                        <span className="pill pill-warn">{row.date.toUpperCase()}</span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" style={{ textAlign: "center", padding: "40px", color: "var(--muted)" }}>
+                      No absence records found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Pagination */}
+      <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontSize: "14px", color: "var(--muted)" }}>
+          Showing {filteredData.length} of {absenceData.length} results
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button className="btn btn-soft" disabled>Previous</button>
+          <button className="btn btn-soft" disabled>Next</button>
+        </div>
+      </div>
+    </Layout>
   );
 };
 

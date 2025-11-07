@@ -12,6 +12,7 @@ import AuditLogs from "./pages/AuditLogs"
 import Earnings from "./pages/Earnings";
 import Deductions from "./pages/Deductions";
 import Allowances from "./pages/Allowances";
+import AddAllowance from "./pages/AddAllowance";
 import EditEmployee from "./pages/EditEmployee";
 import AddDeduction from "./pages/AddDeduction";
 import AddLeave from "./pages/AddLeave";
@@ -60,6 +61,8 @@ function App() {
        <Route path="/earnings" element={<Earnings />} />
        <Route path="/deductions" element={<Deductions />} />
        <Route path="/allowances" element={<Allowances />} />
+       // Add this route to your routing configuration
+       <Route path="/add-allowance" element={<AddAllowance />} />
        <Route path="/employees" element={<AddEmployee/>} />     
        <Route path="/employees/:id/edit" element={<EditEmployee/>} />        
        <Route path="/add-deduction" element={<AddDeduction/>} />  
@@ -89,6 +92,7 @@ function App() {
       <Route path="/earnings" element={<Earnings />} />
       <Route path="/deductions" element={<Deductions />} />
       <Route path="/allowances" element={<Allowances />} />
+      <Route path="/add-allowance" element={<AddAllowance />} />
       <Route path="/employees" element={<AddEmployee/>} />     
       <Route path="/employees/:id/edit" element={<EditEmployee/>} />        
       <Route path="/add-deduction" element={<AddDeduction/>} />  

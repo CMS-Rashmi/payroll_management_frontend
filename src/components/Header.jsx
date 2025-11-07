@@ -1,20 +1,34 @@
 // src/components/Header.jsx
-import React from 'react';
-import '../components/Header.css';
+import React from "react";
 
-const Header = () => {
+export default function Header() {
   return (
-    <header className="app-header">
-      <div className="header-right">
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      width: '100%',
+      justifyContent: 'space-between'
+    }}>
+      {/* Left side - Page title or empty */}
+      <div></div>
+      
+      {/* Right side - User info and icons */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '16px',
+        marginLeft: 'auto'
+      }}>
+        {/* Notification bell icon */}
         <div className="notification-icon">🔔</div>
-        <div className="user-profile">
+        
+        {/* User info */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="user-avatar"></div>
           <span className="username">Kamal</span>
           <span className="dropdown-arrow">▼</span>
         </div>
       </div>
-    </header>
+    </div>
   );
-};
-
-export default Header;
+}

@@ -1,14 +1,13 @@
-// src/pages/ViewEmployee.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import "../styles/ViewEmployee.css";
+import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
 import { apiGet } from "../services/api";
 
 const isImage = (t = "") => t.startsWith("image/");
 const isPdf = (t = "") => t === "application/pdf";
 
-const ViewEmployee = () => {
+export default function ViewEmployee() {
   const { id } = useParams();
   const [employee, setEmployee] = useState(null);
   const [activeTab, setActiveTab] = useState("personal");
@@ -29,157 +28,188 @@ const ViewEmployee = () => {
     })();
   }, [id]);
 
-  if (loading) return <div className="loading">Loading employee details...</div>;
-  if (error) return <div className="error">{error}</div>;
-  if (!employee) return <div>No employee data found.</div>;
+  if (loading) {
+    return (
+      <Layout>
+        <PageHeader breadcrumb={["Employee Information"]} title="Registered Member Profile" />
+        <div className="card">Loading employee details…</div>
+      </Layout>
+    );
+  }
+  if (error) {
+    return (
+      <Layout>
+        <PageHeader breadcrumb={["Employee Information"]} title="Registered Member Profile" />
+        <div className="card" style={{ color: "var(--danger)", borderColor: "var(--danger)" }}>{error}</div>
+      </Layout>
+    );
+  }
+  if (!employee) {
+    return (
+      <Layout>
+        <PageHeader breadcrumb={["Employee Information"]} title="Registered Member Profile" />
+        <div className="card">No employee data found.</div>
+      </Layout>
+    );
+  }
 
   return (
-    <div className="view-employee-container">
-      <Sidebar />
-      <div className="view-employee-content">
-        <div className="header"><h1>Registered Member Profile</h1></div>
+    <Layout>
+      <PageHeader breadcrumb={["Employee Information", "Profile"]} title="Registered Member Profile" />
 
-        <div className="employee-profile-card">
-          <div className="profile-left">
-            <div className="profile-photo">
-              {employee.profile_photo_url ? (
-                <img src={employee.profile_photo_url} alt="Profile" />
-              ) : (
-                <div className="profile-placeholder">👤</div>
+      <div className="grid-2">
+        {/* Left profile card */}
+        <div className="card">
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+            <div className="user-avatar" style={{ width: 96, height: 96, overflow: "hidden" }}>
+              {employee.profile_photo_url && (
+                <img src={employee.profile_photo_url} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
               )}
             </div>
-            <h3>{`${employee.first_name || ""} ${employee.last_name || ""}`.trim()}</h3>
-            <p>{employee.calling_name}</p>
-            <div className="profile-details">
-              <p><strong>Email:</strong> {employee.email || "-"}</p>
-              <p><strong>Contact:</strong> {employee.country_code} {employee.phone}</p>
-              <p><strong>Status:</strong>{" "}
-                <span className={`status-toggle ${employee.status === "Active" ? "active" : "inactive"}`}>{employee.status}</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="profile-right">
-            <div className="tab-buttons">
-              {[
-                { key: "personal", label: "Personal" },
-                { key: "official", label: "Official" },
-                { key: "kin", label: "Relatives" },
-                { key: "bank", label: "Bank & Documents" },
-                { key: "documents", label: "Personal Documents" },
-              ].map((tab) => (
-                <button key={tab.key} className={activeTab === tab.key ? "active" : ""} onClick={() => setActiveTab(tab.key)}>
-                  {tab.label}
-                </button>
-              ))}
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontWeight: 800, fontSize: 18 }}>
+                {(employee.first_name || "") + " " + (employee.last_name || "")}
+              </div>
+              <div style={{ color: "var(--muted)" }}>{employee.calling_name}</div>
             </div>
 
-            <div className="tab-content">
-              {activeTab === "personal" && (
-                <div className="details-grid">
-                  <div><label>Employee No</label><p>{employee.id}</p></div>
-                  <div><label>Full Name</label><p>{`${employee.first_name || ""} ${employee.last_name || ""}`.trim()}</p></div>
-                  <div><label>Initials</label><p>{employee.initials || "-"}</p></div>
-                  <div><label>Preferred Name</label><p>{employee.calling_name || "-"}</p></div>
-                  <div><label>NIC</label><p>{employee.nic || "-"}</p></div>
-                  <div><label>Date of Birth</label><p>{employee.dob || "-"}</p></div>
-                  <div><label>Gender</label><p>{employee.gender || "-"}</p></div>
-                  <div><label>Marital Status</label><p>{employee.marital_status || "-"}</p></div>
-                  <div><label>Permanent Address</label><p>{employee.address_permanent || "-"}</p></div>
-                  <div><label>Temporary Address</label><p>{employee.address_temporary || "-"}</p></div>
-                  <div><label>Nationality</label><p>{employee.nationality || "-"}</p></div>
-                  <div><label>Religion</label><p>{employee.religion || "-"}</p></div>
+            <div style={{ width: "100%", marginTop: 6 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", rowGap: 8 }}>
+                <div style={{ color: "var(--muted)" }}>Email</div><div>{employee.email || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Contact</div><div>{employee.country_code} {employee.phone}</div>
+                <div style={{ color: "var(--muted)" }}>Status</div>
+                <div>
+                  <span className={`pill ${employee.status === "Active" ? "pill-ok" : "pill-warn"}`}>{employee.status}</span>
                 </div>
-              )}
-
-              {activeTab === "official" && (
-                <div className="details-grid">
-                  <div><label>Department</label><p>{employee.department_name || "-"}</p></div>
-                  <div><label>Designation</label><p>{employee.designation || "-"}</p></div>
-                  <div><label>Working Office</label><p>{employee.working_office || "-"}</p></div>
-                  <div><label>Branch</label><p>{employee.branch || "-"}</p></div>
-                  <div><label>Employment Type</label><p>{employee.employment_type || "-"}</p></div>
-                  <div><label>Appointment Date</label><p>{employee.appointment_date || "-"}</p></div>
-                  <div><label>Supervisor</label><p>{employee.supervisor || "-"}</p></div>
-                  <div><label>Basic Salary</label><p>{employee.basic_salary ?? "-"}</p></div>
-                  <div><label>Grade</label><p>{employee.grade || "-"}</p></div>
-                  <div><label>EPF No</label><p>{employee.epf_no || "-"}</p></div>
-                </div>
-              )}
-
-              {activeTab === "kin" && (
-                <div className="details-grid">
-                  <div><label>Relatives Name</label><p>{employee.kin?.kin_name || "-"}</p></div>
-                  <div><label>Relationship</label><p>{employee.kin?.relationship || "-"}</p></div>
-                  <div><label>NIC</label><p>{employee.kin?.kin_nic || "-"}</p></div>
-                  <div><label>Date of Birth</label><p>{employee.kin?.kin_dob || "-"}</p></div>
-                </div>
-              )}
-
-              {activeTab === "bank" && (
-                <div className="details-grid">
-                  <div><label>Account Name</label><p>{employee.bank_account?.account_name || "-"}</p></div>
-                  <div><label>Account Number</label><p>{employee.bank_account?.account_number || "-"}</p></div>
-                  <div><label>Bank</label><p>{employee.bank_account?.bank_name || "-"}</p></div>
-                  <div><label>Branch</label><p>{employee.bank_account?.branch_name || "-"}</p></div>
-                  <div>
-                    <label>Bank Document</label>
-                    <p>
-                      {(() => {
-                        const bankDoc = (employee.documents || []).find(d => d.category === 'Bank Document' || d.file_name?.startsWith("BANK -"));
-                        return bankDoc ? (
-                          <>
-                            <span className="doc-chip">{bankDoc.category}</span>{" "}
-                            <a href={bankDoc.url} target="_blank" rel="noopener noreferrer" className="doc-link">Open</a>{" "}
-                            <a href={bankDoc.url} download className="doc-link">Download</a>
-                          </>
-                        ) : "No document uploaded"}
-                      )()}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "documents" && (
-                <div className="doc-grid-wrapper">
-                  <label className="doc-grid-title">Documents</label>
-                  {(employee.documents && employee.documents.length) ? (
-                    <div className="doc-grid">
-                      {employee.documents.map(doc => (
-                        <div key={doc.id} className="doc-card">
-                          <div className="doc-thumb">
-                            {isImage(doc.file_type) ? (
-                              <img src={doc.url} alt={doc.file_name} />
-                            ) : isPdf(doc.file_type) ? (
-                              <iframe src={`${doc.url}#view=FitH&navpanes=0&toolbar=0`} title={doc.file_name} />
-                            ) : (
-                              <div className="doc-icon" title={doc.file_type || 'file'}>📄</div>
-                            )}
-                          </div>
-                          <div className="doc-meta">
-                            <div className="doc-name" title={doc.file_name}>{doc.file_name}</div>
-                            <div className="doc-type"><strong>{doc.category}</strong> • {doc.file_type || 'file'}</div>
-                            <div className="doc-date">{doc.uploaded_at?.slice(0,10) || ''}</div>
-                          </div>
-                          <div className="doc-actions">
-                            <a href={doc.url} target="_blank" rel="noopener noreferrer" className="doc-link">Open</a>
-                            <a href={doc.url} download className="doc-link">Download</a>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p>No documents uploaded</p>
-                  )}
-                </div>
-              )}
-
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
 
-export default ViewEmployee;
+        {/* Right: tabs + content */}
+        <div className="card">
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+            {[
+              { key: "personal", label: "Personal" },
+              { key: "official", label: "Official" },
+              { key: "kin", label: "Relatives" },
+              { key: "bank", label: "Bank & Documents" },
+              { key: "documents", label: "Personal Documents" },
+            ].map((t) => (
+              <button
+                key={t.key}
+                className={`btn ${activeTab === t.key ? "btn-primary" : "btn-soft"}`}
+                onClick={() => setActiveTab(t.key)}
+                type="button"
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* tab body */}
+          <div className="card" style={{ background: "var(--soft)" }}>
+            {activeTab === "personal" && (
+              <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", rowGap: 10 }}>
+                <div style={{ color: "var(--muted)" }}>Employee No</div><div>{employee.id}</div>
+                <div style={{ color: "var(--muted)" }}>Full Name</div><div>{(employee.first_name || "") + " " + (employee.last_name || "")}</div>
+                <div style={{ color: "var(--muted)" }}>Initials</div><div>{employee.initials || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Preferred Name</div><div>{employee.calling_name || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>NIC</div><div>{employee.nic || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Date of Birth</div><div>{employee.dob || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Gender</div><div>{employee.gender || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Marital Status</div><div>{employee.marital_status || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Permanent Address</div><div>{employee.address_permanent || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Temporary Address</div><div>{employee.address_temporary || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Nationality</div><div>{employee.nationality || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Religion</div><div>{employee.religion || "-"}</div>
+              </div>
+            )}
+
+            {activeTab === "official" && (
+              <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", rowGap: 10 }}>
+                <div style={{ color: "var(--muted)" }}>Department</div><div>{employee.department_name || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Designation</div><div>{employee.designation || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Working Office</div><div>{employee.working_office || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Branch</div><div>{employee.branch || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Employment Type</div><div>{employee.employment_type || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Appointment Date</div><div>{employee.appointment_date || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Supervisor</div><div>{employee.supervisor || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Basic Salary</div><div>{employee.basic_salary ?? "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Grade</div><div>{employee.grade || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>EPF No</div><div>{employee.epf_no || "-"}</div>
+              </div>
+            )}
+
+            {activeTab === "kin" && (
+              <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", rowGap: 10 }}>
+                <div style={{ color: "var(--muted)" }}>Relatives Name</div><div>{employee.kin?.kin_name || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Relationship</div><div>{employee.kin?.relationship || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>NIC</div><div>{employee.kin?.kin_nic || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Date of Birth</div><div>{employee.kin?.kin_dob || "-"}</div>
+              </div>
+            )}
+
+            {activeTab === "bank" && (
+              <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", rowGap: 10 }}>
+                <div style={{ color: "var(--muted)" }}>Account Name</div><div>{employee.bank_account?.account_name || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Account Number</div><div>{employee.bank_account?.account_number || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Bank</div><div>{employee.bank_account?.bank_name || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Branch</div><div>{employee.bank_account?.branch_name || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>Bank Document</div>
+                <div>
+                  {(() => {
+                    const bankDoc = (employee.documents || []).find(
+                      (d) => d.category === "Bank Document" || d.file_name?.startsWith("BANK -")
+                    );
+                    return bankDoc ? (
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                        <span className="pill pill-ok">{bankDoc.category || "Bank"}</span>
+                        <a className="btn btn-soft" href={bankDoc.url} target="_blank" rel="noopener noreferrer">Open</a>
+                        <a className="btn btn-soft" href={bankDoc.url} download>Download</a>
+                      </div>
+                    ) : (
+                      "No document uploaded"
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "documents" && (
+              <div>
+                {(employee.documents && employee.documents.length) ? (
+                  <div className="grid-auto">
+                    {employee.documents.map((doc) => (
+                      <div key={doc.id} className="card">
+                        <div style={{ height: 140, background: "#f3f4f6", borderRadius: 6, overflow: "hidden", marginBottom: 10 }}>
+                          {isImage(doc.file_type) ? (
+                            <img src={doc.url} alt={doc.file_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : isPdf(doc.file_type) ? (
+                            <iframe src={`${doc.url}#view=FitH&navpanes=0&toolbar=0`} title={doc.file_name} style={{ width: "100%", height: "100%" }} />
+                          ) : (
+                            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>📄</div>
+                          )}
+                        </div>
+                        <div style={{ fontWeight: 700 }}>{doc.file_name}</div>
+                        <div style={{ fontSize: 12, color: "var(--muted)" }}>
+                          <strong>{doc.category}</strong> • {doc.file_type || "file"} • {doc.uploaded_at?.slice(0, 10) || ""}
+                        </div>
+                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                          <a className="btn btn-soft" href={doc.url} target="_blank" rel="noopener noreferrer">Open</a>
+                          <a className="btn btn-soft" href={doc.url} download>Download</a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div>No documents uploaded</div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
