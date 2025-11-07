@@ -7,10 +7,6 @@ import PageHeader from "../components/PageHeader";
 const CheckinCheckoutReport = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchEmpNo, setSearchEmpNo] = useState("");
-  const [checkInType, setCheckInType] = useState("All Check-in Types");
-  const [checkOutType, setCheckOutType] = useState("All Check-out Types");
-  const [status, setStatus] = useState("All Statuses");
 
   const tabs = [
     { label: "Overview", path: "/attendance-overview" },
@@ -121,33 +117,6 @@ const CheckinCheckoutReport = () => {
     URL.revokeObjectURL(url);
   };
 
-  const filteredData = reportData.filter((row) => {
-    const rowDate = new Date(row.date);
-    const from = fromDate ? new Date(fromDate) : null;
-    const to = toDate ? new Date(toDate) : null;
-
-    // Date filter
-    if (from && to && !(rowDate >= from && rowDate <= to)) return false;
-    if (from && !to && rowDate < from) return false;
-    if (!from && to && rowDate > to) return false;
-
-    // Employee No filter
-    if (searchEmpNo && !row.empNo.includes(searchEmpNo)) return false;
-
-    // Check-in Type filter
-    if (checkInType !== "All Check-in Types" && row.checkInType !== checkInType) return false;
-
-    // Check-out Type filter
-    if (checkOutType !== "All Check-out Types" && row.checkOutType !== checkOutType) return false;
-
-    // Status filter
-    if (status !== "All Statuses" && row.status !== status) return false;
-
-    return true;
-  });
-
-
-
   return (
     <Layout>
       {/* Fixed Header Section */}
@@ -170,41 +139,12 @@ const CheckinCheckoutReport = () => {
         ))}
       </div>
 
-<<<<<<< HEAD
-        {/* Tabs */}
-        <div className="tab-bar">
-          {tabs.map((tab) => (
-            <button
-              key={tab.path}
-              className={`tab-link ${location.pathname === tab.path ? "active" : ""
-                }`}
-              onClick={() => navigate(tab.path)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* ✅ Filters - Two-Line Compact Layout */}
-        <div className="filters-section">
-          {/* 🔹 First Line */}
-          <div className="filters-row top-row">
-            <input
-              type="text"
-              placeholder="Search by Employee No..."
-              className="filter-input"
-              onChange={(e) => setSearchEmpNo(e.target.value)}
-            />
-
-            <div className="date-group">
-=======
       {/* Filters Card */}
       <div className="card">
         <div className="grid-3" style={{ alignItems: "end", marginBottom: "12px" }}>
           <div>
             <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Date Range</label>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
->>>>>>> dev-shanika
               <input
                 className="input"
                 type="date"
@@ -223,11 +163,6 @@ const CheckinCheckoutReport = () => {
             </div>
           </div>
 
-<<<<<<< HEAD
-          {/* 🔹 Second Line */}
-          <div className="filters-row bottom-row">
-            <select className="filter-select"  onChange={(e) => setCheckInType(e.target.value)}>
-=======
           <div>
             <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Check-in Type</label>
             <select 
@@ -235,7 +170,6 @@ const CheckinCheckoutReport = () => {
               value={checkInFilter} 
               onChange={(e) => setCheckInFilter(e.target.value)}
             >
->>>>>>> dev-shanika
               <option>All Check-in Types</option>
               <option>Normal</option>
               <option>Late</option>
@@ -243,9 +177,6 @@ const CheckinCheckoutReport = () => {
             </select>
           </div>
 
-<<<<<<< HEAD
-            <select className="filter-select"  onChange={(e) => setCheckOutType(e.target.value)}>
-=======
           <div>
             <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Check-out Type</label>
             <select 
@@ -253,7 +184,6 @@ const CheckinCheckoutReport = () => {
               value={checkOutFilter} 
               onChange={(e) => setCheckOutFilter(e.target.value)}
             >
->>>>>>> dev-shanika
               <option>All Check-out Types</option>
               <option>Normal</option>
               <option>Early-out</option>
@@ -261,9 +191,6 @@ const CheckinCheckoutReport = () => {
           </div>
         </div>
 
-<<<<<<< HEAD
-            <select className="filter-select"  onChange={(e) => setSt(e.target.value)}>
-=======
         <div className="grid-2" style={{ alignItems: "end", marginBottom: "12px" }}>
           <div>
             <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Search</label>
@@ -282,7 +209,6 @@ const CheckinCheckoutReport = () => {
               value={statusFilter} 
               onChange={(e) => setStatusFilter(e.target.value)}
             >
->>>>>>> dev-shanika
               <option>All Statuses</option>
               <option>Present</option>
               <option>Leave</option>
@@ -291,63 +217,6 @@ const CheckinCheckoutReport = () => {
           </div>
         </div>
 
-<<<<<<< HEAD
-        {/* ✅ Table */}
-        <div className="table-wrapper">
-          <table className="checkin-table">
-            <thead>
-              <tr>
-                <th>Employee No</th>
-                <th>Employee Name</th>
-                <th>Active Status</th>
-                <th>Date</th>
-                <th>Check-in Time</th>
-                <th>Check-in Type</th>
-                <th>Check-out Time</th>
-                <th>Check-out Type</th>
-                <th>Status</th>
-                <th>OT</th>
-                <th>Check-in Address</th>
-                <th>Check-out Address</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                filteredData.length > 0 ? (
-                  filteredData.map((row, i) => (
-                    <tr key={i}>
-                      <td>{row.empNo}</td>
-                      <td>{row.name}</td>
-                      <td>{row.activeStatus}</td>
-                      <td>{formatDate(row.date)}</td>
-                      <td>{row.checkInTime}</td>
-                      <td>{row.checkInType}</td>
-                      <td>{row.checkOutTime}</td>
-                      <td>{row.checkOutType}</td>
-                      <td>{row.status}</td>
-                      <td>{row.ot}</td>
-                      <td>{row.checkInAddress}</td>
-                      <td>{row.checkOutAddress}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="12" style={{ textAlign: "center", color: "#9ca3af" }}>
-                      No records found
-                    </td>
-                  </tr>
-                )
-              }
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="pagination">
-          <span>
-            Showing 1 to {reportData.length} of {reportData.length} results
-          </span>
-=======
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontSize: "14px", color: "var(--muted)" }}>
             {reportData.length} record(s) found
@@ -360,7 +229,6 @@ const CheckinCheckoutReport = () => {
               Export CSV
             </button>
           </div>
->>>>>>> dev-shanika
         </div>
       </div>
 

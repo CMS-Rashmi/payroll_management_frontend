@@ -1,16 +1,8 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import '../styles/DocumentsContracts.css';
-import Header from '../components/Header';
-=======
 // src/pages/DocumentsContracts.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 import PageHeader from "../components/PageHeader";
->>>>>>> dev-shanika
 
 export default function DocumentsContracts() {
   const navigate = useNavigate();
@@ -117,32 +109,12 @@ export default function DocumentsContracts() {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="documents-contracts-container">
-      <Sidebar />
-      
-      <div className="documents-contracts-content">
-      <Header/>
-        {/* Header */}
-        <header className="documents-contracts-header">
-          <div className="header-left">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">Employee Information Management</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">Documents & Contracts</span>
-            </div>
-            <h1 className="page-title">Employee Information Management</h1>
-          </div>
-          
-        </header>
-=======
     <Layout>
       {/* Fixed Header Section */}
       <PageHeader
         breadcrumb={["Employee Information", "Documents & Contracts"]}
         title="Employee Information Management"
       />
->>>>>>> dev-shanika
 
       {/* Fixed Tabs Section */}
       <div style={{ 

@@ -186,38 +186,7 @@ const LeaveRequest = () => {
             onClick={() => navigate(tab.path)}
             style={{ whiteSpace: "nowrap", flexShrink: 0 }}
           >
-<<<<<<< HEAD
-            <option>All Categories</option>
-            <option>Annual Leave</option>
-            <option>Casual Leave</option>
-          </select>
-          <select
-            className="filter-input"
-            value={dept}
-            onChange={(e) => setDept(e.target.value)}
-          >
-            <option>All Departments</option>
-            <option>N/A</option>
-            <option>IT Department</option>
-            <option>HR Department</option>
-          </select>
-
-          <button
-            className="apply-btn"
-            onClick={() => {
-              setQ('');
-              setDate('');
-              setDept("All Departments")
-              setCat('All Categories');
-            }}>
-            Clear
-          </button>
-
-          <button className="export-btn" onClick={onExportCSV}>
-            Export to CSV
-=======
             {tab.label}
->>>>>>> dev-shanika
           </button>
         ))}
       </div>
