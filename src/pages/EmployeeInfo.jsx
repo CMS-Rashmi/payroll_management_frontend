@@ -1,32 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
-import '../styles/EmployeeInfo.css';
-import { apiGet } from '../services/api';
+// src/pages/EmployeeInfo.jsx
+import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
+import { apiGet } from "../services/api";
 
-const EmployeeInfo = () => {
+export default function EmployeeInfo() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
-  const [filterDepartment, setFilterDepartment] = useState('');
-  const [filterDesignation, setFilterDesignation] = useState('');
-  const [filterJoinDate, setFilterJoinDate] = useState(''); // ✅ Single join date filter
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterDepartment, setFilterDepartment] = useState("");
+  const [filterDesignation, setFilterDesignation] = useState("");
+  const [filterJoinDate, setFilterJoinDate] = useState("");
 
   useEffect(() => {
     (async () => {
       try {
-        const data = await apiGet('/employees');
+        const data = await apiGet("/employees");
         setEmployees(data.data || []);
       } catch (e) {
         console.error(e);
-        setError('Failed to load employees');
+        setError("Failed to load employees");
       } finally {
         setLoading(false);
       }
@@ -36,26 +36,28 @@ const EmployeeInfo = () => {
   const formatDate = (d) => {
     const date = new Date(d);
     if (Number.isNaN(date)) return d;
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${m}/${day}/${date.getFullYear()}`;
   };
 
-  const departments = [...new Set(employees.map(e => e.department_name).filter(Boolean))];
-  const designations = [...new Set(employees.map(e => e.designation).filter(Boolean))];
+  const departments = useMemo(
+    () => [...new Set(employees.map((e) => e.department_name).filter(Boolean))],
+    [employees]
+  );
+  const designations = useMemo(
+    () => [...new Set(employees.map((e) => e.designation).filter(Boolean))],
+    [employees]
+  );
 
-  // ✅ Filtering logic
-  const filtered = employees.filter(emp => {
-    const matchesSearch =
-      `${emp.full_name} ${emp.employee_code || ''} ${emp.department_name || ''} ${emp.designation || ''}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-
+  const filtered = employees.filter((emp) => {
+    const matchesSearch = `${emp.full_name} ${emp.employee_code || ""} ${emp.department_name || ""} ${emp.designation || ""}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus ? emp.status === filterStatus : true;
     const matchesDepartment = filterDepartment ? emp.department_name === filterDepartment : true;
     const matchesDesignation = filterDesignation ? emp.designation === filterDesignation : true;
 
-    // ✅ Match specific join date
     let matchesJoin = true;
     if (filterJoinDate) {
       const empDate = new Date(emp.joining_date);
@@ -70,144 +72,149 @@ const EmployeeInfo = () => {
   });
 
   return (
-    <div className="employee-info-container">
-      <Sidebar />
-      <div className="employee-info-content">
-        <Header />
-        <header className="employee-info-header">
-          <div className="header-left">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">Employee Information</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">Employee Information Management</span>
-            </div>
-            <h1 className="page-title">Employee Information Management</h1>
-          </div>
-        </header>
+    <Layout>
+      {/* Fixed Header Section */}
+      <PageHeader
+        breadcrumb={["Employee Information", "Employee Information Management"]}
+        title="Employee Information Management"
+      />
 
-        {/* Tabs Navigation */}
-        <div className="tab-navigation">
-          {[
-            { label: 'Overview', path: '/employee-info' },
-            { label: 'Add Employee', path: '/add-employee' },
-            { label: 'Attendance & Leave Records', path: '/attendance-leave' },
-            { label: 'Performance & Training', path: '/performance-training' },
-            { label: 'Documents & Contracts', path: '/documents-contracts' },
-            { label: 'Audit Logs', path: '/audit-logs' },
-          ].map((t) => (
-            <button
-              key={t.label}
-              className={`tab-btn ${location.pathname === t.path ? 'active' : ''}`}
-              onClick={() => navigate(t.path)}
-            >
-              {t.label}
-            </button>
-          ))}
+      {/* Tabs - Single Line */}
+      <div className="card" style={{ display: "flex", gap: "8px", overflowX: "auto", whiteSpace: "nowrap" }}>
+        {[
+          { label: "Overview", path: "/employee-info" },
+          { label: "Add Employee", path: "/add-employee" },
+          { label: "Attendance & Leave Records", path: "/attendance-leave" },
+          { label: "Performance & Training", path: "/performance-training" },
+          { label: "Documents & Contracts", path: "/documents-contracts" },
+          { label: "Audit Logs", path: "/audit-logs" },
+        ].map((t) => (
+          <button
+            key={t.path}
+            className={`btn ${location.pathname === t.path ? "btn-primary" : "btn-soft"}`}
+            onClick={() => navigate(t.path)}
+            style={{ whiteSpace: "nowrap", flexShrink: 0 }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Filters Card */}
+      <div className="card">
+        <div className="grid-3" style={{ alignItems: "end", marginBottom: "12px" }}>
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Search</label>
+            <input
+              className="input"
+              placeholder="Search employees…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="grid-2">
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Status</label>
+              <select className="select" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                <option value="">All Status</option>
+                <option>Active</option>
+                <option>Inactive</option>
+                <option>Full-time</option>
+                <option>Part-time</option>
+                <option>On-contract</option>
+                <option>Seasonal</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Join Date</label>
+              <input
+                className="input"
+                type="date"
+                value={filterJoinDate}
+                onChange={(e) => setFilterJoinDate(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid-2">
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Department</label>
+              <select className="select" value={filterDepartment} onChange={(e) => setFilterDepartment(e.target.value)}>
+                <option value="">All Departments</option>
+                {departments.map((d) => (
+                  <option key={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Designation</label>
+              <select className="select" value={filterDesignation} onChange={(e) => setFilterDesignation(e.target.value)}>
+                <option value="">All Designations</option>
+                {designations.map((d) => (
+                  <option key={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
-        {/* Employee Table Section */}
-        <div className="employee-table-section">
-          <div className="section-header">
-            <h2>All Employees</h2>
-            <button className="add-employee-btn" onClick={() => navigate('/add-employee')}>
-              + Add Employee
-            </button>
-          </div>
-
-          {/* ✅ Search + Filters */}
-          <div className="search-filter-container">
-            <input
-              className="search-input"
-              placeholder="Search employees..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
-            <select
-              className="filter-select"
-              value={filterStatus}
-              onChange={e => setFilterStatus(e.target.value)}
-            >
-              <option value="">All Status</option>
-              <option>Active</option>
-              <option>Inactive</option>
-              <option>Full-time</option>
-              <option>Part-time</option>
-              <option>On-contract</option>
-              <option>Seasonal</option>
-            </select>
-            <select
-              className="filter-select"
-              value={filterDepartment}
-              onChange={e => setFilterDepartment(e.target.value)}
-            >
-              <option value="">All Departments</option>
-              {departments.map(d => <option key={d}>{d}</option>)}
-            </select>
-            <select
-              className="filter-select"
-              value={filterDesignation}
-              onChange={e => setFilterDesignation(e.target.value)}
-            >
-              <option value="">All Designations</option>
-              {designations.map(d => <option key={d}>{d}</option>)}
-            </select>
-
-            {/* ✅ Single Join Date Filter */}
-            <input
-              className="filter-date"
-              type="date"
-              value={filterJoinDate}
-              onChange={e => setFilterJoinDate(e.target.value)}
-            />
-
-            {/* Optional Clear Button */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "8px" }}>
             {filterJoinDate && (
-              <button className="clear-filter-btn" onClick={() => setFilterJoinDate('')}>
-                Clear
+              <button className="btn btn-soft" onClick={() => setFilterJoinDate("")}>
+                Clear Join Date
               </button>
             )}
           </div>
+          <button className="btn btn-primary" onClick={() => navigate("/add-employee")}>
+            + Add Employee
+          </button>
+        </div>
+      </div>
 
-          {/* Table Content */}
+      {/* Scrollable Table Section */}
+      <div className="table-container">
+        <div className="card" style={{ padding: 0 }}>
+          <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center" }}>
+            <div style={{ fontWeight: "700" }}>All Employees</div>
+            <div style={{ marginLeft: "auto", fontSize: "12px", color: "var(--muted)" }}>
+              {loading ? "Loading…" : `${filtered.length} result(s)`}
+            </div>
+          </div>
+
           {loading ? (
-            <div style={{ padding: 16 }}>Loading…</div>
+            <div style={{ padding: "16px" }}>Loading…</div>
           ) : error ? (
-            <div style={{ color: 'crimson', padding: 16 }}>{error}</div>
+            <div style={{ color: "var(--danger)", padding: "16px" }}>{error}</div>
           ) : (
-            <div className="employee-table-container">
-              <table className="employee-table">
+            <div style={{ overflowX: "auto", flex: 1 }}>
+              <table className="table">
                 <thead>
                   <tr>
-                    <th>Profile</th>
+                    <th>Employee</th>
                     <th>ID</th>
                     <th>Status</th>
                     <th>Department</th>
                     <th>Phone</th>
                     <th>Joining Date</th>
                     <th>Designation</th>
-                    <th>Action</th>
+                    <th style={{ width: "140px" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(emp => (
+                  {filtered.map((emp) => (
                     <tr key={emp.id}>
-                      <td>
-                        <div className="employee-profile">
-                          <div className="employee-avatar-small">
-                            {emp.profile_photo_url ? (
-                              <img src={emp.profile_photo_url} alt="" />
-                            ) : null}
-                          </div>
-                          <span>{emp.full_name}</span>
+                      <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div className="user-avatar" />
+                        <div>
+                          <div style={{ fontWeight: "600" }}>{emp.full_name}</div>
+                          <div style={{ fontSize: "12px", color: "var(--muted)" }}>{emp.email || "-"}</div>
                         </div>
                       </td>
                       <td>{emp.employee_code || emp.id}</td>
                       <td>
-                        <span
-                          className={`status-badge ${String(emp.status)
-                            .toLowerCase()
-                            .replaceAll(' ', '-')}`}
-                        >
+                        <span className={`pill ${String(emp.status).toLowerCase() === "active" ? "pill-ok" : String(emp.status).toLowerCase() === "on leave" ? "pill-warn" : ""}`}>
                           {emp.status}
                         </span>
                       </td>
@@ -216,28 +223,16 @@ const EmployeeInfo = () => {
                       <td>{formatDate(emp.joining_date)}</td>
                       <td>{emp.designation}</td>
                       <td>
-                        <div className="action-buttons">
-                          <button
-                            className="action-btn view-btn"
-                            onClick={() => navigate(`/employees/${emp.id}/view`)}
-                          >
-                            View
-                          </button>
-                          <button
-                            className="action-btn edit-btn"
-                            onClick={() => navigate(`/employees/${emp.id}/edit`)}
-                          >
-                            Edit
-                          </button>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button className="btn btn-soft" onClick={() => navigate(`/employees/${emp.id}/view`)}>View</button>
+                          <button className="btn btn-soft" onClick={() => navigate(`/employees/${emp.id}/edit`)}>Edit</button>
                         </div>
                       </td>
                     </tr>
                   ))}
-                  {filtered.length === 0 && (
+                  {!filtered.length && (
                     <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', padding: 20 }}>
-                        No employees found.
-                      </td>
+                      <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>No employees found.</td>
                     </tr>
                   )}
                 </tbody>
@@ -246,8 +241,6 @@ const EmployeeInfo = () => {
           )}
         </div>
       </div>
-    </div>
+    </Layout>
   );
-};
-
-export default EmployeeInfo;
+}

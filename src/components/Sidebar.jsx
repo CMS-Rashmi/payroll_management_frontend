@@ -1,3 +1,4 @@
+// src/components/Sidebar.jsx
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../components/Sidebar.css';
@@ -6,12 +7,26 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openSubmenu, setOpenSubmenu] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false); // ✅ Added: to handle hover expand/collapse
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '🏠', path: '/dashboard' },
     { id: 'employee-information', label: 'Employee Information', icon: '👤', path: '/employee-info' },
-    { id: 'salary-compensation', label: 'Salary Compensation', icon: '💰', path: '/earnings' },
+    { 
+      id: 'salary-compensation', 
+      label: 'Salary Compensation', 
+      icon: '💰', 
+      path: '/earnings',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Earnings', path: '/earnings' },
+        { label: 'Deductions', path: '/deductions' },
+        { label: 'Allowances', path: '/allowances' },
+        { label: 'Overtime & Adjustments', path: '/overtime-adjustments' },
+        { label: 'Compensation Adjustment', path: '/compensation-adjustment' },
+        { label: 'Net Salary Summary', path: '/net-salary-summary' },
+      ],
+    },
     { id: 'payroll-processing', label: 'Payroll Processing', icon: '📊', path: '/payroll-processing' },
     {
       id: 'time-attendance',
@@ -30,19 +45,30 @@ const Sidebar = () => {
     { id: 'security-access-control', label: 'Security & Access', icon: '🔒', path: '/security-access-control' },
   ];
 
-  const employeeInfoPaths = [
-    '/employee-info', '/add-employee', '/attendance-leave', '/performance-training', '/documents-contracts', '/audit-logs'
+  // Define all salary compensation related paths
+  const salaryCompensationPaths = [
+    '/earnings', '/deductions', '/allowances', '/overtime-adjustments', 
+    '/compensation-adjustment', '/net-salary-summary', '/add-deduction', '/add-allowance'
   ];
 
-  const salaryCompensationPaths = [
-    '/earnings', '/deductions', '/allowances', '/overtime-adjustments', '/compensation-adjustment', '/net-salary-summary'
+  const employeeInfoPaths = [
+    '/employee-info', '/add-employee', '/attendance-leave', '/performance-training', 
+    '/documents-contracts', '/audit-logs'
+  ];
+
+  const timeAttendancePaths = [
+    '/attendance-overview', '/employee-leaves' , '/time-management', '/absence-report',
+    '/attendance-adjustment', '/checkin-checkout-report', '/leave-approval', 
+    '/leave-calendar', '/leave-request'
   ];
 
   const getActiveItem = () => {
     const currentPath = location.pathname;
-    if (employeeInfoPaths.some(p => currentPath.startsWith(p))) return 'employee-information';
+    
     if (salaryCompensationPaths.some(p => currentPath.startsWith(p))) return 'salary-compensation';
-    if (currentPath.startsWith('/attendance-overview') || currentPath.startsWith('/leave')) return 'time-attendance';
+    if (employeeInfoPaths.some(p => currentPath.startsWith(p))) return 'employee-information';
+    if (timeAttendancePaths.some(p => currentPath.startsWith(p))) return 'time-attendance';
+    
     return menuItems.find(item => currentPath === item.path)?.id || 'dashboard';
   };
 
@@ -56,9 +82,9 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`} // ✅ dynamic class
-      onMouseEnter={() => setIsExpanded(true)} // expand on hover
-      onMouseLeave={() => setIsExpanded(false)} // collapse when leaving
+      className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
     >
       <div className="sidebar-header">
         <div className="cms-logo">

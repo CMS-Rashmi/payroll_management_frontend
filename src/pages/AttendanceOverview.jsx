@@ -1,8 +1,8 @@
+// src/pages/AttendanceOverview.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import "../styles/AttendanceOverview.css";
+import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
 
 const AttendanceOverview = () => {
   const navigate = useNavigate();
@@ -91,160 +91,201 @@ const AttendanceOverview = () => {
     );
   });
 
+  const clearFilters = () => {
+    setFilterDate("");
+    setSearchTerm("");
+    setCheckInFilter("All Check-in Types");
+    setCheckOutFilter("All Check-out Types");
+    setStatusFilter("All Statuses");
+  };
+
   return (
-    <div className="attendance-overview-container">
-      <Sidebar />
-      <div className="attendance-overview-content">
-        <Header />
+    <Layout>
+      {/* Fixed Header Section */}
+      <PageHeader
+        breadcrumb={["Time & Attendance", "Overview"]}
+        title="Time and Attendance - Overview"
+      />
 
-        {/* Header Section */}
-        <header className="attendance-overview-header">
-          <div className="header-left">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">Time & Attendance</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">Overview</span>
-            </div>
-            <h1 className="page-title">Time and Attendance - Overview</h1>
+      {/* Tabs */}
+      <div className="card" style={{ display: "flex", gap: "8px", overflowX: "auto", whiteSpace: "nowrap" }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.path}
+            className={`btn ${location.pathname === tab.path ? "btn-primary" : "btn-soft"}`}
+            onClick={() => navigate(tab.path)}
+            style={{ whiteSpace: "nowrap", flexShrink: 0 }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Filters Card */}
+      <div className="card">
+        <div className="grid-3" style={{ alignItems: "end", marginBottom: "12px" }}>
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Date</label>
+            <input
+              className="input"
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+            />
           </div>
-        </header>
 
-        {/* Tabs */}
-        <div className="tab-bar">
-          {tabs.map((tab) => (
-            <button
-              key={tab.path}
-              className={`tab-link ${
-                location.pathname === tab.path ? "active" : ""
-              }`}
-              onClick={() => navigate(tab.path)}
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Check-in Type</label>
+            <select 
+              className="select" 
+              value={checkInFilter} 
+              onChange={(e) => setCheckInFilter(e.target.value)}
             >
-              {tab.label}
-            </button>
-          ))}
+              <option>All Check-in Types</option>
+              <option>Normal Check-in</option>
+              <option>Late</option>
+              <option>Short-in</option>
+            </select>
+          </div>
+
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Check-out Type</label>
+            <select 
+              className="select" 
+              value={checkOutFilter} 
+              onChange={(e) => setCheckOutFilter(e.target.value)}
+            >
+              <option>All Check-out Types</option>
+              <option>Normal Check-out</option>
+              <option>Early-out</option>
+            </select>
+          </div>
         </div>
 
-        {/* Attendance Table Section */}
-        <div className="attendance-table-section">
-          {/* Filters */}
-          <div className="filters-container">
-            {/* First Row */}
-            <div className="filters-row">
-              {/* Date Field */}
-              <div className="filter-field">
-                <label className="filter-label">Date</label>
-                <div className="input-with-icon">
-                  <input
-                    type="text"
-                    className="filter-date"
-                    placeholder="MM/DD/YYYY"
-                    onFocus={(e) => (e.target.type = "date")}
-                    onBlur={(e) => {
-                      if (!e.target.value) e.target.type = "text";
-                    }}
-                    value={filterDate}
-                    onChange={(e) => setFilterDate(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Search Field */}
-              <div className="filter-field">
-                <label className="filter-label">Search by Employee</label>
-                <div className="input-with-icon">
-                  <input
-                    type="text"
-                    className="filter-input"
-                    placeholder="Search by Employee No..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Second Row */}
-            <div className="filters-row">
-              <select
-                className="filter-select"
-                value={checkInFilter}
-                onChange={(e) => setCheckInFilter(e.target.value)}
-              >
-                <option>All Check-in Types</option>
-                <option>Normal Check-in</option>
-                <option>Late</option>
-                <option>Short-in</option>
-              </select>
-
-              <select
-                className="filter-select"
-                value={checkOutFilter}
-                onChange={(e) => setCheckOutFilter(e.target.value)}
-              >
-                <option>All Check-out Types</option>
-                <option>Normal Check-out</option>
-                <option>Early-out</option>
-              </select>
-
-              <select
-                className="filter-select"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option>All Statuses</option>
-                <option>Active</option>
-                <option>Leave</option>
-                <option>Half day</option>
-                <option>Normal day</option>
-                <option>Short leave</option>
-              </select>
-            </div>
+        <div className="grid-2" style={{ alignItems: "end", marginBottom: "12px" }}>
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Search</label>
+            <input
+              className="input"
+              placeholder="Search by Employee No or Name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
-          <div className="section-header">
-            <h2 className="attendance-title">Attendance Table</h2>
+          <div>
+            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Status</label>
+            <select 
+              className="select" 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option>All Statuses</option>
+              <option>Active</option>
+              <option>Leave</option>
+              <option>Half day</option>
+              <option>Normal day</option>
+              <option>Short leave</option>
+            </select>
           </div>
+        </div>
 
-          {/* Table */}
-          <table className="attendance-table">
-            <thead>
-              <tr>
-                <th>Employee No</th>
-                <th>Employee Name</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Check-in Type</th>
-                <th>Check-in Time</th>
-                <th>Check-out Type</th>
-                <th>Check-out Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.length > 0 ? (
-                filteredData.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.empNo}</td>
-                    <td>{item.name}</td>
-                    <td>{item.status}</td>
-                    <td>{item.date}</td>
-                    <td>{item.checkInType}</td>
-                    <td>{item.checkInTime}</td>
-                    <td>{item.checkOutType}</td>
-                    <td>{item.checkOutTime}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" style={{ textAlign: "center" }}>
-                    No records found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ fontSize: "14px", color: "var(--muted)" }}>
+            {filteredData.length} record(s) found
+          </div>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button className="btn btn-soft" onClick={clearFilters}>
+              Clear Filters
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Attendance Table Section */}
+      <div className="table-container">
+        <div className="card" style={{ padding: 0 }}>
+          <div style={{ 
+            padding: "12px 16px", 
+            borderBottom: "1px solid var(--border)", 
+            display: "flex", 
+            alignItems: "center",
+            justifyContent: "space-between"
+          }}>
+            <div style={{ fontWeight: "700" }}>Attendance Table</div>
+            <div style={{ fontSize: "12px", color: "var(--muted)" }}>
+              Showing {filteredData.length} records
+            </div>
+          </div>
+
+          <div style={{ overflowX: "auto", flex: 1 }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Employee No</th>
+                  <th>Employee Name</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Check-in Type</th>
+                  <th>Check-in Time</th>
+                  <th>Check-out Type</th>
+                  <th>Check-out Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.length > 0 ? (
+                  filteredData.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.empNo}</td>
+                      <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div className="user-avatar" />
+                        <div style={{ fontWeight: "600" }}>{item.name}</div>
+                      </td>
+                      <td>
+                        <span className={`pill ${
+                          item.status === "Active" ? "pill-ok" : 
+                          item.status === "Leave" ? "pill-warn" : 
+                          "pill-soft"
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td>{item.date}</td>
+                      <td>
+                        <span className={`pill ${
+                          item.checkInType === "Normal Check-in" ? "pill-ok" : 
+                          item.checkInType === "Short-in" ? "pill-warn" : 
+                          "pill-soft"
+                        }`}>
+                          {item.checkInType}
+                        </span>
+                      </td>
+                      <td>{item.checkInTime}</td>
+                      <td>
+                        <span className={`pill ${
+                          item.checkOutType === "Normal Check-out" ? "pill-ok" : 
+                          item.checkOutType === "Early-out" ? "pill-warn" : 
+                          "pill-soft"
+                        }`}>
+                          {item.checkOutType}
+                        </span>
+                      </td>
+                      <td>{item.checkOutTime}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" style={{ textAlign: "center", padding: "40px", color: "var(--muted)" }}>
+                      No attendance records found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </Layout>
   );
 };
 

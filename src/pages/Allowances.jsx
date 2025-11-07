@@ -1,354 +1,456 @@
 // src/pages/Allowances.jsx
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
-import '../styles/Allowances.css';
-import { apiGet, apiJSON } from '../services/api';
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
+import { apiGet, apiDelete } from "../services/api";
 
-const TABS = [
-  { key: 'earnings', label: 'Earnings', path: '/earnings' },
-  { key: 'deductions', label: 'Deductions', path: '/deductions' },
-  { key: 'allowances', label: 'Allowances', path: '/allowances' },
-  { key: 'overtime', label: 'Overtime & Adjustments', path: '/overtime-adjustments' },
-  { key: 'compensation', label: 'Compensation adjustment', path: '/compensation-adjustment' },
-  { key: 'summary', label: 'Net salary summary', path: '/net-salary-summary' },
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 
-const frequencyOptions = ['Monthly', 'Yearly'];
-const categoryOptions = ['Transportation', 'Meal', 'Housing', 'Medical', 'Communication', 'Other'];
-const statusOptions = ['Active', 'Inactive'];
-
-const Allowances = () => {
+export default function Allowances() {
   const navigate = useNavigate();
-
-  // tabs
-  const [activeTab, setActiveTab] = useState('allowances');
-
-  // list/table
+  const location = useLocation();
+  
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  // filters (simple search)
-  const [q, setQ] = useState('');
-
-  // modal
-  const [open, setOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    employee_id: '',
-    description: '',
-    category: 'Transportation',
-    amount: '',
-    taxable: 0,
-    frequency: 'Monthly',
-    effective_from: '',
-    effective_to: '',
-    status: 'Active',
+  // Filters
+  const [employeeFilter, setEmployeeFilter] = useState("All Employees");
+  const [departmentFilter, setDepartmentFilter] = useState("All Departments");
+  const [categoryFilter, setCategoryFilter] = useState("All Categories");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+  const [frequencyFilter, setFrequencyFilter] = useState("All Frequency");
+  const [monthFilter, setMonthFilter] = useState(() => {
+    const d = new Date();
+    return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
   });
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // load table
+  // Month dropdown
+  const monthOptions = useMemo(() => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const list = [];
+    [y - 1, y, y + 1].forEach((yr) => {
+      MONTHS.forEach((mn) => list.push(`${mn} ${yr}`));
+    });
+    return list.reverse();
+  }, []);
+
+  // Category options
+  const categoryOptions = ["All Categories", "Transportation", "Meal", "Housing", "Medical", "Communication", "Other"];
+  const frequencyOptions = ["All Frequency", "Monthly", "Yearly"];
+  const statusOptions = ["All Status", "Active", "Inactive"];
+
+  // Fetch data
   useEffect(() => {
-    const load = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        setError('');
-        const resp = await apiGet('/salary/allowances'); // controller listAllowances
-        const list = Array.isArray(resp.data) ? resp.data : (resp.data?.data || []);
+        setError("");
+        const resp = await apiGet("/salary/allowances");
+        const list = Array.isArray(resp.data) ? resp.data : resp.data?.data || [];
         setRows(list);
       } catch (e) {
         console.error(e);
-        setError(e.message || 'Failed to load allowances');
+        setError("Failed to load allowances");
+        setRows([]);
       } finally {
         setLoading(false);
       }
     };
-    load();
+    fetchData();
   }, []);
 
+  // Build filter options from data
+  const employeeOptions = useMemo(() => {
+    const names = Array.from(new Set(rows.map((r) => r.full_name))).filter(Boolean).sort();
+    return ["All Employees", ...names];
+  }, [rows]);
+
+  const departmentOptions = useMemo(() => {
+    const depts = Array.from(new Set(rows.map((r) => r.department || ""))).filter(Boolean).sort();
+    return ["All Departments", ...depts];
+  }, [rows]);
+
+  // Filter logic
   const filtered = useMemo(() => {
-    if (!q.trim()) return rows;
-    const s = q.toLowerCase();
-    return rows.filter(r =>
-      String(r.employee_id).toLowerCase().includes(s) ||
-      r.full_name?.toLowerCase().includes(s) ||
-      r.description?.toLowerCase().includes(s) ||
-      r.category?.toLowerCase().includes(s) ||
-      r.frequency?.toLowerCase().includes(s) ||
-      r.status?.toLowerCase().includes(s)
-    );
-  }, [rows, q]);
+    let data = rows;
 
-  const handleTabClick = (tab) => {
-    setActiveTab(tab.key);
-    navigate(tab.path);
-  };
-
-  const openModal = () => {
-    setForm({
-      employee_id: '',
-      description: '',
-      category: 'Transportation',
-      amount: '',
-      taxable: 0,
-      frequency: 'Monthly',
-      effective_from: '',
-      effective_to: '',
-      status: 'Active',
-    });
-    setOpen(true);
-  };
-
-  const closeModal = () => {
-    setOpen(false);
-  };
-
-  const submit = async (e) => {
-    e.preventDefault();
-    // quick required guard
-    if (!form.employee_id || !form.description || !form.amount) {
-      alert('Employee, Description and Amount are required');
-      return;
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      data = data.filter(
+        (r) =>
+          r.full_name?.toLowerCase().includes(q) ||
+          r.description?.toLowerCase().includes(q) ||
+          r.category?.toLowerCase().includes(q) ||
+          String(r.employee_id).toLowerCase().includes(q)
+      );
     }
+
+    if (employeeFilter !== "All Employees") {
+      data = data.filter((r) => r.full_name === employeeFilter);
+    }
+
+    if (departmentFilter !== "All Departments") {
+      data = data.filter((r) => (r.department || "") === departmentFilter);
+    }
+
+    if (categoryFilter !== "All Categories") {
+      data = data.filter((r) => r.category === categoryFilter);
+    }
+
+    if (statusFilter !== "All Status") {
+      data = data.filter((r) => r.status === statusFilter);
+    }
+
+    if (frequencyFilter !== "All Frequency") {
+      data = data.filter((r) => r.frequency === frequencyFilter);
+    }
+
+    return data;
+  }, [rows, searchTerm, employeeFilter, departmentFilter, categoryFilter, statusFilter, frequencyFilter]);
+
+  const handleResetFilters = () => {
+    setEmployeeFilter("All Employees");
+    setDepartmentFilter("All Departments");
+    setCategoryFilter("All Categories");
+    setStatusFilter("All Status");
+    setFrequencyFilter("All Frequency");
+    setSearchTerm("");
+  };
+
+  // CORRECTED: Edit handler
+  const handleEdit = (item) => {
+    navigate(`/add-allowance?id=${item.id}`);
+  };
+
+  // CORRECTED: Delete handler with proper endpoint
+  const handleDelete = async (item) => {
+    if (!window.confirm(`Delete allowance "${item.description}" for ${item.full_name}?`)) return;
+    
     try {
-      setSaving(true);
-      // POST exactly with your DB columns
-      const payload = {
-        employee_id: Number(form.employee_id),
-        description: form.description,
-        category: form.category || null,
-        amount: Number(form.amount),
-        taxable: Number(form.taxable) ? 1 : 0,
-        frequency: form.frequency,                 // 'Monthly' | 'Yearly'
-        effective_from: form.effective_from || null,
-        effective_to: form.effective_to || null,
-        status: form.status,                       // 'Active' | 'Inactive'
-      };
-      await apiJSON('/salary/allowance', 'POST', payload);
-      setOpen(false);
-      // refresh list
-      const resp = await apiGet('/salary/allowances');
-      const list = Array.isArray(resp.data) ? resp.data : (resp.data?.data || []);
+      await apiDelete(`/salary/allowance/${item.id}`); // CORRECTED ENDPOINT: singular "allowance"
+      // Refresh the list
+      const resp = await apiGet("/salary/allowances");
+      const list = Array.isArray(resp.data) ? resp.data : resp.data?.data || [];
       setRows(list);
     } catch (e) {
-      console.error(e);
-      alert(e.message || 'Failed to add allowance');
-    } finally {
-      setSaving(false);
+      alert(e.message || "Failed to delete allowance");
     }
+  };
+
+  // Export to CSV
+  const handleExport = () => {
+    if (!filtered.length) {
+      alert("No data to export.");
+      return;
+    }
+    const csvRows = [];
+    const header = [
+      "Employee ID", "Employee Name", "Description", "Category", "Amount", 
+      "Taxable", "Frequency", "Effective From", "Effective To", "Status"
+    ];
+    csvRows.push(header.join(","));
+
+    filtered.forEach((r) => {
+      const row = [
+        r.employee_id,
+        r.full_name || "",
+        r.description,
+        r.category || "",
+        Number(r.amount || 0),
+        Number(r.taxable) ? "Yes" : "No",
+        r.frequency || "",
+        r.effective_from || "",
+        r.effective_to || "",
+        r.status,
+      ];
+      csvRows.push(row.join(","));
+    });
+
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Allowances_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "-") return dateString;
+    const date = new Date(dateString);
+    if (isNaN(date)) return dateString;
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
   };
 
   return (
-    <div className="allowances-container">
-      <Sidebar />
+    <Layout>
+      {/* Fixed Header Section */}
+      <PageHeader breadcrumb={["Salary & Compensation", "Allowances"]} title="Salary & Compensation" />
 
-      <div className="allowances-content">
-        {/* Only show main content when modal is closed */}
-        {!open ? (
-          <>
-            {/* Header */}
-            <Header/>
-            <header className="allowances-header">
-              <div className="header-left">
-                <div className="breadcrumb">
-                  <span className="breadcrumb-item">Salary & Compensation</span>
-                  <span className="breadcrumb-separator">›</span>
-                  <span className="breadcrumb-item active">Allowance</span>
-                </div>
-                <h1 className="page-title">Salary & Compensation</h1>
-              </div>
-            </header>
+      {/* Fixed Tabs Section */}
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+          backgroundColor: "var(--bg)",
+          borderBottom: "1px solid var(--border)",
+        }}
+      >
+        <div
+          className="card"
+          style={{
+            display: "flex",
+            gap: "8px",
+            overflowX: "auto",
+            whiteSpace: "nowrap",
+            marginBottom: 0,
+            borderRadius: "0",
+          }}
+        >
+          {[
+            { label: "Earnings", path: "/earnings" },
+            { label: "Deductions", path: "/deductions" },
+            { label: "Allowances", path: "/allowances" },
+            { label: "Overtime & Adjustments", path: "/overtime-adjustments" },
+            { label: "Compensation Adjustment", path: "/compensation-adjustment" },
+            { label: "Net Salary Summary", path: "/net-salary-summary" },
+          ].map((t) => (
+            <button
+              key={t.path}
+              className={`btn ${location.pathname === t.path ? "btn-primary" : "btn-soft"}`}
+              onClick={() => navigate(t.path)}
+              style={{ whiteSpace: "nowrap", flexShrink: 0 }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-            {/* Tabs */}
-            <div className="allowances-tabs">
-              {TABS.map(t => (
-                <div
-                  key={t.key}
-                  className={`tab ${activeTab === t.key ? 'active' : ''}`}
-                  onClick={() => handleTabClick(t)}
-                >
-                  {t.label}
-                </div>
-              ))}
+      {/* Fixed Filters Section */}
+      <div
+        style={{
+          position: "sticky",
+          top: "56px", // Height of tabs section
+          zIndex: 90,
+          backgroundColor: "var(--bg)",
+        }}
+      >
+        {/* Filters Card */}
+        <div className="card">
+          <div className="grid-3" style={{ alignItems: "end", marginBottom: "12px" }}>
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+                Employee
+              </label>
+              <select className="select" value={employeeFilter} onChange={(e) => setEmployeeFilter(e.target.value)}>
+                {employeeOptions.map((opt) => (
+                  <option key={opt}>{opt}</option>
+                ))}
+              </select>
             </div>
 
-            {/* Top actions */}
-            <div className="allowances-topbar">
-              <div className="search-wrap">
-                <input
-                  value={q}
-                  onChange={e => setQ(e.target.value)}
-                  className="search-input"
-                  placeholder="Search by employee, category, status…"
-                />
-              </div>
-              <div className="table-buttons">
-                <button className="add-allowance-btn" onClick={openModal}>
-                  + Add Allowance
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+                Department
+              </label>
+              <select className="select" value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)}>
+                {departmentOptions.map((opt) => (
+                  <option key={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+                Category
+              </label>
+              <select className="select" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+                {categoryOptions.map((opt) => (
+                  <option key={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+                Status
+              </label>
+              <select className="select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                {statusOptions.map((opt) => (
+                  <option key={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+                Frequency
+              </label>
+              <select className="select" value={frequencyFilter} onChange={(e) => setFrequencyFilter(e.target.value)}>
+                {frequencyOptions.map((opt) => (
+                  <option key={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+                Search
+              </label>
+              <input
+                className="input"
+                placeholder="Name, ID, Description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", gap: "8px" }}>
+              {(employeeFilter !== "All Employees" || departmentFilter !== "All Departments" || categoryFilter !== "All Categories" || statusFilter !== "All Status" || frequencyFilter !== "All Frequency" || searchTerm) && (
+                <button className="btn btn-soft" onClick={handleResetFilters}>
+                  Reset Filters
                 </button>
-              </div>
+              )}
             </div>
-
-            {/* Table */}
-            <div className="table-container">
-              {error && <div style={{ color: 'crimson', margin: '8px 0' }}>{error}</div>}
-
-              <table className="allowances-table">
-                <thead>
-                  <tr>
-                    <th>Employee ID</th>
-                    <th>Employee Name</th>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th>Amount</th>
-                    <th>Taxable</th>
-                    <th>Frequency</th>
-                    <th>Effective From</th>
-                    <th>Effective To</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr><td colSpan="10" style={{ padding: 20 }}>Loading…</td></tr>
-                  ) : filtered.length ? (
-                    filtered.map(r => (
-                      <tr key={r.id}>
-                        <td>{r.employee_id}</td>
-                        <td>{r.full_name || '-'}</td>
-                        <td>{r.description}</td>
-                        <td>{r.category || '-'}</td>
-                        <td>{Number(r.amount || 0).toLocaleString()}</td>
-                        <td><span className={`badge ${Number(r.taxable) ? 'yes' : 'no'}`}>{Number(r.taxable) ? 'Yes' : 'No'}</span></td>
-                        <td>{r.frequency || '-'}</td>
-                        <td>{r.effective_from || '-'}</td>
-                        <td>{r.effective_to || '-'}</td>
-                        <td><span className={`status ${r.status === 'Active' ? 'active' : 'inactive'}`}>{r.status}</span></td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr><td colSpan="10" style={{ textAlign: 'center', padding: 20 }}>No allowances found.</td></tr>
-                  )}
-                </tbody>
-              </table>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button className="btn btn-primary" onClick={handleExport}>
+                Export Report
+              </button>
+              <button className="btn btn-primary" onClick={() => navigate("/add-allowance")}>
+                + Add Allowance
+              </button>
             </div>
-          </>
-        ) : (
-          /* Show only the modal when open */
-          <div className="modal-fullscreen">
-            <div className="modal-card-centered">
-              <div className="modal-header">
-                <h3>Add Allowance</h3>
-                <button className="close-btn" onClick={closeModal}>×</button>
-              </div>
-              <form onSubmit={submit} className="modal-form">
-                <div className="grid-2">
-                  <div>
-                    <label>Employee ID *</label>
-                    <input
-                      type="number"
-                      value={form.employee_id}
-                      onChange={e => setForm({ ...form, employee_id: e.target.value })}
-                      placeholder="e.g., 1"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label>Description *</label>
-                    <input
-                      value={form.description}
-                      onChange={e => setForm({ ...form, description: e.target.value })}
-                      placeholder="e.g., Travel Allowance"
-                      required
-                    />
-                  </div>
-                </div>
+          </div>
+        </div>
 
-                <div className="grid-3">
-                  <div>
-                    <label>Category</label>
-                    <select
-                      value={form.category}
-                      onChange={e => setForm({ ...form, category: e.target.value })}
-                    >
-                      {categoryOptions.map(c => <option key={c}>{c}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label>Amount *</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={form.amount}
-                      onChange={e => setForm({ ...form, amount: e.target.value })}
-                      placeholder="0.00"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label>Taxable?</label>
-                    <select
-                      value={form.taxable}
-                      onChange={e => setForm({ ...form, taxable: Number(e.target.value) })}
-                    >
-                      <option value={0}>No</option>
-                      <option value={1}>Yes</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid-3">
-                  <div>
-                    <label>Frequency</label>
-                    <select
-                      value={form.frequency}
-                      onChange={e => setForm({ ...form, frequency: e.target.value })}
-                    >
-                      {frequencyOptions.map(f => <option key={f}>{f}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label>Effective From</label>
-                    <input
-                      type="date"
-                      value={form.effective_from}
-                      onChange={e => setForm({ ...form, effective_from: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label>Effective To</label>
-                    <input
-                      type="date"
-                      value={form.effective_to}
-                      onChange={e => setForm({ ...form, effective_to: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label>Status</label>
-                  <select
-                    value={form.status}
-                    onChange={e => setForm({ ...form, status: e.target.value })}
-                  >
-                    {statusOptions.map(s => <option key={s}>{s}</option>)}
-                  </select>
-                </div>
-
-                <div className="modal-actions">
-                  <button type="button" className="btn neutral" onClick={closeModal}>Cancel</button>
-                  <button type="submit" className="btn primary" disabled={saving}>
-                    {saving ? 'Saving…' : 'Save'}
-                  </button>
-                </div>
-              </form>
-            </div>
+        {/* Error Display */}
+        {error && (
+          <div className="card" style={{ color: "var(--danger)", background: "#fef2f2" }}>
+            {error}
           </div>
         )}
       </div>
-    </div>
-  );
-};
 
-export default Allowances;
+      {/* Scrollable Table Section */}
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <div className="table-container" style={{ marginTop: 0, flex: 1, minHeight: 0 }}>
+          <div className="card" style={{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ 
+              padding: "12px 16px", 
+              borderBottom: "1px solid var(--border)", 
+              display: "flex", 
+              alignItems: "center",
+              flexShrink: 0
+            }}>
+              <div style={{ fontWeight: "700" }}>Allowance Configuration</div>
+              <div style={{ marginLeft: "auto", fontSize: "12px", color: "var(--muted)" }}>
+                {loading ? "Loading..." : `${filtered.length} allowance(s)`}
+              </div>
+            </div>
+
+            {loading ? (
+              <div style={{ padding: "16px", flex: 1 }}>Loading...</div>
+            ) : (
+              <div style={{ overflow: 'auto', flex: 1, minHeight: 0 }}>
+                <table className="table">
+                  <thead style={{
+                    position: "sticky",
+                    top: 0,
+                    backgroundColor: "#f8f9fa",
+                    zIndex: 10
+                  }}>
+                    <tr>
+                      <th>Employee ID</th>
+                      <th>Employee Name</th>
+                      <th>Description</th>
+                      <th>Category</th>
+                      <th>Amount</th>
+                      <th>Taxable</th>
+                      <th>Frequency</th>
+                      <th>Effective From</th>
+                      <th>Effective To</th>
+                      <th>Status</th>
+                      <th style={{ width: "120px" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.employee_id}</td>
+                        <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div className="user-avatar" />
+                          <div style={{ fontWeight: "600" }}>{item.full_name || "-"}</div>
+                        </td>
+                        <td>{item.description}</td>
+                        <td>{item.category || "-"}</td>
+                        <td>{Number(item.amount || 0).toLocaleString()}</td>
+                        <td>
+                          <span className={`pill ${Number(item.taxable) ? "pill-warn" : "pill-ok"}`}>
+                            {Number(item.taxable) ? "Yes" : "No"}
+                          </span>
+                        </td>
+                        <td>{item.frequency || "-"}</td>
+                        <td>{formatDate(item.effective_from)}</td>
+                        <td>{formatDate(item.effective_to)}</td>
+                        <td>
+                          <span className={`pill ${item.status === "Active" ? "pill-ok" : "pill-warn"}`}>
+                            {item.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ display: "flex", gap: "8px" }}>
+                            <button 
+                              className="btn btn-soft" 
+                              onClick={() => handleEdit(item)}
+                              style={{ fontSize: "12px", padding: "6px 12px" }}
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              className="btn btn-soft" 
+                              onClick={() => handleDelete(item)}
+                              style={{ 
+                                fontSize: "12px", 
+                                padding: "6px 12px",
+                                background: "#fef2f2",
+                                color: "#dc2626",
+                                border: "1px solid #fecaca"
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {!filtered.length && (
+                      <tr>
+                        <td colSpan="11" style={{ textAlign: "center", padding: "20px" }}>
+                          No allowances found. Click "Add Allowance" to create one.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
