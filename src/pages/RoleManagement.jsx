@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import "../styles/RoleManagement.css";
+
 
 const RoleManagement = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // --- Roles Data ---
+  // --- Role Data ---
   const [roles, setRoles] = useState([
     {
       name: "HR",
@@ -39,8 +39,8 @@ const RoleManagement = () => {
   // --- Tabs ---
   const tabs = [
     { label: "Security & Access Control", path: "/security-access-control" },
-    { label: "User Management", path: "/user-management" },
-    { label: "Role Management", path: "/role-management" },
+    { label: "User Manage", path: "/user-management" },
+    { label: "Role Manage", path: "/role-management" },
     { label: "Access Control", path: "/access-control" },
     { label: "Security Logs", path: "/security-logs" },
     { label: "Audit Log", path: "/audit-log" },
@@ -48,10 +48,8 @@ const RoleManagement = () => {
     { label: "Backup & Recovery", path: "/backup-recovery" },
   ];
 
-  // --- Search Filter State ---
+  // --- Search + Modal States ---
   const [searchTerm, setSearchTerm] = useState("");
-
-  // --- Modal & Edit States ---
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
@@ -63,218 +61,223 @@ const RoleManagement = () => {
     permissions: "",
   });
 
-  // --- Filtering Logic ---
-  const filteredRoles = roles.filter((role) => {
+  const filteredRoles = roles.filter((r) => {
     const term = searchTerm.toLowerCase();
     return (
-      role.name.toLowerCase().includes(term) ||
-      role.description.toLowerCase().includes(term) ||
-      role.permissions.toLowerCase().includes(term)
+      r.name.toLowerCase().includes(term) ||
+      r.description.toLowerCase().includes(term) ||
+      r.permissions.toLowerCase().includes(term)
     );
   });
 
-  // --- Handle Add / Update Role ---
+  // --- Save Role ---
   const handleSaveRole = (e) => {
     e.preventDefault();
-
-    if (!roleData.name.trim() || !roleData.description.trim()) return;
+    if (!roleData.name.trim()) return;
 
     if (isEditing && editingIndex !== null) {
-      // Update existing role
       const updated = [...roles];
       updated[editingIndex] = roleData;
       setRoles(updated);
     } else {
-      // Add new role
       setRoles([...roles, roleData]);
     }
 
-    // Reset modal
     setShowModal(false);
     setIsEditing(false);
     setEditingIndex(null);
     setRoleData({ name: "", description: "", users: 0, permissions: "" });
   };
 
-  // --- Handle Edit Button ---
-  const handleEdit = (index) => {
-    const selectedRole = roles[index];
-    setRoleData(selectedRole);
+  const handleEdit = (i) => {
+    setRoleData(roles[i]);
+    setEditingIndex(i);
     setIsEditing(true);
-    setEditingIndex(index);
     setShowModal(true);
   };
 
-  // --- Handle Delete ---
-  const handleDelete = (index) => {
+  const handleDelete = (i) => {
     if (window.confirm("Are you sure you want to delete this role?")) {
-      const updated = roles.filter((_, i) => i !== index);
-      setRoles(updated);
+      setRoles(roles.filter((_, index) => index !== i));
     }
   };
 
   return (
-    <div className="role-container">
-      <Sidebar />
-      <div className="role-content">
-        <Header />
+    <div className="app-shell">
+      <div className="app-sidebar">
+        <Sidebar />
+      </div>
+      <div className="app-main">
+        <div className="app-topbar">
+          <Header />
+        </div>
 
-        {/* --- Header --- */}
-        <header className="role-header">
-          <div className="header-left">
+        <div className="app-content">
+          <div className="page-header">
+            <div className="breadcrumb">
+              <span className="breadcrumb-item">Administration</span>
+              <span className="breadcrumb-sep">›</span>
+              <span className="breadcrumb-item active">Role Management</span>
+            </div>
             <h1 className="page-title">Role Management</h1>
             <p className="subtitle">Manage system roles and their permissions</p>
           </div>
-          <div className="header-right">
+
+          {/* Tabs */}
+          <div className="card" style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+            {tabs.map((t) => (
+              <button
+                key={t.path}
+                className={`btn btn-soft ${location.pathname === t.path ? "btn-primary" : ""}`}
+                onClick={() => navigate(t.path)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Search + Add */}
+          <div className="card" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <input
+              className="input"
+              style={{ maxWidth: "300px" }}
+              placeholder="Search roles..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <button
-              className="add-role-btn"
+              className="btn btn-primary"
               onClick={() => {
+                setShowModal(true);
                 setIsEditing(false);
                 setRoleData({ name: "", description: "", users: 0, permissions: "" });
-                setShowModal(true);
               }}
             >
               + Add Role
             </button>
           </div>
-        </header>
 
-        {/* --- Tabs --- */}
-        <div className="role-tabs">
-          {tabs.map((t) => (
-            <button
-              key={t.label}
-              className={`tab-btn ${location.pathname === t.path ? "active" : ""}`}
-              onClick={() => navigate(t.path)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* --- Search Bar --- */}
-        <div className="role-search-bar">
-          <input
-            type="text"
-            placeholder="Search Roles (by name, description, or permissions)"
-            className="search-input"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        {/* --- Role Table --- */}
-        <div className="role-table-section">
-          {filteredRoles.length > 0 ? (
-            <table className="role-table">
-              <thead>
-                <tr>
-                  <th>Role Name</th>
-                  <th>Description</th>
-                  <th>Users</th>
-                  <th>Permissions</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRoles.map((r, i) => (
-                  <tr key={i}>
-                    <td><span className="role-name">{r.name}</span></td>
-                    <td>{r.description}</td>
-                    <td><span className="user-count">{r.users} users</span></td>
-                    <td>{r.permissions}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="edit-btn" onClick={() => handleEdit(i)}>
+          {/* Table */}
+          <div className="table-container">
+            {filteredRoles.length > 0 ? (
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Role Name</th>
+                    <th>Description</th>
+                    <th>Users</th>
+                    <th>Permissions</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRoles.map((r, i) => (
+                    <tr key={i}>
+                      <td>{r.name}</td>
+                      <td>{r.description}</td>
+                      <td>{r.users}</td>
+                      <td>{r.permissions}</td>
+                      <td>
+                        <button className="btn btn-soft" onClick={() => handleEdit(i)}>
                           Edit
-                        </button>
-                        <button className="delete-btn" onClick={() => handleDelete(i)}>
+                        </button>{" "}
+                        <button className="btn btn-soft" style={{ color: "red" }} onClick={() => handleDelete(i)}>
                           Delete
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="no-results">No roles found matching your search.</div>
-          )}
-
-          <div className="table-footer">
-            Showing {filteredRoles.length} of {roles.length} roles
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div style={{ padding: "20px", textAlign: "center", color: "var(--muted)" }}>
+                No roles found matching your filters.
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* --- Add/Edit Role Modal --- */}
-        {showModal && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h2>{isEditing ? "Edit Role" : "Add New Role"}</h2>
-              <form onSubmit={handleSaveRole}>
-                <label>
-                  Role Name
-                  <input
-                    type="text"
-                    name="name"
-                    value={roleData.name}
-                    onChange={(e) => setRoleData({ ...roleData, name: e.target.value })}
-                    required
-                  />
-                </label>
+          {/* Modal */}
+          {showModal && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                background: "rgba(0,0,0,0.4)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 1000,
+              }}
+            >
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: "8px",
+                  padding: "24px",
+                  width: "420px",
+                }}
+              >
+                <h2 style={{ marginBottom: "16px" }}>
+                  {isEditing ? "Edit Role" : "Add New Role"}
+                </h2>
 
-                <label>
-                  Description
-                  <textarea
-                    name="description"
-                    rows="3"
-                    value={roleData.description}
-                    onChange={(e) => setRoleData({ ...roleData, description: e.target.value })}
-                    required
-                  ></textarea>
-                </label>
+                <form onSubmit={handleSaveRole}>
+                  <label>
+                    Role Name
+                    <input
+                      className="input"
+                      value={roleData.name}
+                      onChange={(e) => setRoleData({ ...roleData, name: e.target.value })}
+                      required
+                    />
+                  </label>
 
-                <label>
-                  Users (Count)
-                  <input
-                    type="number"
-                    name="users"
-                    value={roleData.users}
-                    onChange={(e) => setRoleData({ ...roleData, users: Number(e.target.value) })}
-                  />
-                </label>
+                  <label>
+                    Description
+                    <textarea
+                      className="input"
+                      rows="3"
+                      value={roleData.description}
+                      onChange={(e) => setRoleData({ ...roleData, description: e.target.value })}
+                      required
+                    ></textarea>
+                  </label>
 
-                <label>
-                  Permissions (comma-separated)
-                  <input
-                    type="text"
-                    name="permissions"
-                    value={roleData.permissions}
-                    onChange={(e) => setRoleData({ ...roleData, permissions: e.target.value })}
-                  />
-                </label>
+                  <label>
+                    Users (Count)
+                    <input
+                      className="input"
+                      type="number"
+                      value={roleData.users}
+                      onChange={(e) => setRoleData({ ...roleData, users: Number(e.target.value) })}
+                    />
+                  </label>
 
-                <div className="modal-actions">
-                  <button type="submit" className="save-btn">
-                    {isEditing ? "Update" : "Save"}
-                  </button>
-                  <button
-                    type="button"
-                    className="cancel-btn"
-                    onClick={() => {
-                      setShowModal(false);
-                      setIsEditing(false);
-                      setEditingIndex(null);
-                      setRoleData({ name: "", description: "", users: 0, permissions: "" });
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+                  <label>
+                    Permissions (comma-separated)
+                    <input
+                      className="input"
+                      value={roleData.permissions}
+                      onChange={(e) => setRoleData({ ...roleData, permissions: e.target.value })}
+                    />
+                  </label>
+
+                  <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                    <button type="button" className="btn btn-soft" onClick={() => setShowModal(false)}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      {isEditing ? "Update" : "Save"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

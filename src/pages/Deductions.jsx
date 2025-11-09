@@ -149,15 +149,6 @@ export default function Deductions() {
     ];
     csvRows.push(header.join(","));
 
-<<<<<<< HEAD
-        {/* Tabs */}
-        <div className="deductions-tabs">
-          {["earnings", "deductions", "allowances", "overtime-adjustments", "compensation-adjustment", "net-salary-summary"].map((tab) => (
-            <div
-              key={tab}
-              className={`tab ${activeTab === tab ? "active" : ""}`}
-              onClick={() => handleTabClick(tab)}
-=======
     filtered.forEach((d) => {
       const row = [
         d.employee_id,
@@ -231,7 +222,6 @@ export default function Deductions() {
               className={`btn ${location.pathname === t.path ? "btn-primary" : "btn-soft"}`}
               onClick={() => navigate(t.path)}
               style={{ whiteSpace: "nowrap", flexShrink: 0 }}
->>>>>>> dev-shanika
             >
               {t.label}
             </button>

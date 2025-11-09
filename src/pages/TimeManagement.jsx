@@ -132,10 +132,6 @@ const TimeManagement = () => {
                 </button>
               )}
             </div>
-<<<<<<< HEAD
-            <h1 className="page-title">Time Management</h1>
-=======
->>>>>>> dev-shanika
           </div>
           
           <button 

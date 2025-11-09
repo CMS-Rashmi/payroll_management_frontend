@@ -137,88 +137,9 @@ const LeaveApproval = () => {
             onClick={() => navigate(tab.path)}
             style={{ whiteSpace: "nowrap", flexShrink: 0 }}
           >
-<<<<<<< HEAD
-            <option>All Categories</option>
-            <option>Annual Leave</option>
-            <option>Casual Leave</option>
-          </select>
-
-          <select
-            className="filter-input"
-            value={deptFilter}
-            onChange={(e) => setDeptFilter(e.target.value)}
-          >
-            <option>All Departments</option>
-            <option>IT Department</option>
-            <option>HR Department</option>
-            <option>Finance Department</option>
-          </select>
-
-          <button
-            className="apply-btn"
-            onClick={() => {
-              setSearchTerm('');
-              setSelectedDate('');
-              setCategoryFilter('All Categories');
-              setDeptFilter("All Departments");
-            }}>
-            Clear
-          </button>
-
-        </div>
-
-        {/* ✅ Table */}
-        <table className="leave-table">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Employee Name</th>
-              <th>Department</th>
-              <th>Applied Date</th>
-              <th>Category</th>
-              <th>Requested Date</th>
-              <th>Reason</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.length > 0 ? (
-              filteredData.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.no}</td>
-                  <td>{item.name}</td>
-                  <td>{item.department}</td>
-                  <td>{item.appliedDate}</td>
-                  <td>{item.category}</td>
-                  <td>{item.requestedDate}</td>
-                  <td>{item.reason}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${
-                        item.status === "APPROVED"
-                          ? "approved"
-                          : "not-approved"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="empty-row">
-                  No records found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-=======
             {tab.label}
           </button>
         ))}
->>>>>>> dev-shanika
       </div>
 
       {/* Filters Card */}

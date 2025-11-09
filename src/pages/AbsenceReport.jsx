@@ -129,51 +129,6 @@ const AbsenceReport = () => {
         title="Absence Report"
       />
 
-<<<<<<< HEAD
-        {/* Header */}
-        <header className="absence-report-header">
-          <div className="header-left">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">Time & Attendance</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">Absence Report</span>
-            </div>
-            <h1 className="page-title">Absence Report</h1>
-          </div>
-        </header>
-
-        {/* Tabs */}
-        <div className="tab-bar">
-          {tabs.map((tab) => (
-            <button
-              key={tab.path}
-              className={`tab-link ${location.pathname === tab.path ? "active" : ""
-                }`}
-              onClick={() => navigate(tab.path)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Filters */}
-        <div className="filters-section">
-          <div className="filters-row">
-            {/* ✅ Custom Date Picker with uppercase placeholder */}
-            <div className="date-picker-field" onClick={() => dateInputRef.current?.showPicker()}>
-              <input
-                ref={dateInputRef}
-                type="date"
-                className="filter-date"
-                onChange={handleDateChange}
-                style={{
-                  color: "transparent",
-                  textTransform: "uppercase",
-                }}
-              />
-
-            </div>
-=======
       {/* Tabs */}
       <div className="card" style={{ display: "flex", gap: "8px", overflowX: "auto", whiteSpace: "nowrap" }}>
         {tabs.map((tab) => (
@@ -187,7 +142,6 @@ const AbsenceReport = () => {
           </button>
         ))}
       </div>
->>>>>>> dev-shanika
 
       {/* Filters Card */}
       <div className="card">
@@ -230,17 +184,6 @@ const AbsenceReport = () => {
               value={filterOffice}
               onChange={(e) => setFilterOffice(e.target.value)}
             />
-
-            <button
-              className="apply-btn"
-              onClick={() => {
-                setSelectedDate();
-                setFilterDept("");
-                setFilterOffice("");
-                setSearchEmployee("");
-              }}>
-              Clear
-            </button>
           </div>
         </div>
 
