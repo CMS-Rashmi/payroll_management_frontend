@@ -10,6 +10,7 @@ import {
 } from 'chart.js';
 import { apiGetWithParams } from '../../../services/api';
 import DaySelector from '../DaySelector';
+import Spineer from '../../../components/Spineer';
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const COLORS = ['#FF6B6B', '#FFA500', '#FF1493', '#FF8042', '#FFBB28', '#FF8C00', '#E74C3C'];
@@ -40,7 +41,7 @@ const DeductionsChart = ({ year: initialYear }) => {
   }, [year]);
 
 
-  if (loading) return <p>Loading Deductions...</p>;
+  if (loading) return <Spineer/>;
 
   // Prepare chart data even if empty
   const filtered = data.filter(d => d.total_amount > 0);
@@ -84,7 +85,7 @@ const DeductionsChart = ({ year: initialYear }) => {
   };
 
   return (
-    <div style={{ width: '600px', margin: '20px' }}>
+    <div style={{ width: '600px', margin: '40px' }}>
       <h3 style={{ textAlign: 'center' }}>Deductions by Type</h3>
       <DaySelector type="year" initialYear={year} onChange={handleYearChange} />
       <Bar data={chartData} options={chartOptions} />

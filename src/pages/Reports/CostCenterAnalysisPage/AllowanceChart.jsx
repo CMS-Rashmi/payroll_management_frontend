@@ -10,6 +10,7 @@ import {
 } from 'chart.js';
 import { apiGetWithParams } from '../../../services/api';
 import DaySelector from '../DaySelector';
+import Spineer from '../../../components/Spineer';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -84,13 +85,13 @@ const AllowancesChart = ({ year }) => {
     }), [filtered]);
 
     return (
-        <div style={{ width: '600px', margin: '20px' }}>
+        <div style={{ width: '600px', margin: '40px' }}>
             <h3 style={{ textAlign: 'center' }}>Allowances by Type</h3>
             <DaySelector
                 type='monthYear'
                 onChange={({ month: m }) => setMonth(m)}
             />
-            {loading ? <p>Loading Allowances...</p> : <Bar data={chartData} options={chartOptions} />}
+            {loading ? <Spineer /> : <Bar data={chartData} options={chartOptions} />}
         </div>
     );
 };
