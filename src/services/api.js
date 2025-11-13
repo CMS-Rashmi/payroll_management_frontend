@@ -145,3 +145,30 @@ export async function apiGetWithParams(path, params = {}, opts = {}) {
   const ct = res.headers.get('content-type') || '';
   return ct.includes('application/json') ? res.json() : res.text();
 }
+
+// Time & Attendance API calls
+export const attendanceApi = {
+    // Timetables
+    getTimetables: () => apiGet('/attendance/timetables'),
+    createTimetable: (data) => apiPost('/attendance/timetables', data),
+    updateTimetable: (id, data) => apiPut(`/attendance/timetables/${id}`, data),
+    deleteTimetable: (id) => apiDelete(`/attendance/timetables/${id}`),
+    
+    // Attendance records
+    checkIn: (data) => apiPost('/attendance/checkin', data),
+    checkOut: (data) => apiPost('/attendance/checkout', data),
+    
+    // Adjustments
+    getAttendanceRecords: (params) => apiGetWithParams('/attendance/attendance', params),
+    getEmployeeAttendance: (employeeId, params) => apiGetWithParams(`/attendance/attendance/employee/${employeeId}`, params),
+    getAdjustments: (params) => apiGetWithParams('/attendance/adjustments', params),
+    createAdjustment: (data) => apiPost('/attendance/adjustments', data),
+    approveAdjustment: (id, data) => apiPut(`/attendance/adjustments/${id}/approve`, data),
+
+  
+
+    
+    // Reports
+    getAbsenceReport: (params) => apiGetWithParams('/attendance/reports/absence', params),
+    getCheckinCheckoutReport: (params) => apiGet('/attendance/reports/checkin-checkout', params)
+};
