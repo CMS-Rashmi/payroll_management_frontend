@@ -22,6 +22,7 @@ const EmployeeContent = () => {
                 setData(res);
             } catch (err) {
                 console.error(err);
+                setData()
             } finally {
                 setLoading(false);
             }
@@ -31,9 +32,10 @@ const EmployeeContent = () => {
 
 
     if (loading) { return <Spineer />; }
+    if (!data || Object.keys(data).length === 0) return < div style={{ margin: '24px', backgroundColor: 'white', padding: '10px' }}>No Data</div>;
 
     return (
-        <div style={{ margin: '24px', backgroundColor:'white' , padding:'10px'}}>
+        <div >
             {/* Department Picker */}
             <div className="flex justify-end" style={{ marginBottom: '2px' }}>
                 <DepartmentPicker value={selectedDeptId} onChange={setSelectedDeptId} />

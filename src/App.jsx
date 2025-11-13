@@ -42,7 +42,6 @@ import EditUser from "./pages/EditUser";
 import PrivateRoute from "./components/PrivateRoute";
 import AuditLog from "./pages/AuditLog";
 import AuditLogDetails from "./pages/AuditLogDetails";
-import ReportPage from "./pages/Reports/ReportPage";
 import EmployeeSummaryPage from "./pages/Reports/EmployeeSummaryPage/EmployeeSummaryPage";
 import PayRollSummaryPage from "./pages/Reports/PayRollSummaryPage/PayRollSummaryPage";
 import CostCenterAnalysisPage from "./pages/Reports/CostCenterAnalysisPage/CostCenterAnalysisPage";

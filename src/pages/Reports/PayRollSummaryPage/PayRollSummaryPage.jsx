@@ -3,7 +3,6 @@ import PayrollSummaryCards from './PayrollSummaryCards';
 import SalaryHistogram from './SalaryHistogram';
 import DaySelector from '../DaySelector';
 import Layout from '../../../components/Layout';
-import ReportHeader from '../ReportHeader';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/PageHeader';
 
