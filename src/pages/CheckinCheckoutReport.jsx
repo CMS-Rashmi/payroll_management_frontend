@@ -1,8 +1,9 @@
 // src/pages/CheckinCheckoutReport.jsx
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 import PageHeader from "../components/PageHeader";
+import { attendanceApi } from "../services/api";
 
 const CheckinCheckoutReport = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const CheckinCheckoutReport = () => {
     { label: "Check In & Out Report", path: "/checkin-checkout-report" },
   ];
 
+  // Filters
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,59 +25,120 @@ const CheckinCheckoutReport = () => {
   const [checkOutFilter, setCheckOutFilter] = useState("All Check-out Types");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
 
-  const reportData = [
-    {
-      empNo: "1",
-      name: "Rashmi Jayathunga",
-      activeStatus: "Active",
-      date: "2025-09-29",
-      checkInTime: "08:45 AM",
-      checkInType: "Normal",
-      checkOutTime: "05:00 PM",
-      checkOutType: "Normal",
-      status: "Present",
-      ot: "1h",
-      checkInAddress: "Colombo HQ",
-      checkOutAddress: "Colombo HQ",
-    },
-    {
-      empNo: "2",
-      name: "Kalpani Madiwanthika",
-      activeStatus: "Active",
-      date: "2025-09-29",
-      checkInTime: "08:30 AM",
-      checkInType: "Normal",
-      checkOutTime: "05:15 PM",
-      checkOutType: "Normal",
-      status: "Present",
-      ot: "1.5h",
-      checkInAddress: "Colombo HQ",
-      checkOutAddress: "Colombo HQ",
-    },
-    {
-      empNo: "3",
-      name: "Sayidi Randini Gimhara",
-      activeStatus: "Active",
-      date: "2025-09-29",
-      checkInTime: "09:15 AM",
-      checkInType: "Late",
-      checkOutTime: "05:00 PM",
-      checkOutType: "Normal",
-      status: "Present",
-      ot: "0h",
-      checkInAddress: "Colombo HQ",
-      checkOutAddress: "Colombo HQ",
-    },
-  ];
+  // Data from backend
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
 
-  const formatDate = (date) => {
-    if (!date) return "";
-    const d = new Date(date);
+  // Helpers
+  const normalizeDateOnly = (value) => {
+    if (!value) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
-    const yyyy = d.getFullYear();
-    return `${mm}/${dd}/${yyyy}`;
+    return `${yyyy}-${mm}-${dd}`;
   };
+
+  const formatDateDisplay = (value) => {
+    const norm = normalizeDateOnly(value);
+    if (!norm) return "";
+    const [y, m, d] = norm.split("-");
+    return `${m}/${d}/${y}`;
+  };
+
+  // Fetch report data (no server-side filters yet – we filter on client)
+  useEffect(() => {
+    let alive = true;
+
+    const run = async () => {
+      try {
+        setLoading(true);
+        setErr("");
+        const data = await attendanceApi.getCheckinCheckoutReport({});
+        const list = Array.isArray(data) ? data : data?.data || [];
+
+        const mapped = list.map((r, idx) => ({
+          id: idx + 1,
+          empNo: r.employee_code || r.employee_id || r.empNo || r.emp_no || "-",
+          name: r.full_name || r.employee_name || "-",
+          activeStatus: "Active", // change if you store active flag
+          date: r.date || r.attendance_date || "",
+          checkInTime: r.check_in_time || r.checkInTime || "",
+          checkOutTime: r.check_out_time || r.checkOutTime || "",
+          // if you later add these columns in SQL, they'll be used automatically:
+          checkInType: r.check_in_type || r.checkInType || "Normal",
+          checkOutType: r.check_out_type || r.checkOutType || "Normal",
+          status: r.status || "",
+          ot:
+            r.overtime_hours != null && r.overtime_hours !== ""
+              ? `${r.overtime_hours}h`
+              : "0h",
+          checkInAddress: r.check_in_address || "-",
+          checkOutAddress: r.check_out_address || "-",
+        }));
+
+        if (alive) setRows(mapped);
+      } catch (e) {
+        if (alive) setErr(e.message || "Failed to load check-in/out report");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    };
+
+    run();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Client-side filtering
+  const filteredRows = useMemo(() => {
+    return rows.filter((row) => {
+      const rowDate = normalizeDateOnly(row.date);
+
+      const matchesFrom =
+        !fromDate || (rowDate && rowDate >= normalizeDateOnly(fromDate));
+      const matchesTo =
+        !toDate || (rowDate && rowDate <= normalizeDateOnly(toDate));
+
+      const matchesSearch =
+        (row.empNo || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (row.name || "").toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus =
+        statusFilter === "All Statuses" || row.status === statusFilter;
+
+      const matchesCheckIn =
+        checkInFilter === "All Check-in Types" ||
+        row.checkInType === checkInFilter;
+
+      const matchesCheckOut =
+        checkOutFilter === "All Check-out Types" ||
+        row.checkOutType === checkOutFilter;
+
+      return (
+        matchesFrom &&
+        matchesTo &&
+        matchesSearch &&
+        matchesStatus &&
+        matchesCheckIn &&
+        matchesCheckOut
+      );
+    });
+  }, [
+    rows,
+    fromDate,
+    toDate,
+    searchTerm,
+    statusFilter,
+    checkInFilter,
+    checkOutFilter,
+  ]);
 
   const clearFilters = () => {
     setFromDate("");
@@ -87,32 +150,45 @@ const CheckinCheckoutReport = () => {
   };
 
   const exportCsv = () => {
-    // Simple CSV export implementation
-    const headers = ['Employee No', 'Employee Name', 'Active Status', 'Date', 'Check-in Time', 'Check-in Type', 'Check-out Time', 'Check-out Type', 'Status', 'OT', 'Check-in Address', 'Check-out Address'];
-    const csvRows = reportData.map(row => [
+    const headers = [
+      "Employee No",
+      "Employee Name",
+      "Active Status",
+      "Date",
+      "Check-in Time",
+      "Check-in Type",
+      "Check-out Time",
+      "Check-out Type",
+      "Status",
+      "OT",
+     // "Check-in Address",
+     // "Check-out Address",
+    ];
+
+    const csvRows = filteredRows.map((row) => [
       row.empNo,
       row.name,
       row.activeStatus,
-      row.date,
+      formatDateDisplay(row.date),
       row.checkInTime,
       row.checkInType,
       row.checkOutTime,
       row.checkOutType,
       row.status,
       row.ot,
-      row.checkInAddress,
-      row.checkOutAddress
+      //row.checkInAddress,
+      //row.checkOutAddress,
     ]);
-    
+
     const csv = [headers, ...csvRows]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
-      .join('\n');
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
+      .map((r) => r.map((cell) => `"${cell ?? ""}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'checkin_checkout_report.csv';
+    a.download = "checkin_checkout_report.csv";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -126,11 +202,21 @@ const CheckinCheckoutReport = () => {
       />
 
       {/* Tabs */}
-      <div className="card" style={{ display: "flex", gap: "8px", overflowX: "auto", whiteSpace: "nowrap" }}>
+      <div
+        className="card"
+        style={{
+          display: "flex",
+          gap: "8px",
+          overflowX: "auto",
+          whiteSpace: "nowrap",
+        }}
+      >
         {tabs.map((tab) => (
           <button
             key={tab.path}
-            className={`btn ${location.pathname === tab.path ? "btn-primary" : "btn-soft"}`}
+            className={`btn ${
+              location.pathname === tab.path ? "btn-primary" : "btn-soft"
+            }`}
             onClick={() => navigate(tab.path)}
             style={{ whiteSpace: "nowrap", flexShrink: 0 }}
           >
@@ -141,10 +227,28 @@ const CheckinCheckoutReport = () => {
 
       {/* Filters Card */}
       <div className="card">
-        <div className="grid-3" style={{ alignItems: "end", marginBottom: "12px" }}>
+        <div
+          className="grid-3"
+          style={{ alignItems: "end", marginBottom: "12px" }}
+        >
           <div>
-            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Date Range</label>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <label
+              style={{
+                fontSize: "12px",
+                color: "var(--muted)",
+                display: "block",
+                marginBottom: "6px",
+              }}
+            >
+              Date Range
+            </label>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
               <input
                 className="input"
                 type="date"
@@ -164,10 +268,19 @@ const CheckinCheckoutReport = () => {
           </div>
 
           <div>
-            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Check-in Type</label>
-            <select 
-              className="select" 
-              value={checkInFilter} 
+            <label
+              style={{
+                fontSize: "12px",
+                color: "var(--muted)",
+                display: "block",
+                marginBottom: "6px",
+              }}
+            >
+              Check-in Type
+            </label>
+            <select
+              className="select"
+              value={checkInFilter}
               onChange={(e) => setCheckInFilter(e.target.value)}
             >
               <option>All Check-in Types</option>
@@ -178,10 +291,19 @@ const CheckinCheckoutReport = () => {
           </div>
 
           <div>
-            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Check-out Type</label>
-            <select 
-              className="select" 
-              value={checkOutFilter} 
+            <label
+              style={{
+                fontSize: "12px",
+                color: "var(--muted)",
+                display: "block",
+                marginBottom: "6px",
+              }}
+            >
+              Check-out Type
+            </label>
+            <select
+              className="select"
+              value={checkOutFilter}
               onChange={(e) => setCheckOutFilter(e.target.value)}
             >
               <option>All Check-out Types</option>
@@ -191,9 +313,21 @@ const CheckinCheckoutReport = () => {
           </div>
         </div>
 
-        <div className="grid-2" style={{ alignItems: "end", marginBottom: "12px" }}>
+        <div
+          className="grid-2"
+          style={{ alignItems: "end", marginBottom: "12px" }}
+        >
           <div>
-            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Search</label>
+            <label
+              style={{
+                fontSize: "12px",
+                color: "var(--muted)",
+                display: "block",
+                marginBottom: "6px",
+              }}
+            >
+              Search
+            </label>
             <input
               className="input"
               placeholder="Search by Employee No or Name..."
@@ -203,10 +337,19 @@ const CheckinCheckoutReport = () => {
           </div>
 
           <div>
-            <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>Status</label>
-            <select 
-              className="select" 
-              value={statusFilter} 
+            <label
+              style={{
+                fontSize: "12px",
+                color: "var(--muted)",
+                display: "block",
+                marginBottom: "6px",
+              }}
+            >
+              Status
+            </label>
+            <select
+              className="select"
+              value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option>All Statuses</option>
@@ -217,34 +360,64 @@ const CheckinCheckoutReport = () => {
           </div>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <div style={{ fontSize: "14px", color: "var(--muted)" }}>
-            {reportData.length} record(s) found
+            {loading
+              ? "Loading check-in/check-out records..."
+              : `${filteredRows.length} record(s) found`}
           </div>
           <div style={{ display: "flex", gap: "8px" }}>
             <button className="btn btn-soft" onClick={clearFilters}>
               Clear Filters
             </button>
-            <button className="btn btn-primary" onClick={exportCsv}>
+            <button
+              className="btn btn-primary"
+              onClick={exportCsv}
+              disabled={filteredRows.length === 0}
+            >
               Export CSV
             </button>
           </div>
         </div>
+
+        {err && (
+          <div
+            style={{
+              marginTop: 8,
+              fontSize: 13,
+              color: "var(--danger)",
+            }}
+          >
+            {err}
+          </div>
+        )}
       </div>
 
       {/* Check-in Check-out Report Table */}
       <div className="table-container">
         <div className="card" style={{ padding: 0 }}>
-          <div style={{ 
-            padding: "12px 16px", 
-            borderBottom: "1px solid var(--border)", 
-            display: "flex", 
-            alignItems: "center",
-            justifyContent: "space-between"
-          }}>
-            <div style={{ fontWeight: "700" }}>Check-in Check-out Report</div>
+          <div
+            style={{
+              padding: "12px 16px",
+              borderBottom: "1px solid var(--border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div style={{ fontWeight: "700" }}>
+              Check-in Check-out Report
+            </div>
             <div style={{ fontSize: "12px", color: "var(--muted)" }}>
-              Showing {reportData.length} records
+              {loading
+                ? "Loading…"
+                : `Showing ${filteredRows.length} of ${rows.length} records`}
             </div>
           </div>
 
@@ -262,70 +435,136 @@ const CheckinCheckoutReport = () => {
                   <th>Check-out Type</th>
                   <th>Status</th>
                   <th>OT</th>
-                  <th>Check-in Address</th>
-                  <th>Check-out Address</th>
+                  
                 </tr>
               </thead>
               <tbody>
-                {reportData.length > 0 ? (
-                  reportData.map((row, i) => (
-                    <tr key={i}>
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan="12"
+                      style={{
+                        textAlign: "center",
+                        padding: "40px",
+                        color: "var(--muted)",
+                      }}
+                    >
+                      Loading…
+                    </td>
+                  </tr>
+                ) : filteredRows.length > 0 ? (
+                  filteredRows.map((row) => (
+                    <tr key={row.id}>
                       <td>{row.empNo}</td>
-                      <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <td
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
                         <div className="user-avatar" />
                         <div style={{ fontWeight: "600" }}>{row.name}</div>
                       </td>
                       <td>
-                        <span className={`pill ${
-                          row.activeStatus === "Active" ? "pill-ok" : "pill-warn"
-                        }`}>
+                        <span
+                          className={`pill ${
+                            row.activeStatus === "Active"
+                              ? "pill-ok"
+                              : "pill-warn"
+                          }`}
+                        >
                           {row.activeStatus}
                         </span>
                       </td>
-                      <td>{formatDate(row.date)}</td>
-                      <td>{row.checkInTime}</td>
+                      <td>{formatDateDisplay(row.date)}</td>
+                      <td>{row.checkInTime || "-"}</td>
                       <td>
-                        <span className={`pill ${
-                          row.checkInType === "Normal" ? "pill-ok" : 
-                          row.checkInType === "Late" ? "pill-warn" : 
-                          "pill-soft"
-                        }`}>
-                          {row.checkInType}
+                        <span
+                          className={`pill ${
+                            row.checkInType === "Normal"
+                              ? "pill-ok"
+                              : row.checkInType === "Late"
+                              ? "pill-warn"
+                              : "pill-soft"
+                          }`}
+                        >
+                          {row.checkInType || "-"}
                         </span>
                       </td>
-                      <td>{row.checkOutTime}</td>
+                      <td>{row.checkOutTime || "-"}</td>
                       <td>
-                        <span className={`pill ${
-                          row.checkOutType === "Normal" ? "pill-ok" : 
-                          row.checkOutType === "Early-out" ? "pill-warn" : 
-                          "pill-soft"
-                        }`}>
-                          {row.checkOutType}
+                        <span
+                          className={`pill ${
+                            row.checkOutType === "Normal"
+                              ? "pill-ok"
+                              : row.checkOutType === "Early-out"
+                              ? "pill-warn"
+                              : "pill-soft"
+                          }`}
+                        >
+                          {row.checkOutType || "-"}
                         </span>
                       </td>
                       <td>
-                        <span className={`pill ${
-                          row.status === "Present" ? "pill-ok" : 
-                          row.status === "Leave" ? "pill-warn" : 
-                          "pill-soft"
-                        }`}>
-                          {row.status}
+                        <span
+                          className={`pill ${
+                            row.status === "Present"
+                              ? "pill-ok"
+                              : row.status === "Leave"
+                              ? "pill-warn"
+                              : "pill-soft"
+                          }`}
+                        >
+                          {row.status || "-"}
                         </span>
                       </td>
                       <td>
-                        <span className={`pill ${
-                          row.ot !== "0h" ? "pill-ok" : "pill-soft"
-                        }`}>
+                        <span
+                          className={`pill ${
+                            row.ot && row.ot !== "0h"
+                              ? "pill-ok"
+                              : "pill-soft"
+                          }`}
+                        >
                           {row.ot}
                         </span>
                       </td>
-                      <td style={{ fontSize: "11px", color: "var(--muted)" }}>{row.checkInAddress}</td>
-                      <td style={{ fontSize: "11px", color: "var(--muted)" }}>{row.checkOutAddress}</td>
+
+                      {/**
+                       <td
+                        style={{
+                          fontSize: "11px",
+                          color: "var(--muted)",
+                        }}
+                      >
+                        {row.checkInAddress}
+                      </td>
+
+                       <td
+                        style={{
+                          fontSize: "11px",
+                          color: "var(--muted)",
+                        }}
+                      >
+                        {row.checkOutAddress}
+                      </td>
+                      
+                       */}
+                      
+                     
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="12" style={{ textAlign: "center", padding: "40px", color: "var(--muted)" }}>
+                    <td
+                      colSpan="12"
+                      style={{
+                        textAlign: "center",
+                        padding: "40px",
+                        color: "var(--muted)",
+                      }}
+                    >
                       No check-in/check-out records found
                     </td>
                   </tr>
@@ -336,14 +575,25 @@ const CheckinCheckoutReport = () => {
         </div>
       </div>
 
-      {/* Pagination */}
-      <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      {/* Pagination (static for now) */}
+      <div
+        className="card"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <div style={{ fontSize: "14px", color: "var(--muted)" }}>
-          Showing 1 to {reportData.length} of {reportData.length} results
+          Showing 1 to {filteredRows.length} of {rows.length} results
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button className="btn btn-soft" disabled>Previous</button>
-          <button className="btn btn-soft" disabled>Next</button>
+          <button className="btn btn-soft" disabled>
+            Previous
+          </button>
+          <button className="btn btn-soft" disabled>
+            Next
+          </button>
         </div>
       </div>
     </Layout>

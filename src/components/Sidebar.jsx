@@ -57,8 +57,13 @@ const Sidebar = () => {
   ];
 
   const employeeInfoPaths = [
-    '/employee-info', '/add-employee', '/attendance-leave', '/performance-training',
-    '/documents-contracts', '/audit-logs'
+    '/employee-info', 
+    '/add-employee', 
+    '/attendance-leave', 
+    '/performance-training', 
+    '/documents-contracts', 
+    '/audit-logs',
+    '/employees'
   ];
 
   const timeAttendancePaths = [
