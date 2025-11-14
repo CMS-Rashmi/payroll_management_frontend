@@ -27,7 +27,7 @@ const QuarterSelector = ({ onChange }) => {
       <div>
         <label>Quarter: </label>
         <select
-          style={{height:24,  padding:2}}
+          style={{height:24,  margin:2}}
           value={quarter}
           onChange={(e) => handleChange(Number(e.target.value), year)}
         >
@@ -42,7 +42,7 @@ const QuarterSelector = ({ onChange }) => {
       <div>
         <label>Year: </label>
         <select
-          style={{height:24,  padding:2}}
+          style={{height:24,  margin:2}}
           value={year}
           onChange={(e) => handleChange(quarter, Number(e.target.value))}
         >
