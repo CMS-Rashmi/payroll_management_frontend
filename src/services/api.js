@@ -1,4 +1,5 @@
 // src/services/api.js
+import { getPublicIP } from "../utils/getIP";
 
 // Base URL (same as you had)
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -38,15 +39,19 @@ export async function apiGet(path, opts = {}) {
   return body; // could be array or object
 }
 
+let cachedIP = null;
 // ---- JSON helpers (POST/PUT/PATCH) that ALWAYS attach token --------
 // They return: { ok, status, ...body } so caller can check json.ok safely.
-
 async function apiJsonWrite(path, method, body) {
+  if (!cachedIP) cachedIP = await getPublicIP(); 
+  const payload = { ...body, ip : cachedIP };
+  console.log(payload);
+
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     credentials: 'include',
     headers: authHeaders({ 'Content-Type': 'application/json' }),
-    body: body != null ? JSON.stringify(body) : undefined,
+    body: JSON.stringify(payload),
   });
 
   const ct = res.headers.get('content-type') || '';
