@@ -199,16 +199,18 @@ export const leaveApi = {
 
   
 
+  // 🔹 Calendar restrictions (special / restricted days)
   saveRestriction: (data) =>
-    apiClient.post('/leave/calendar/restrictions', data).then((r) => r.data),
+    apiPost('/leaves/calendar/restrictions', data),
 
   deleteRestrictionById: (id) =>
-    apiClient.delete(`/leave/calendar/restrictions/${id}`).then((r) => r.data),
+    apiDelete(`/leaves/calendar/restrictions/${id}`),
 
+  // we send a dummy id (0) + date query, controller will use the date
   deleteRestrictionByDate: (date) =>
-    apiClient
-      .delete('/leave/calendar/restrictions/0', { params: { date } })
-      .then((r) => r.data),
+    apiDelete(
+      `/leaves/calendar/restrictions/0?date=${encodeURIComponent(date)}`
+    ),
 
   
 };

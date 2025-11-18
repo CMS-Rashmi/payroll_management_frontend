@@ -107,7 +107,7 @@ const [assigned, setAssigned] = useState([]);
   const getAssigned = (y, m, d) => assignedMap.get(toKey(y, m + 1, d));
 
   /** Fetch leave events from backend for visible month **/
- useEffect(() => {
+useEffect(() => {
   let ignore = false;
 
   async function fetchCalendar() {
@@ -123,22 +123,30 @@ const [assigned, setAssigned] = useState([]);
       const res = await leaveApi.getCalendar({ from, to });
       if (ignore) return;
 
-      // backend now returns { ok, events, restrictions }
-      const eventsRaw =
+      // 👇 THIS was missing – define items before mapping
+      const items =
         (res && (res.events || res.data)) ||
         (Array.isArray(res) ? res : []);
 
-      const mapped = eventsRaw.map((e) => ({
+      const mapped = items.map((e) => ({
         id: e.id,
+        // show real name
         name:
           e.full_name ||
           e.employee_name ||
           (e.title ? String(e.title).split(" - ")[0] : "Unknown"),
-        employeeCode: e.employee_code || e.code || "",
+
+        // prefer employee_code, fall back to numeric employee_id if code is null / '_' / empty
+        employeeCode:
+          (e.employee_code && e.employee_code !== "_" ? e.employee_code : "") ||
+          e.employee_id ||
+          "",
+
         leaveType:
           e.leave_type ||
           e.type ||
           (e.title ? String(e.title).split(" - ")[1] : "Leave"),
+
         startDate: e.start_date || e.start || e.date || "",
         endDate: e.end_date || e.end || e.start_date || "",
         status: e.status || "APPROVED",
@@ -147,13 +155,13 @@ const [assigned, setAssigned] = useState([]);
 
       setLeaveEvents(mapped);
 
-      // 🔹 restrictions from backend
+      // 🔹 restrictions from backend (if present)
       const restrictions = res.restrictions || [];
       setAssigned(
         restrictions.map((r) => ({
           id: r.id,
-          date: r.date,   // 'YYYY-MM-DD'
-          type: r.type,   // 'special' or 'restricted'
+          date: r.date, // 'YYYY-MM-DD'
+          type: r.type, // 'special' or 'restricted'
           reason: r.reason || "-",
         }))
       );
