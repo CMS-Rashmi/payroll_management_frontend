@@ -38,44 +38,19 @@ const EmployeeLeaves = () => {
       setError("");
 
       try {
-        // Get "enough" rows and handle filters/pagination on the client
         const currentYear = new Date().getFullYear();
         const res = await leaveApi.getEmployeeBalances({
           year: currentYear,
           page: 1,
-          pageSize: 500, // adjust if you expect more employees
+          pageSize: 500,
         });
 
         if (ignore) return;
 
         const items = (res && res.data) || [];
-
-        // Map to the shape used by the UI, with fallbacks
-        const mapped = items.map((e) => ({
-          name: e.name || e.full_name || e.employee_name || "Unknown",
-          department: e.department || e.department_name || "N/A",
-          annualUsed:
-            e.annualUsed ??
-            e.annual_used ??
-            Number(e.annual_used_days ?? 0),
-          annualTotal:
-            e.annualTotal ??
-            e.annual_total ??
-            Number(e.annual_entitled_days ?? 0),
-          casualUsed:
-            e.casualUsed ??
-            e.casual_used ??
-            Number(e.casual_used_days ?? 0),
-          casualTotal:
-            e.casualTotal ??
-            e.casual_total ??
-            Number(e.casual_entitled_days ?? 0),
-          halfDay1: e.halfDay1 || "0 / 0",
-          halfDay2: e.halfDay2 || "0 / 0",
-        }));
-
-        setAllEmployees(mapped);
-        setPage(1); // reset to first page when data reloads
+        // backend already gives: employee_id, employee_code, name, department, annualUsed, annualTotal, casualUsed, casualTotal, halfDay1, halfDay2
+        setAllEmployees(items);
+        setPage(1);
       } catch (err) {
         if (!ignore) {
           console.error(err);
@@ -87,7 +62,6 @@ const EmployeeLeaves = () => {
     }
 
     fetchBalances();
-
     return () => {
       ignore = true;
     };
@@ -114,6 +88,7 @@ const EmployeeLeaves = () => {
   // ---- Actions ------------------------------------------------------
   const onExportCSV = () => {
     const headers = [
+      //"Employee No",
       "Employee Name",
       "Department",
       "Annual Leave Used",
@@ -124,6 +99,7 @@ const EmployeeLeaves = () => {
       "Half Day 2",
     ];
     const csvRows = filtered.map((e) => [
+     // e.employeeCode || "",
       e.name,
       e.department,
       e.annualUsed,
@@ -342,18 +318,19 @@ const EmployeeLeaves = () => {
                 {!loading &&
                   !error &&
                   current.map((employee, index) => {
-                    const annualProgress = getLeaveProgress(
-                      employee.annualUsed,
-                      employee.annualTotal
-                    );
-                    const casualProgress = getLeaveProgress(
-                      employee.casualUsed,
-                      employee.casualTotal
-                    );
+                    const annualUsed = Number(employee.annualUsed ?? 0);
+                    const annualTotal = Number(employee.annualTotal ?? 0);
+                    const casualUsed = Number(employee.casualUsed ?? 0);
+                    const casualTotal = Number(employee.casualTotal ?? 0);
+
+                    const annualProgress = getLeaveProgress(annualUsed, annualTotal);
+                    const casualProgress = getLeaveProgress(casualUsed, casualTotal);
 
                     return (
-                      <tr key={index}>
-                        <td>{(page - 1) * pageSize + index + 1}</td>
+                      <tr key={employee.employee_id || index}>
+                          <td>{employee.employee_code || employee.employee_id || "-"}</td>
+
+
                         <td
                           style={{
                             display: "flex",
@@ -385,8 +362,7 @@ const EmployeeLeaves = () => {
                               fontWeight: "600",
                             }}
                           >
-                            {employee.annualUsed.toFixed(1)} /{" "}
-                            {employee.annualTotal} days
+                            {annualUsed.toFixed(1)} / {annualTotal} days
                           </div>
                           <div
                             style={{
@@ -415,8 +391,7 @@ const EmployeeLeaves = () => {
                               fontWeight: "600",
                             }}
                           >
-                            {employee.casualUsed.toFixed(1)} /{" "}
-                            {employee.casualTotal} days
+                           {casualUsed.toFixed(1)} / {casualTotal} days
                           </div>
                           <div
                             style={{
@@ -443,28 +418,22 @@ const EmployeeLeaves = () => {
                           {employee.halfDay1}
                         </td>
                         <td>
-                          <span
+                         <span
                             className={`pill ${
-                              employee.annualTotal > 0 &&
-                              employee.annualUsed >=
-                                employee.annualTotal * 0.8
+                              annualTotal > 0 && annualUsed >= annualTotal * 0.8
                                 ? "pill-warn"
-                                : employee.annualTotal > 0 &&
-                                  employee.annualUsed >=
-                                    employee.annualTotal * 0.5
+                                : annualTotal > 0 && annualUsed >= annualTotal * 0.5
                                 ? "pill-soft"
                                 : "pill-ok"
                             }`}
                           >
-                            {employee.annualTotal > 0 &&
-                            employee.annualUsed >= employee.annualTotal * 0.8
+                            {annualTotal > 0 && annualUsed >= annualTotal * 0.8
                               ? "Critical"
-                              : employee.annualTotal > 0 &&
-                                employee.annualUsed >=
-                                  employee.annualTotal * 0.5
+                              : annualTotal > 0 && annualUsed >= annualTotal * 0.5
                               ? "Moderate"
                               : "Good"}
                           </span>
+
                         </td>
                       </tr>
                     );
