@@ -255,3 +255,53 @@ body{
   left: 3px;
   bottom: 3px;
 }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: #fff;
+  padding: 20px;
+  max-width: 420px;
+  width: 95%;
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+}
+
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.modal label {
+  margin-top: 8px;
+  font-weight: 600;
+  display: block;
+  font-size: 12px;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+

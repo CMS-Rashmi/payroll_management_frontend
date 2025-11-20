@@ -210,4 +210,13 @@ export const leaveApi = {
   
 };
 
+export const performanceApi = {
+  getPerformanceOverview: () => apiGet('/employees/performance-overview'),
+  addPerformanceReview: (data) => apiPost('/employees/performance-reviews', data),
+
+  getTrainingOverview: () => apiGet('/employees/training-overview'),
+  addTrainingRecord: (data) => apiPost('/employees/training-records', data),
+};
+
+
 
