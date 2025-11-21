@@ -218,5 +218,11 @@ export const performanceApi = {
   addTrainingRecord: (data) => apiPost('/employees/training-records', data),
 };
 
+export const contractsApi = {
+  list: (params) => apiGetWithParams('/contracts-docs', params),
+  upload: (formData) => apiUpload('/contracts-docs', formData),
+  delete: (id) => apiDelete(`/contracts-docs/${id}`),
+};
+
 
 
