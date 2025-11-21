@@ -153,27 +153,66 @@ export async function apiGetWithParams(path, params = {}, opts = {}) {
 
 // Time & Attendance API calls
 export const attendanceApi = {
-    // Timetables
-    getTimetables: () => apiGet('/attendance/timetables'),
-    createTimetable: (data) => apiPost('/attendance/timetables', data),
-    updateTimetable: (id, data) => apiPut(`/attendance/timetables/${id}`, data),
-    deleteTimetable: (id) => apiDelete(`/attendance/timetables/${id}`),
-    
-    // Attendance records
-    checkIn: (data) => apiPost('/attendance/checkin', data),
-    checkOut: (data) => apiPost('/attendance/checkout', data),
-    
-    // Adjustments
-    getAttendanceRecords: (params) => apiGetWithParams('/attendance/attendance', params),
-    getEmployeeAttendance: (employeeId, params) => apiGetWithParams(`/attendance/attendance/employee/${employeeId}`, params),
-    getAdjustments: (params) => apiGetWithParams('/attendance/adjustments', params),
-    createAdjustment: (data) => apiPost('/attendance/adjustments', data),
-    approveAdjustment: (id, data) => apiPut(`/attendance/adjustments/${id}/approve`, data),
+  // Timetables
+  getTimetables: () => apiGet('/attendance/timetables'),
+  createTimetable: (data) => apiPost('/attendance/timetables', data),
+  updateTimetable: (id, data) => apiPut(`/attendance/timetables/${id}`, data),
+  deleteTimetable: (id) => apiDelete(`/attendance/timetables/${id}`),
+
+  // Attendance records
+  checkIn: (data) => apiPost('/attendance/checkin', data),
+  checkOut: (data) => apiPost('/attendance/checkout', data),
+
+  // Adjustments
+  getAttendanceRecords: (params) =>
+    apiGetWithParams('/attendance/attendance', params),
+  getEmployeeAttendance: (employeeId, params) =>
+    apiGetWithParams(`/attendance/attendance/employee/${employeeId}`, params),
+  getAdjustments: (params) =>
+    apiGetWithParams('/attendance/adjustments', params),
+  createAdjustment: (data) => apiPost('/attendance/adjustments', data),
+  approveAdjustment: (id, data) =>
+    apiPut(`/attendance/adjustments/${id}/approve`, data),
+
+  // Reports
+  getAbsenceReport: (params) =>
+    apiGetWithParams('/attendance/reports/absence', params),
+  // 🔧 FIXED: use apiGetWithParams so query params are actually sent
+  getCheckinCheckoutReport: (params) =>
+    apiGetWithParams('/attendance/reports/checkin-checkout', params),
+};
+
+// Leave Management API calls
+export const leaveApi = {
+  // Requests
+  // If later you send FormData (with attachment), switch this to apiUpload
+  createRequest: (data) => apiPost('/leaves/requests', data),
+  listRequests: (params) => apiGetWithParams('/leaves/requests', params),
+  decideRequest: (id, data) => apiPost(`/leaves/requests/${id}/decide`, data),
+
+  // Overview + widgets
+  getStatusList: (params) => apiGetWithParams('/leaves/status', params),
+  getCalendar: (params) => apiGetWithParams('/leaves/calendar', params),
+  getSummary: (params) => apiGetWithParams('/leaves/summary', params),
+  getEmployeeBalances: (params) =>
+  apiGetWithParams('/leaves/balances', params),
 
   
 
-    
-    // Reports
-    getAbsenceReport: (params) => apiGetWithParams('/attendance/reports/absence', params),
-    getCheckinCheckoutReport: (params) => apiGet('/attendance/reports/checkin-checkout', params)
+  // 🔹 Calendar restrictions (special / restricted days)
+  saveRestriction: (data) =>
+    apiPost('/leaves/calendar/restrictions', data),
+
+  deleteRestrictionById: (id) =>
+    apiDelete(`/leaves/calendar/restrictions/${id}`),
+
+  // we send a dummy id (0) + date query, controller will use the date
+  deleteRestrictionByDate: (date) =>
+    apiDelete(
+      `/leaves/calendar/restrictions/0?date=${encodeURIComponent(date)}`
+    ),
+
+  
 };
+
+
