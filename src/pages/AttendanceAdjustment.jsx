@@ -5,6 +5,7 @@ import Layout from "../components/Layout";
 import PageHeader from "../components/PageHeader";
 import { apiGet, attendanceApi } from "../services/api";
 
+
 const AttendanceAdjustment = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -155,7 +156,7 @@ const AttendanceAdjustment = () => {
         throw new Error(result.message || "Failed to submit adjustment");
       }
 
-      // Show success message
+      // Show success message 
       setSuccessMessage(
         result.message || "Attendance adjustment submitted successfully!"
       );
