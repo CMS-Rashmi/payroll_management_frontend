@@ -49,7 +49,7 @@ const CheckinCheckoutReport = () => {
     return `${m}/${d}/${y}`;
   };
 
-  // Fetch report data (no server-side filters yet – we filter on client)
+  // Fetch report data
   useEffect(() => {
     let alive = true;
 
@@ -62,13 +62,17 @@ const CheckinCheckoutReport = () => {
 
         const mapped = list.map((r, idx) => ({
           id: idx + 1,
-          empNo: r.employee_code || r.employee_id || r.empNo || r.emp_no || "-",
+          // 🔥 Employee No from backend
+          empNo:
+            r.employee_code || // from controller
+            r.empNo || // in case of alias
+            r.employee_id || // fallback to id
+            "-",
           name: r.full_name || r.employee_name || "-",
-          activeStatus: "Active", // change if you store active flag
+          activeStatus: "Active", // adjust if you later have real status
           date: r.date || r.attendance_date || "",
           checkInTime: r.check_in_time || r.checkInTime || "",
           checkOutTime: r.check_out_time || r.checkOutTime || "",
-          // if you later add these columns in SQL, they'll be used automatically:
           checkInType: r.check_in_type || r.checkInType || "Normal",
           checkOutType: r.check_out_type || r.checkOutType || "Normal",
           status: r.status || "",
@@ -104,11 +108,10 @@ const CheckinCheckoutReport = () => {
       const matchesTo =
         !toDate || (rowDate && rowDate <= normalizeDateOnly(toDate));
 
+      const search = searchTerm.toLowerCase();
       const matchesSearch =
-        (row.empNo || "")
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        (row.name || "").toLowerCase().includes(searchTerm.toLowerCase());
+        (row.empNo || "").toString().toLowerCase().includes(search) ||
+        (row.name || "").toLowerCase().includes(search);
 
       const matchesStatus =
         statusFilter === "All Statuses" || row.status === statusFilter;
@@ -161,8 +164,6 @@ const CheckinCheckoutReport = () => {
       "Check-out Type",
       "Status",
       "OT",
-     // "Check-in Address",
-     // "Check-out Address",
     ];
 
     const csvRows = filteredRows.map((row) => [
@@ -176,8 +177,6 @@ const CheckinCheckoutReport = () => {
       row.checkOutType,
       row.status,
       row.ot,
-      //row.checkInAddress,
-      //row.checkOutAddress,
     ]);
 
     const csv = [headers, ...csvRows]
@@ -435,14 +434,13 @@ const CheckinCheckoutReport = () => {
                   <th>Check-out Type</th>
                   <th>Status</th>
                   <th>OT</th>
-                  
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
                     <td
-                      colSpan="12"
+                      colSpan="10"
                       style={{
                         textAlign: "center",
                         padding: "40px",
@@ -522,43 +520,18 @@ const CheckinCheckoutReport = () => {
                       <td>
                         <span
                           className={`pill ${
-                            row.ot && row.ot !== "0h"
-                              ? "pill-ok"
-                              : "pill-soft"
+                            row.ot && row.ot !== "0h" ? "pill-ok" : "pill-soft"
                           }`}
                         >
                           {row.ot}
                         </span>
                       </td>
-
-                      {/**
-                       <td
-                        style={{
-                          fontSize: "11px",
-                          color: "var(--muted)",
-                        }}
-                      >
-                        {row.checkInAddress}
-                      </td>
-
-                       <td
-                        style={{
-                          fontSize: "11px",
-                          color: "var(--muted)",
-                        }}
-                      >
-                        {row.checkOutAddress}
-                      </td>
-                      
-                       */}
-                      
-                     
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td
-                      colSpan="12"
+                      colSpan="10"
                       style={{
                         textAlign: "center",
                         padding: "40px",

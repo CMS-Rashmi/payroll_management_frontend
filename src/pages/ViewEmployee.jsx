@@ -7,6 +7,20 @@ import { apiGet } from "../services/api";
 const isImage = (t = "") => t.startsWith("image/");
 const isPdf = (t = "") => t === "application/pdf";
 
+// Choose best possible profile image
+
+/* 
+const profilePhotoUrl =
+  employee.profile_photo_url ||
+  (employee.documents || []).find(
+    (d) =>
+      (d.doc_category || d.category || "").toLowerCase() === "profile photo" ||
+      (d.file_type || "").startsWith("image/")
+  )?.url || null;
+*/
+
+
+
 export default function ViewEmployee() {
   const { id } = useParams();
   const [employee, setEmployee] = useState(null);
@@ -61,11 +75,13 @@ export default function ViewEmployee() {
         {/* Left profile card */}
         <div className="card">
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+
             <div className="user-avatar" style={{ width: 96, height: 96, overflow: "hidden" }}>
               {employee.profile_photo_url && (
                 <img src={employee.profile_photo_url} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
               )}
             </div>
+            
             <div style={{ textAlign: "center" }}>
               <div style={{ fontWeight: 800, fontSize: 18 }}>
                 {(employee.first_name || "") + " " + (employee.last_name || "")}
@@ -150,63 +166,168 @@ export default function ViewEmployee() {
               </div>
             )}
 
-            {activeTab === "bank" && (
-              <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", rowGap: 10 }}>
-                <div style={{ color: "var(--muted)" }}>Account Name</div><div>{employee.bank_account?.account_name || "-"}</div>
-                <div style={{ color: "var(--muted)" }}>Account Number</div><div>{employee.bank_account?.account_number || "-"}</div>
-                <div style={{ color: "var(--muted)" }}>Bank</div><div>{employee.bank_account?.bank_name || "-"}</div>
-                <div style={{ color: "var(--muted)" }}>Branch</div><div>{employee.bank_account?.branch_name || "-"}</div>
-                <div style={{ color: "var(--muted)" }}>Bank Document</div>
-                <div>
-                  {(() => {
-                    const bankDoc = (employee.documents || []).find(
-                      (d) => d.category === "Bank Document" || d.file_name?.startsWith("BANK -")
-                    );
-                    return bankDoc ? (
-                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                        <span className="pill pill-ok">{bankDoc.category || "Bank"}</span>
-                        <a className="btn btn-soft" href={bankDoc.url} target="_blank" rel="noopener noreferrer">Open</a>
-                        <a className="btn btn-soft" href={bankDoc.url} download>Download</a>
-                      </div>
-                    ) : (
-                      "No document uploaded"
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
+            
 
-            {activeTab === "documents" && (
-              <div>
-                {(employee.documents && employee.documents.length) ? (
-                  <div className="grid-auto">
-                    {employee.documents.map((doc) => (
-                      <div key={doc.id} className="card">
-                        <div style={{ height: 140, background: "#f3f4f6", borderRadius: 6, overflow: "hidden", marginBottom: 10 }}>
-                          {isImage(doc.file_type) ? (
-                            <img src={doc.url} alt={doc.file_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          ) : isPdf(doc.file_type) ? (
-                            <iframe src={`${doc.url}#view=FitH&navpanes=0&toolbar=0`} title={doc.file_name} style={{ width: "100%", height: "100%" }} />
-                          ) : (
-                            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>📄</div>
-                          )}
-                        </div>
-                        <div style={{ fontWeight: 700 }}>{doc.file_name}</div>
-                        <div style={{ fontSize: 12, color: "var(--muted)" }}>
-                          <strong>{doc.category}</strong> • {doc.file_type || "file"} • {doc.uploaded_at?.slice(0, 10) || ""}
-                        </div>
-                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                          <a className="btn btn-soft" href={doc.url} target="_blank" rel="noopener noreferrer">Open</a>
-                          <a className="btn btn-soft" href={doc.url} download>Download</a>
-                        </div>
-                      </div>
-                    ))}
+                {activeTab === "bank" && (
+                  <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", rowGap: 10 }}>
+                    <div style={{ color: "var(--muted)" }}>Account Name</div>
+                    <div>{employee.bank_account?.account_name || "-"}</div>
+
+                    <div style={{ color: "var(--muted)" }}>Account Number</div>
+                    <div>{employee.bank_account?.account_number || "-"}</div>
+
+                    <div style={{ color: "var(--muted)" }}>Bank</div>
+                    <div>{employee.bank_account?.bank_name || "-"}</div>
+
+                    <div style={{ color: "var(--muted)" }}>Branch</div>
+                    <div>{employee.bank_account?.branch_name || "-"}</div>
+
+                    <div style={{ color: "var(--muted)" }}>Bank Document</div>
+                    <div>
+                      {(() => {
+                        const bankDoc = (employee.documents || []).find(
+                          (d) =>
+                            d.doc_category === "Bank Document" ||
+                            d.category === "Bank Document" ||
+                            /^BANK[-\s]/i.test(d.file_name || "")
+                        );
+
+                        if (!bankDoc) return "No document uploaded";
+
+                        const label = bankDoc.doc_category || bankDoc.category || "Bank Document";
+
+                        return (
+                          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                            <span className="pill pill-ok">{label}</span>
+                            <a
+                              className="btn btn-soft"
+                              href={bankDoc.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Open
+                            </a>
+                            <a className="btn btn-soft" href={bankDoc.url} download>
+                              Download
+                            </a>
+                          </div>
+                        );
+                      })()}
+                    </div>
                   </div>
-                ) : (
-                  <div>No documents uploaded</div>
                 )}
-              </div>
-            )}
+
+                  {activeTab === "documents" && (
+                    <div>
+                      {/* Profile photo as part of personal documents */}
+                      {employee.profile_photo_url && (
+                        <div className="card" style={{ marginBottom: 16 }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 16,
+                            }}
+                          >
+                            <div
+                              className="user-avatar"
+                              style={{ width: 64, height: 64, overflow: "hidden" }}
+                            >
+                              <img
+                                src={employee.profile_photo_url}
+                                alt="Profile"
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700 }}>Profile Photo</div>
+                              <div style={{ fontSize: 12, color: "var(--muted)" }}>
+                                {employee.full_name || `${employee.first_name || ""} ${employee.last_name || ""}`}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {(employee.documents && employee.documents.length) ? (
+                        <div className="grid-auto">
+                          {employee.documents
+                            // Optional: do not repeat bank doc here
+                            .filter(
+                              (doc) =>
+                                doc.doc_category !== "Bank Document" &&
+                                doc.category !== "Bank Document"
+                            )
+                            .map((doc) => (
+                              <div key={doc.id} className="card">
+                                <div
+                                  style={{
+                                    height: 140,
+                                    background: "#f3f4f6",
+                                    borderRadius: 6,
+                                    overflow: "hidden",
+                                    marginBottom: 10,
+                                  }}
+                                >
+                                  {isImage(doc.file_type) ? (
+                                    <img
+                                      src={doc.url}
+                                      alt={doc.file_name}
+                                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                    />
+                                  ) : isPdf(doc.file_type) ? (
+                                    <iframe
+                                      src={`${doc.url}#view=FitH&navpanes=0&toolbar=0`}
+                                      title={doc.file_name}
+                                      style={{ width: "100%", height: "100%" }}
+                                    />
+                                  ) : (
+                                    <div
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                      }}
+                                    >
+                                      📄
+                                    </div>
+                                  )}
+                                </div>
+                                <div style={{ fontWeight: 700 }}>{doc.file_name}</div>
+                                <div style={{ fontSize: 12, color: "var(--muted)" }}>
+                                  <strong>{doc.doc_category || doc.category || "Document"}</strong>{" "}
+                                  • {doc.file_type || "file"} •{" "}
+                                  {doc.uploaded_at?.slice(0, 10) || ""}
+                                </div>
+                                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                                  <a
+                                    className="btn btn-soft"
+                                    href={doc.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    Open
+                                  </a>
+                                  <a className="btn btn-soft" href={doc.url} download>
+                                    Download
+                                  </a>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      ) : (
+                        <div>No documents uploaded</div>
+                      )}
+                    </div>
+                  )}
+
           </div>
         </div>
       </div>

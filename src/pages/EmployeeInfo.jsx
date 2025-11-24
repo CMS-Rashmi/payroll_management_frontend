@@ -205,13 +205,33 @@ export default function EmployeeInfo() {
                 <tbody>
                   {filtered.map((emp) => (
                     <tr key={emp.id}>
-                      <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <div className="user-avatar" />
-                        <div>
-                          <div style={{ fontWeight: "600" }}>{emp.full_name}</div>
-                          <div style={{ fontSize: "12px", color: "var(--muted)" }}>{emp.email || "-"}</div>
-                        </div>
-                      </td>
+                      
+                <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    className="user-avatar"
+                    style={{ width: 32, height: 32, overflow: "hidden" }}
+                  >
+                    {emp.profile_photo_url && (
+                      <img
+                        src={emp.profile_photo_url}
+                        alt={emp.full_name}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: "600" }}>{emp.full_name}</div>
+                    <div style={{ fontSize: "12px", color: "var(--muted)" }}>
+                      {emp.email || "-"}
+                    </div>
+                  </div>
+                </td>
+
                       <td>{emp.employee_code || emp.id}</td>
                       <td>
                         <span className={`pill ${String(emp.status).toLowerCase() === "active" ? "pill-ok" : String(emp.status).toLowerCase() === "on leave" ? "pill-warn" : ""}`}>

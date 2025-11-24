@@ -1,137 +1,270 @@
 // src/pages/DocumentsContracts.jsx
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 import PageHeader from "../components/PageHeader";
+import { apiGet, apiUpload, apiDelete } from "../services/api";
+
+const DOC_CATEGORIES = [
+  "Employment Contract",
+  "NDA Agreement",
+  "HR Document",
+  "Performance Improvement Plan",
+  "Resignation Letter",
+  "Offer Letter",
+  "Probation Letter",
+  "Warning Letter",
+  "Others",
+];
 
 export default function DocumentsContracts() {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [employeeFilter, setEmployeeFilter] = useState("All Employees");
   const [documentTypeFilter, setDocumentTypeFilter] = useState("All Document Types");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
 
-  const documentsData = [
-    {
-      id: 1,
-      name: "Employment Contract 1.2 MB",
-      employee: "Jeremy Neigh EMP001",
-      employeeName: "Jeremy Neigh",
-      type: "Contract",
-      uploadedDate: "2022-01-15 by HR Admin",
-      expiryDate: "2025-01-14",
-      status: "Active",
-      actions: "💶 💷 💸",
-    },
-    {
-      id: 2,
-      name: "NDA Agreement 0.8 MB",
-      employee: "Jeremy Neigh EMP001",
-      employeeName: "Jeremy Neigh",
-      type: "Legal",
-      uploadedDate: "2022-01-15 by HR Admin",
-      expiryDate: "2025-01-14",
-      status: "Active",
-      actions: "💶 💷 💸",
-    },
-    {
-      id: 3,
-      name: "Employment Contract 3.3 MB",
-      employee: "Jane Smith EMP002",
-      employeeName: "Jane Smith",
-      type: "Contract",
-      uploadedDate: "2021-03-03 by HR Admin",
-      expiryDate: "2024-03-02",
-      status: "Active",
-      actions: "💶 💷 💸",
-    },
-    {
-      id: 4,
-      name: "Performance Improvement Plan 6.5 MB",
-      employee: "Robert Johnson EMP003",
-      employeeName: "Robert Johnson",
-      type: "HR Document",
-      uploadedDate: "2023-08-10 by Emily Davis",
-      expiryDate: "2023-12-10",
-      status: "Expiring Soon",
-      actions: "💶 💷 💸",
-    },
-    {
-      id: 5,
-      name: "Resignation Letter 0.2 MB",
-      employee: "Emily Davis EMP004",
-      employeeName: "Emily Davis",
-      type: "HR Document",
-      uploadedDate: "2023-05-20 by Emily Davis",
-      expiryDate: "N/A",
-      status: "Archived",
-      actions: "💶 💷 💸",
-    },
-  ];
+  const [employees, setEmployees] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Get unique values for filters
-  const employeeOptions = ["All Employees", ...new Set(documentsData.map((doc) => doc.employeeName))];
-  const documentTypeOptions = ["All Document Types", ...new Set(documentsData.map((doc) => doc.type))];
-  const statusOptions = ["All Statuses", ...new Set(documentsData.map((doc) => doc.status))];
+  // Upload form state
+  const [uploadEmployeeId, setUploadEmployeeId] = useState("");
+  const [uploadCategory, setUploadCategory] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
-  // Filter documents based on selected filters
-  const filteredDocuments = documentsData.filter((doc) => {
-    const matchesEmployee = employeeFilter === "All Employees" || doc.employeeName === employeeFilter;
-    const matchesDocumentType = documentTypeFilter === "All Document Types" || doc.type === documentTypeFilter;
-    const matchesStatus = statusFilter === "All Statuses" || doc.status === statusFilter;
+  const fileInputRef = useRef(null);
+  const uploadBoxRef = useRef(null);
+
+  // Load employees + documents on mount
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadAll() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const [empRes, docsRes] = await Promise.all([
+          apiGet("/employees"),
+          apiGet("/contracts-docs"),
+        ]);
+
+        if (!isMounted) return;
+
+        const empList = empRes.data || [];
+        setEmployees(empList);
+
+        const docsRows = docsRes.data || [];
+        const mappedDocs = docsRows.map((r) => ({
+          id: r.id,
+          name: r.file_name,
+          employeeName: r.employee_name,
+          employeeCode: r.employee_code,
+          employeeLabel: `${r.employee_name}${r.employee_code ? " " + r.employee_code : ""}`,
+          type: r.category || "Other",
+          uploadedDate: r.uploaded_at,
+          status: r.status || "Active",
+          url: r.url,
+        }));
+        setDocuments(mappedDocs);
+      } catch (err) {
+        console.error(err);
+        setError(err.message || "Failed to load data");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadAll();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Filter options
+  const employeeOptions = useMemo(
+    () => [
+      "All Employees",
+      ...new Set(documents.map((doc) => doc.employeeName).filter(Boolean)),
+    ],
+    [documents]
+  );
+
+  const documentTypeOptions = useMemo(
+    () => [
+      "All Document Types",
+      ...new Set(documents.map((doc) => doc.type).filter(Boolean)),
+    ],
+    [documents]
+  );
+
+  const statusOptions = useMemo(
+    () => [
+      "All Statuses",
+      ...new Set(documents.map((doc) => doc.status || "Active").filter(Boolean)),
+    ],
+    [documents]
+  );
+
+  // Apply filters
+  const filteredDocuments = documents.filter((doc) => {
+    const matchesEmployee =
+      employeeFilter === "All Employees" || doc.employeeName === employeeFilter;
+    const matchesDocumentType =
+      documentTypeFilter === "All Document Types" || doc.type === documentTypeFilter;
+    const matchesStatus =
+      statusFilter === "All Statuses" || (doc.status || "Active") === statusFilter;
 
     return matchesEmployee && matchesDocumentType && matchesStatus;
   });
 
-  // ✅ Helper: format to MM/DD/YYYY
+  // MM/DD/YYYY
   const formatDate = (dateStr) => {
-    if (!dateStr || dateStr === "N/A") return dateStr;
-
-    // split off "by ..." if it exists
-    const [datePart, byPart] = dateStr.split(" by");
-    const date = new Date(datePart);
-
-    if (isNaN(date)) return dateStr; // fallback if invalid date
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return "-";
 
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     const year = date.getFullYear();
-
-    return byPart ? `${month}/${day}/${year} by${byPart}` : `${month}/${day}/${year}`;
+    return `${month}/${day}/${year}`;
   };
 
-  // Reset all filters
   const handleResetFilters = () => {
     setEmployeeFilter("All Employees");
     setDocumentTypeFilter("All Document Types");
     setStatusFilter("All Statuses");
   };
 
+  const openUploadBox = () => {
+    if (uploadBoxRef.current) {
+      uploadBoxRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleFilesSelected = (e) => {
+    const files = Array.from(e.target.files || []);
+    setSelectedFiles(files);
+  };
+
+  const handleUpload = async () => {
+    if (!uploadEmployeeId) {
+      alert("Please select an employee for the documents.");
+      return;
+    }
+    if (!uploadCategory) {
+      alert("Please select a document type/category.");
+      return;
+    }
+    if (!selectedFiles.length) {
+      alert("Please select at least one file to upload.");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const fd = new FormData();
+      fd.append("employee_id", uploadEmployeeId);
+      fd.append("category", uploadCategory);
+      selectedFiles.forEach((file) => fd.append("files", file));
+
+      const res = await apiUpload("/contracts-docs", fd);
+      if (!res.ok) {
+        throw new Error(res.message || "Upload failed");
+      }
+
+      // reload documents list
+      const docsRes = await apiGet("/contracts-docs");
+      const docsRows = docsRes.data || [];
+      const mappedDocs = docsRows.map((r) => ({
+        id: r.id,
+        name: r.file_name,
+        employeeName: r.employee_name,
+        employeeCode: r.employee_code,
+        employeeLabel: `${r.employee_name}${r.employee_code ? " " + r.employee_code : ""}`,
+        type: r.category || "Other",
+        uploadedDate: r.uploaded_at,
+        status: r.status || "Active",
+        url: r.url,
+      }));
+      setDocuments(mappedDocs);
+
+      setSelectedFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to upload documents");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (doc) => {
+    if (!window.confirm(`Delete document "${doc.name}"?`)) return;
+    try {
+      const res = await apiDelete(`/contracts-docs/${doc.id}`);
+      if (!res.ok) {
+        throw new Error(res.message || "Delete failed");
+      }
+      setDocuments((prev) => prev.filter((d) => d.id !== doc.id));
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to delete document");
+    }
+  };
+
+  const handleView = (doc) => {
+    if (doc.url) {
+      window.open(doc.url, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const handleDownload = (doc) => {
+    if (!doc.url) return;
+    const a = document.createElement("a");
+    a.href = doc.url;
+    a.download = doc.name || "document";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <Layout>
-      {/* Fixed Header Section */}
+      {/* Header */}
       <PageHeader
         breadcrumb={["Employee Information", "Documents & Contracts"]}
         title="Employee Information Management"
       />
 
-      {/* Fixed Tabs Section */}
-      <div style={{ 
-        position: 'sticky', 
-        top: 0, 
-        zIndex: 100, 
-        backgroundColor: 'var(--bg)',
-        borderBottom: '1px solid var(--border)'
-      }}>
-        <div className="card" style={{ 
-          display: "flex", 
-          gap: "8px", 
-          overflowX: "auto", 
-          whiteSpace: "nowrap",
-          marginBottom: 0,
-          borderRadius: '0'
-        }}>
+      {/* Tabs */}
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+          backgroundColor: "var(--bg)",
+          borderBottom: "1px solid var(--border)",
+        }}
+      >
+        <div
+          className="card"
+          style={{
+            display: "flex",
+            gap: "8px",
+            overflowX: "auto",
+            whiteSpace: "nowrap",
+            marginBottom: 0,
+            borderRadius: "0",
+          }}
+        >
           {[
             { label: "Overview", path: "/employee-info" },
             { label: "Add Employee", path: "/add-employee" },
@@ -152,52 +285,79 @@ export default function DocumentsContracts() {
         </div>
       </div>
 
-      {/* Scrollable Content Area */}
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      {/* Content */}
+      <div style={{ flex: 1, overflow: "auto" }}>
         {/* Filters Card */}
         <div className="card">
           <div className="grid-3" style={{ alignItems: "end", marginBottom: "12px" }}>
             <div>
-              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+              <label
+                style={{
+                  fontSize: "12px",
+                  color: "var(--muted)",
+                  display: "block",
+                  marginBottom: "6px",
+                }}
+              >
                 Employee
               </label>
-              <select 
+              <select
                 className="select"
                 value={employeeFilter}
                 onChange={(e) => setEmployeeFilter(e.target.value)}
               >
                 {employeeOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+              <label
+                style={{
+                  fontSize: "12px",
+                  color: "var(--muted)",
+                  display: "block",
+                  marginBottom: "6px",
+                }}
+              >
                 Document Type
               </label>
-              <select 
+              <select
                 className="select"
                 value={documentTypeFilter}
                 onChange={(e) => setDocumentTypeFilter(e.target.value)}
               >
                 {documentTypeOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
+              <label
+                style={{
+                  fontSize: "12px",
+                  color: "var(--muted)",
+                  display: "block",
+                  marginBottom: "6px",
+                }}
+              >
                 Status
               </label>
-              <select 
+              <select
                 className="select"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 {statusOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
                 ))}
               </select>
             </div>
@@ -205,46 +365,43 @@ export default function DocumentsContracts() {
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", gap: "8px" }}>
-              {(employeeFilter !== "All Employees" || documentTypeFilter !== "All Document Types" || statusFilter !== "All Statuses") && (
+              {(employeeFilter !== "All Employees" ||
+                documentTypeFilter !== "All Document Types" ||
+                statusFilter !== "All Statuses") && (
                 <button className="btn btn-soft" onClick={handleResetFilters}>
                   Reset Filters
                 </button>
               )}
             </div>
-            <button className="btn btn-primary">
+            <button className="btn btn-primary" onClick={openUploadBox}>
               Upload Documents
             </button>
           </div>
         </div>
 
-        {/* Attention Alert */}
-        <div className="card" style={{ 
-          background: "var(--soft)", 
-          border: "1px solid var(--brand)",
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "12px"
-        }}>
-          <div style={{ 
-            color: "var(--brand)", 
-            fontWeight: "bold",
-            fontSize: "16px",
-            lineHeight: "1"
-          }}>•</div>
-          <div>
-            <div style={{ fontWeight: "600", color: "#333", marginBottom: "4px" }}>
-              Documents Requiring Attention
-            </div>
-            <div style={{ fontSize: "13px", color: "var(--muted)" }}>
-              1 document is expiring within the next 30 days. Please review and take necessary action.
-            </div>
+        {/* Error / loading */}
+        {error && (
+          <div className="card" style={{ borderColor: "var(--danger)", color: "var(--danger)" }}>
+            {error}
           </div>
-        </div>
+        )}
+        {loading && !error && (
+          <div className="card">
+            <span>Loading...</span>
+          </div>
+        )}
 
-        {/* Documents Table Section */}
+        {/* Documents Table */}
         <div className="table-container">
           <div className="card" style={{ padding: 0 }}>
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center" }}>
+            <div
+              style={{
+                padding: "12px 16px",
+                borderBottom: "1px solid var(--border)",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
               <div style={{ fontWeight: "700" }}>Documents & Contracts</div>
               <div style={{ marginLeft: "auto", fontSize: "12px", color: "var(--muted)" }}>
                 {filteredDocuments.length} document(s)
@@ -259,9 +416,8 @@ export default function DocumentsContracts() {
                     <th>Employee</th>
                     <th>Type</th>
                     <th>Uploaded Date</th>
-                    <th>Expiry Date</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th style={{ width: "220px" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -273,41 +429,55 @@ export default function DocumentsContracts() {
                         <div>
                           <div style={{ fontWeight: "600" }}>{item.employeeName}</div>
                           <div style={{ fontSize: "11px", color: "var(--muted)" }}>
-                            {item.employee.split(' ').pop()}
+                            {item.employeeCode || ""}
                           </div>
                         </div>
                       </td>
                       <td>{item.type}</td>
                       <td>{formatDate(item.uploadedDate)}</td>
-                      <td>{formatDate(item.expiryDate)}</td>
                       <td>
                         <span
                           className={`pill ${
-                            item.status === "Active"
+                            (item.status || "Active") === "Active"
                               ? "pill-ok"
-                              : item.status === "Expiring Soon"
+                              : (item.status || "Active") === "Expiring Soon"
                               ? "pill-warn"
                               : ""
                           }`}
                         >
-                          {item.status}
+                          {item.status || "Active"}
                         </span>
                       </td>
                       <td>
                         <div style={{ display: "flex", gap: "4px" }}>
-                          <button className="btn btn-soft" style={{ padding: "4px 8px", fontSize: "12px" }}>
+                          <button
+                            className="btn btn-soft"
+                            style={{ padding: "4px 8px", fontSize: "12px" }}
+                            onClick={() => handleView(item)}
+                          >
                             View
                           </button>
-                          <button className="btn btn-soft" style={{ padding: "4px 8px", fontSize: "12px" }}>
+                          <button
+                            className="btn btn-soft"
+                            style={{ padding: "4px 8px", fontSize: "12px" }}
+                            onClick={() => handleDownload(item)}
+                          >
                             Download
+                          </button>
+                          <button
+                            className="btn btn-soft"
+                            style={{ padding: "4px 8px", fontSize: "12px" }}
+                            onClick={() => handleDelete(item)}
+                          >
+                            Delete
                           </button>
                         </div>
                       </td>
                     </tr>
                   ))}
-                  {!filteredDocuments.length && (
+                  {!filteredDocuments.length && !loading && (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
+                      <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
                         No documents found matching your criteria.
                       </td>
                     </tr>
@@ -319,23 +489,97 @@ export default function DocumentsContracts() {
         </div>
 
         {/* Upload Section */}
-        <div className="card">
-          <div style={{ 
-            border: "2px dashed var(--border)", 
-            borderRadius: "8px",
-            padding: "32px",
-            textAlign: "center",
-            marginBottom: "16px"
-          }}>
+        <div className="card" ref={uploadBoxRef} id="contracts-upload-box">
+          <div className="grid-3" style={{ marginBottom: "16px", gap: "12px" }}>
+            <div>
+              <label
+                style={{
+                  fontSize: "12px",
+                  color: "var(--muted)",
+                  display: "block",
+                  marginBottom: "6px",
+                }}
+              >
+                Employee *
+              </label>
+              <select
+                className="select"
+                value={uploadEmployeeId}
+                onChange={(e) => setUploadEmployeeId(e.target.value)}
+              >
+                <option value="">Select employee</option>
+                {employees.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.full_name}
+                    {emp.employee_code ? ` (${emp.employee_code})` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                style={{
+                  fontSize: "12px",
+                  color: "var(--muted)",
+                  display: "block",
+                  marginBottom: "6px",
+                }}
+              >
+                Document Type / Category *
+              </label>
+              <select
+                className="select"
+                value={uploadCategory}
+                onChange={(e) => setUploadCategory(e.target.value)}
+              >
+                <option value="">Select type</option>
+                {DOC_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div
+            style={{
+              border: "2px dashed var(--border)",
+              borderRadius: "8px",
+              padding: "32px",
+              textAlign: "center",
+              marginBottom: "16px",
+              cursor: "pointer",
+            }}
+            onClick={() => fileInputRef.current && fileInputRef.current.click()}
+          >
             <p style={{ marginBottom: "8px", color: "var(--text)" }}>
               Drag and drop files here, or click to browse
             </p>
             <span style={{ fontSize: "12px", color: "var(--muted)" }}>
               Accepted formats: PDF, XLSX, CSV (Max 10MB)
             </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              style={{ display: "none" }}
+              onChange={handleFilesSelected}
+            />
+            {selectedFiles.length > 0 && (
+              <div style={{ marginTop: "12px", fontSize: "12px", color: "var(--muted)" }}>
+                {selectedFiles.length} file(s) selected
+              </div>
+            )}
           </div>
-          <button className="btn btn-primary" style={{ width: "100%" }}>
-            Upload Documents
+          <button
+            className="btn btn-primary"
+            style={{ width: "100%" }}
+            onClick={handleUpload}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading..." : "Upload Documents"}
           </button>
         </div>
       </div>

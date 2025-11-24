@@ -214,4 +214,30 @@ export const leaveApi = {
   
 };
 
+export const performanceApi = {
+  getPerformanceOverview: () => apiGet('/employees/performance-overview'),
+  addPerformanceReview: (data) => apiPost('/employees/performance-reviews', data),
+
+  getTrainingOverview: () => apiGet('/employees/training-overview'),
+  addTrainingRecord: (data) => apiPost('/employees/training-records', data),
+};
+
+export const contractsApi = {
+  list: (params) => apiGetWithParams('/contracts-docs', params),
+  upload: (formData) => apiUpload('/contracts-docs', formData),
+  delete: (id) => apiDelete(`/contracts-docs/${id}`),
+};
+
+// epf etf
+export const etfEpfApi = {
+  getRecords: () => apiGet('/salary/etf-epf'),
+  getEmployeesWithout: () => apiGet('/salary/etf-epf/employees-without'),
+  getById: (id) => apiGet(`/salary/etf-epf/${id}`),
+  create: (data) => apiPost('/salary/etf-epf', data),
+  update: (id, data) => apiPut(`/salary/etf-epf/${id}`, data),
+  delete: (id) => apiDelete(`/salary/etf-epf/${id}`),
+  calculate: (data) => apiPost('/salary/etf-epf/calculate', data),
+};
+
+
 

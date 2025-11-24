@@ -50,6 +50,10 @@ const LeaveApproval = () => {
         // Map API shape to UI shape
         const mapped = items.map((r, index) => ({
           id: r.id,
+          empNo:
+            (r.employee_code != null && String(r.employee_code)) ||
+            (r.empNo != null && String(r.empNo)) ||
+            "",
           // fallback name fields just in case
           name: r.full_name || r.employee_name || "Unknown",
           department: r.department_name || r.department || "N/A",
@@ -59,7 +63,7 @@ const LeaveApproval = () => {
           reason: r.reason || "",
           status: r.status || "PENDING",
           no: index + 1,
-        }));
+        })); 
 
         setRequests(mapped);
       } catch (err) {
@@ -401,7 +405,7 @@ const LeaveApproval = () => {
             <table className="table">
               <thead>
                 <tr>
-                  <th>No</th>
+                  <th>Employee No</th>
                   <th>Employee Name</th>
                   <th>Department</th>
                   <th>Applied Date</th>
@@ -446,7 +450,7 @@ const LeaveApproval = () => {
                 {!loading &&
                   filteredData.map((item, index) => (
                     <tr key={item.id || index}>
-                      <td>{item.no ?? index + 1}</td>
+                      <td>{item.empNo || "-"}</td>
                       <td
                         style={{
                           display: "flex",

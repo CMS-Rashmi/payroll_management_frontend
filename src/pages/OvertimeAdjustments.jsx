@@ -315,6 +315,8 @@ export default function OvertimeAdjustments() {
             { label: "Allowances", path: "/allowances" },
             { label: "Overtime & Adjustments", path: "/overtime-adjustments" },
             { label: "Compensation Adjustment", path: "/compensation-adjustment" },
+            { label: "ETF & EPF", path: "/etf-epf" },
+            { label: "Unpaid Leaves", path: "/unpaid-leaves" },
             { label: "Net Salary Summary", path: "/net-salary-summary" },
           ].map((t) => (
             <button
