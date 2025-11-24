@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { apiGet } from "../../../services/api";
+import Spineer from "../../../components/Spineer";
 
 const PayrollTrendsChart = () => {
   const [option, setOption] = useState({});
@@ -11,8 +12,7 @@ const PayrollTrendsChart = () => {
       setLoading(true);
       try {
         const res = await apiGet("/reports/payroll/trends");
-                console.log(res)
-
+        console.log(res)
 
         // Format dataset source for ECharts
         const years = res.map(r => `${r.period_year}-${String(r.period_month).padStart(2, "0")}`);
@@ -89,7 +89,7 @@ const PayrollTrendsChart = () => {
     fetchTrends();
   }, []);
 
-  if (loading) return <p>Loading payroll trends...</p>;
+  if (loading) return <Spineer/>;
 
   return (
     <ReactECharts

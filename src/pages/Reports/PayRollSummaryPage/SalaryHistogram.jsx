@@ -9,6 +9,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import Spineer from '../../../components/Spineer';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -57,7 +58,7 @@ const SalaryHistogram = ({ binSize = 20000 }) => {
     fetchSalaries();
   }, [binSize]);
 
-  if (loading) return <p>Loading salary histogram...</p>;
+  if (loading) return <Spineer/>;
   if (!chartData) return <p>No data available</p>;
 
   return (
