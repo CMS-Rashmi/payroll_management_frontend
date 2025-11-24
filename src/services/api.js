@@ -224,5 +224,16 @@ export const contractsApi = {
   delete: (id) => apiDelete(`/contracts-docs/${id}`),
 };
 
+// epf etf
+export const etfEpfApi = {
+  getRecords: () => apiGet('/salary/etf-epf'),
+  getEmployeesWithout: () => apiGet('/salary/etf-epf/employees-without'),
+  getById: (id) => apiGet(`/salary/etf-epf/${id}`),
+  create: (data) => apiPost('/salary/etf-epf', data),
+  update: (id, data) => apiPut(`/salary/etf-epf/${id}`, data),
+  delete: (id) => apiDelete(`/salary/etf-epf/${id}`),
+  calculate: (data) => apiPost('/salary/etf-epf/calculate', data),
+};
+
 
 

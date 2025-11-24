@@ -44,6 +44,10 @@ import AuditLog from "./pages/AuditLog";
 import AuditLogDetails from "./pages/AuditLogDetails";
 import ReportPage from "./pages/Reports/ReportPage";
 
+import ETFEPF from "./pages/ETFEPF";
+import UnpaidLeaves from "./pages/UnpaidLeaves";
+// import ETFEPFDetails from "./pages/ETFEPFDetails";
+
 function App() {
   return (
     <Router>
@@ -100,6 +104,12 @@ function App() {
       <Route path="/overtime-adjustments" element={<OvertimeAdjustments/>}/>
       <Route path="/compensation-adjustment" element={<CompensationAdjustment/>}/>
       <Route path="/net-salary-summary" element={<NetSalarySummary/>}/>
+
+      <Route path="/etf-epf" element={<ETFEPF />} />
+      <Route path="/unpaid-leaves" element={<UnpaidLeaves />} />
+      
+
+
       <Route path="/employees/:id/view" element={<ViewEmployee/>}/>
       <Route path="/attendance-overview" element={<AttendanceOverview/>}/>
       <Route path="/time-management" element={<TimeManagement/>}/>
