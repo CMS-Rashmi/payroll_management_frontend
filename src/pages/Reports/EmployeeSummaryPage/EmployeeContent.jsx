@@ -35,7 +35,7 @@ const EmployeeContent = () => {
     if (!data || Object.keys(data).length === 0) return < div style={{ margin: '24px', backgroundColor: 'white', padding: '10px' }}>No Data</div>;
 
     return (
-        <div >
+        <div style={{padding: "14px 10px", margin: "0 24px"}} className="bg-white rounded-lg w-[95%] text-black shadow-sm border border-gray-200" >
             {/* Department Picker */}
             <div className="flex justify-end" style={{ marginBottom: '2px' }}>
                 <DepartmentPicker value={selectedDeptId} onChange={setSelectedDeptId} />

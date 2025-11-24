@@ -41,7 +41,7 @@ const CompensateTrendsPage = () => {
       </div>
 
 
-      <div className="bg-white rounded-lg w-[95%] text-black shadow-sm border border-gray-200" style={{paddingTop: '10px', margin:'24px'}}>
+      <div className="bg-white rounded-lg w-[95%] text-black shadow-sm border border-gray-200" style={{paddingTop: '10px', margin:'0 24px'}}>
         <PayrollTrendsChart />
       </div>
     </Layout>

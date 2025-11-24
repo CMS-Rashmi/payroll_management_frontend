@@ -52,8 +52,8 @@ const PayRollSummaryPage = () => {
             </div>
       
       
-        <div style={{padding: '14px 10px', margin:'24px'}}>
-          <div className="bg-white rounded-lg w-[95%] text-black shadow-sm border border-gray-200">
+        <div >
+          <div style={{padding: '14px 10px', margin:'0 24px'}} className="bg-white rounded-lg w-[95%] text-black shadow-sm border border-gray-200">
 
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', padding:0, margin:'10px' }}>
               <DaySelector type='monthYear' onChange={handleMonthYearChange} />

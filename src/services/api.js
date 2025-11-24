@@ -45,7 +45,6 @@ let cachedIP = null;
 async function apiJsonWrite(path, method, body) {
   if (!cachedIP) cachedIP = await getPublicIP(); 
   const payload = { ...body, ip : cachedIP };
-  console.log(payload);
 
   const res = await fetch(`${API_BASE}${path}`, {
     method,

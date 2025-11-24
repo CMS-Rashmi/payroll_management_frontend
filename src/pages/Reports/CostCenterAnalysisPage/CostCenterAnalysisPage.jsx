@@ -42,7 +42,7 @@ const CostCenterAnalysisPage = () => {
 
       {/* Content Of The Page */}
 
-      <div className="bg-white rounded-lg w-[95%] text-black shadow-sm border border-gray-200" style={{margin:'24px'}}>
+      <div className="bg-white rounded-lg w-[95%] text-black shadow-sm border border-gray-200" style={{margin:'0 24px'}}>
         <CostCenterAnalysisCharts />
       </div>
 
