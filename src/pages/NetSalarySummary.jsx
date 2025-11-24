@@ -15,6 +15,8 @@ export default function NetSalarySummary() {
     { key: 'allowances', label: 'Allowances', path: '/allowances' },
     { key: 'overtime', label: 'Overtime & Adjustments', path: '/overtime-adjustments' },
     { key: 'compensation', label: 'Compensation Adjustment', path: '/compensation-adjustment' },
+    { label: "ETF & EPF", path: "/etf-epf" },
+    { label: "Unpaid Leaves", path: "/unpaid-leaves" },
     { key: 'summary', label: 'Net Salary Summary', path: '/net-salary-summary' }
   ];
 
