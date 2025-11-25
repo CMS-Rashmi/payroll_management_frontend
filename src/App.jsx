@@ -47,10 +47,13 @@ import PayRollSummaryPage from "./pages/Reports/PayRollSummaryPage/PayRollSummar
 import CostCenterAnalysisPage from "./pages/Reports/CostCenterAnalysisPage/CostCenterAnalysisPage";
 import CompensateTrendsPage from "./pages/Reports/CompentsationTrendsPage/CompensateTrendsPage";
 import ForecastingPage from "./pages/Reports/ForecastingPage/ForecastingPage";
-
 import ETFEPF from "./pages/ETFEPF";
 import UnpaidLeaves from "./pages/UnpaidLeaves";
 // import ETFEPFDetails from "./pages/ETFEPFDetails";
+import Payroll from "./pages/Payroll";
+import ProcessPayroll from "./pages/ProcessPayroll";
+import LoadEmployeeData from "./pages/LoadEmployeeData";
+
 
 function App() {
   return (
@@ -133,6 +136,10 @@ function App() {
       <Route path="/edit-user" element={<EditUser/>} />
       <Route path="/audit-log" element={<AuditLog/>} />
       <Route path="/audit-log/:id" element={<AuditLogDetails />} />
+      <Route path="/payroll-processing" element={<Payroll/>} />
+      <Route path="/process-payroll" element={<ProcessPayroll />} />
+      <Route path="/process-payroll/load-data" element={<LoadEmployeeData />} />
+
 
 
 
