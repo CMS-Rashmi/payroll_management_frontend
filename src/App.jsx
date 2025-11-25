@@ -43,6 +43,10 @@ import PrivateRoute from "./components/PrivateRoute";
 import AuditLog from "./pages/AuditLog";
 import AuditLogDetails from "./pages/AuditLogDetails";
 import ReportPage from "./pages/Reports/ReportPage";
+import Payroll from "./pages/Payroll";
+import ProcessPayroll from "./pages/ProcessPayroll";
+import LoadEmployeeData from "./pages/LoadEmployeeData";
+
 
 function App() {
   return (
@@ -119,6 +123,10 @@ function App() {
       <Route path="/edit-user" element={<EditUser/>} />
       <Route path="/audit-log" element={<AuditLog/>} />
       <Route path="/audit-log/:id" element={<AuditLogDetails />} />
+      <Route path="/payroll-processing" element={<Payroll/>} />
+      <Route path="/process-payroll" element={<ProcessPayroll />} />
+      <Route path="/process-payroll/load-data" element={<LoadEmployeeData />} />
+
 
 
 
