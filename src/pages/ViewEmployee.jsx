@@ -153,7 +153,11 @@ export default function ViewEmployee() {
                 <div style={{ color: "var(--muted)" }}>Supervisor</div><div>{employee.supervisor || "-"}</div>
                 <div style={{ color: "var(--muted)" }}>Basic Salary</div><div>{employee.basic_salary ?? "-"}</div>
                 <div style={{ color: "var(--muted)" }}>Grade</div><div>{employee.grade || "-"}</div>
+
                 <div style={{ color: "var(--muted)" }}>EPF No</div><div>{employee.epf_no || "-"}</div>
+                <div style={{ color: "var(--muted)" }}>ETF No</div><div>{employee.etf_no || "-"}</div>
+                
+
               </div>
             )}
 

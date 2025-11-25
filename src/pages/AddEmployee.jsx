@@ -43,7 +43,10 @@ export default function AddEmployee() {
     grade: "",
     grade_id: "",
     designated_emails: "",
+
     epf_no: "",
+    etf_no: "",
+
     kin_name: "",
     relationship: "",
     kin_nic: "",
@@ -489,6 +492,14 @@ export default function AddEmployee() {
                 name="epf_no"
                 placeholder="EPF Number"
                 value={formData.epf_no}
+                onChange={handleInputChange}
+              />
+
+              <input
+                className="input"
+                name="etf_no"
+                placeholder="ETF Number"
+                value={formData.etf_no}
                 onChange={handleInputChange}
               />
             </div>

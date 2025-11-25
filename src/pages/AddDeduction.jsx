@@ -220,7 +220,7 @@ export default function AddDeduction() {
                     name="name"
                     value={form.name}
                     onChange={onChange}
-                    placeholder="Income Tax / EPF / Insurance..."
+                    placeholder="Deduction Name"
                     required
                   />
                 </div>
@@ -238,7 +238,7 @@ export default function AddDeduction() {
                     onChange={onChange} 
                     required
                   >
-                    <option>Tax</option>
+                    
                     <option>Statutory</option>
                     <option>Insurance</option>
                     <option>Loan</option>

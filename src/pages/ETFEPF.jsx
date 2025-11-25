@@ -3,14 +3,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 import PageHeader from "../components/PageHeader";
-import { apiGet, apiPost, apiPut, apiDelete } from "../services/api";
+import { apiGet } from "../services/api";
 import { etfEpfApi } from '../services/api';
 
 export default function ETFEPF() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Data states
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -22,21 +21,22 @@ export default function ETFEPF() {
   const [etfFilter, setEtfFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Modal states
-  const [showModal, setShowModal] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState(null);
-  const [formData, setFormData] = useState({
-    employee_id: "",
-    epf_number: "",
-    etf_number: "",
-    epf_effective_date: "",
-    etf_effective_date: "",
-    epf_status: "Active",
-    etf_status: "Active"
-  });
+  // Edit Modal (For quick edit from table row)
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [formData, setFormData] = useState({});
 
+  // Payment History Modal
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyData, setHistoryData] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [selectedEmployeeHistory, setSelectedEmployeeHistory] = useState(null);
+
+  // Payment Modal
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentType, setPaymentType] = useState(""); // "EPF" or "ETF"
+  const [paymentMonth, setPaymentMonth] = useState(new Date().toISOString().slice(0, 7));
   
-
   // Fetch data
   useEffect(() => {
     fetchETFEPFData();
@@ -58,48 +58,28 @@ export default function ETFEPF() {
     }
   };
 
-  // Build filter options from data
-  const employeeOptions = useMemo(() => {
-    const names = Array.from(new Set(rows.map((r) => r.full_name))).filter(Boolean).sort();
-    return ["All Employees", ...names];
-  }, [rows]);
+  // --- Filter Logic ---
+  const employeeOptions = useMemo(() => ["All Employees", ...Array.from(new Set(rows.map((r) => r.full_name))).filter(Boolean).sort()], [rows]);
+  const departmentOptions = useMemo(() => ["All Departments", ...Array.from(new Set(rows.map((r) => r.department || ""))).filter(Boolean).sort()], [rows]);
 
-  const departmentOptions = useMemo(() => {
-    const depts = Array.from(new Set(rows.map((r) => r.department || ""))).filter(Boolean).sort();
-    return ["All Departments", ...depts];
-  }, [rows]);
-
-  // Filter logic
   const filtered = useMemo(() => {
     let data = rows;
-
+    
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase();
-      data = data.filter(
-        (r) =>
-          r.full_name?.toLowerCase().includes(q) ||
-          r.employee_id?.toString().includes(q) ||
-          r.epf_number?.toLowerCase().includes(q) ||
-          r.etf_number?.toLowerCase().includes(q)
+      data = data.filter(r => 
+        r.full_name?.toLowerCase().includes(q) ||
+        r.employee_id?.toString().includes(q) ||
+        r.epf_number?.toLowerCase().includes(q) ||
+        r.etf_number?.toLowerCase().includes(q)
       );
     }
-
-    if (employeeFilter !== "All Employees") {
-      data = data.filter((r) => r.full_name === employeeFilter);
-    }
-
-    if (departmentFilter !== "All Departments") {
-      data = data.filter((r) => (r.department || "") === departmentFilter);
-    }
-
-    if (epfFilter.trim()) {
-      data = data.filter((r) => r.epf_number?.includes(epfFilter));
-    }
-
-    if (etfFilter.trim()) {
-      data = data.filter((r) => r.etf_number?.includes(etfFilter));
-    }
-
+    
+    if (employeeFilter !== "All Employees") data = data.filter((r) => r.full_name === employeeFilter);
+    if (departmentFilter !== "All Departments") data = data.filter((r) => (r.department || "") === departmentFilter);
+    if (epfFilter.trim()) data = data.filter((r) => r.epf_number?.includes(epfFilter));
+    if (etfFilter.trim()) data = data.filter((r) => r.etf_number?.includes(etfFilter));
+    
     return data;
   }, [rows, searchTerm, employeeFilter, departmentFilter, epfFilter, etfFilter]);
 
@@ -111,170 +91,122 @@ export default function ETFEPF() {
     setSearchTerm("");
   };
 
-  // Modal handlers
-  const openAddModal = async () => {
-  try {
-    // Fetch employees without ETF/EPF records
-    const resp = await etfEpfApi.getEmployeesWithout();
-    setEmployeesWithoutEtfEpf(resp.data || []);
-    
-    setEditingEmployee(null);
+  // --- Date Formatter ---
+  const formatDate = (d) => {
+    if (!d) return "-";
+    const date = new Date(d);
+    if (isNaN(date)) return d;
+    return date.toLocaleDateString("en-GB"); // DD/MM/YYYY
+  };
+  
+  // Handler for table row 'Edit' button
+  const handleEdit = (employee) => {
+    setEditingRecord(employee);
     setFormData({
-      employee_id: "",
-      epf_number: "",
-      etf_number: "",
-      epf_effective_date: "",
-      etf_effective_date: "",
-      epf_status: "Active",
-      etf_status: "Active",
-      epf_contribution_rate: 8.00,
-      employer_epf_rate: 12.00,
-      etf_contribution_rate: 3.00
-    });
-    setShowModal(true);
-  } catch (e) {
-    console.error(e);
-    window.alert("Failed to load employees");
-  }
- };
-
-
-  const openEditModal = (employee) => {
-    setEditingEmployee(employee);
-    setFormData({
-      employee_id: employee.employee_id,
-      epf_number: employee.epf_number || "",
-      etf_number: employee.etf_number || "",
-      epf_effective_date: employee.epf_effective_date || "",
-      etf_effective_date: employee.etf_effective_date || "",
+      id: employee.id,
       epf_status: employee.epf_status || "Active",
-      etf_status: employee.etf_status || "Active"
+      etf_status: employee.etf_status || "Active",
+      epf_number: employee.epf_number,
+      etf_number: employee.etf_number
     });
-    setShowModal(true);
+    setShowEditModal(true); 
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setEditingEmployee(null);
-  };
-
-  const handleFormChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    if (editingEmployee) {
-      await etfEpfApi.update(editingEmployee.id, formData);
-    } else {
-      await etfEpfApi.create(formData);
+  // Handler for table row 'Edit' modal submission
+  const submitEdit = async (e) => {
+    e.preventDefault();
+    try {
+      if (formData.id) {
+        await etfEpfApi.update(formData.id, formData);
+      } else {
+        // This case would typically be an 'Add' operation, 
+        // but is retained here based on the original structure's update logic for safety.
+        await etfEpfApi.create({ ...formData, employee_id: editingRecord.employee_id });
+      }
+      alert("Updated successfully");
+      setShowEditModal(false);
+      fetchETFEPFData();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update");
     }
-    closeModal();
-    fetchETFEPFData();
-    window.alert(editingEmployee ? "ETF/EPF details updated successfully" : "ETF/EPF details added successfully");
-  } catch (e) {
-    console.error(e);
-    window.alert(e.message || "Failed to save ETF/EPF details");
-  }
- };
+  };
 
+  // Handler for table row 'Delete' button
   const handleDelete = async (employee) => {
-  if (!window.confirm(`Delete ETF/EPF details for ${employee.full_name}?`)) return;
-  
-  try {
-    await etfEpfApi.delete(employee.id);
-    fetchETFEPFData();
-    window.alert("ETF/EPF details deleted successfully");
-  } catch (e) {
-    console.error(e);
-    window.alert("Failed to delete ETF/EPF details");
-  }
- };
-
- const handleCalculateContributions = async (employee) => {
-  try {
-    // Get employee's basic salary
-    const salaryResp = await apiGet(`/salary/basic?employee_id=${employee.employee_id}`);
-    const basicSalary = salaryResp.basic_salary;
-    
-    if (!basicSalary) {
-      window.alert("No basic salary found for this employee");
-      return;
+    if (!window.confirm(`Delete ETF/EPF details for ${employee.full_name}?`)) return;
+    try {
+      await etfEpfApi.delete(employee.id); 
+      fetchETFEPFData();
+      window.alert("ETF/EPF details deleted successfully");
+    } catch (e) {
+      console.error(e);
+      window.alert("Failed to delete ETF/EPF details");
     }
-    
-    const resp = await etfEpfApi.calculate({
-      employeeId: employee.employee_id,
-      basicSalary: basicSalary
-    });
-    
-    const contributions = resp.data;
-    
-    window.alert(
-      `ETF/EPF Contributions for ${employee.full_name}:\n\n` +
-      `Basic Salary: Rs ${contributions.basic_salary.toLocaleString()}\n` +
-      `Employee EPF (${contributions.rates.employee_epf}%): Rs ${contributions.employee_epf_contribution}\n` +
-      `Employer EPF (${contributions.rates.employer_epf}%): Rs ${contributions.employer_epf_contribution}\n` +
-      `Employer ETF (${contributions.rates.employer_etf}%): Rs ${contributions.employer_etf_contribution}\n` +
-      `Total EPF Contribution: Rs ${contributions.total_epf_contribution}\n` +
-      `Total Employer Contribution: Rs ${contributions.total_employer_contribution}`
-    );
-  } catch (e) {
-    console.error(e);
-    window.alert("Failed to calculate contributions");
-  }
- };
-
+  };
   
-
-  // Export to CSV
+  // Handler for 'Export CSV' button
   const handleExport = () => {
-    if (!filtered.length) {
-      alert("No data to export.");
-      return;
+     if (!filtered.length) {
+       alert("No data to export.");
+       return;
+     }
+     const csvRows = [];
+     const header = [
+       "Employee ID", "Employee Name", "Department", "EPF Number", "ETF Number", 
+       "EPF Effective Date", "ETF Effective Date", "EPF Status", "ETF Status"
+     ];
+     csvRows.push(header.join(","));
+
+     filtered.forEach((r) => {
+       const row = [
+         r.employee_id,
+         r.full_name || "",
+         r.department || "",
+         r.epf_number || "",
+         r.etf_number || "",
+         r.epf_effective_date || "",
+         r.etf_effective_date || "",
+         r.epf_status || "",
+         r.etf_status || "",
+       ];
+       csvRows.push(row.join(","));
+     });
+
+     const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+     const url = window.URL.createObjectURL(blob);
+     const a = document.createElement("a");
+     a.href = url;
+     a.download = `ETF_EPF_Data_${new Date().toISOString().split('T')[0]}.csv`;
+     a.click();
+     window.URL.revokeObjectURL(url);
+  };
+  
+  // Handler for table row 'View' button
+  const handleViewHistory = async (employee) => {
+    setSelectedEmployeeHistory(employee);
+    setShowHistoryModal(true);
+    setHistoryLoading(true);
+    try {
+      const resp = await apiGet(`/salary/etf-epf/${employee.employee_id}/history`);
+      setHistoryData(resp.data || []);
+    } catch (e) {
+      setHistoryData([]);
+    } finally {
+      setHistoryLoading(false);
     }
-    const csvRows = [];
-    const header = [
-      "Employee ID", "Employee Name", "Department", "EPF Number", "ETF Number", 
-      "EPF Effective Date", "ETF Effective Date", "EPF Status", "ETF Status"
-    ];
-    csvRows.push(header.join(","));
-
-    filtered.forEach((r) => {
-      const row = [
-        r.employee_id,
-        r.full_name || "",
-        r.department || "",
-        r.epf_number || "",
-        r.etf_number || "",
-        r.epf_effective_date || "",
-        r.etf_effective_date || "",
-        r.epf_status || "",
-        r.etf_status || "",
-      ];
-      csvRows.push(row.join(","));
-    });
-
-    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `ETF_EPF_Data_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString || dateString === "-") return dateString;
-    const date = new Date(dateString);
-    if (isNaN(date)) return dateString;
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${month}/${day}/${year}`;
+  // Handler for 'Paid EPF/ETF' buttons
+  const handlePaidClick = (type) => {
+    setPaymentType(type);
+    setShowPaymentModal(true);
+  };
+
+  // Handler for 'Process Payment' button in the modal
+  const processPayment = () => {
+    alert(`Proceeding to ${paymentType} payment for ${paymentMonth}`);
+    setShowPaymentModal(false);
   };
 
   return (
@@ -282,7 +214,7 @@ export default function ETFEPF() {
       {/* Fixed Header Section */}
       <PageHeader breadcrumb={["Salary & Compensation", "ETF & EPF"]} title="Salary & Compensation" />
 
-      {/* Fixed Tabs Section */}
+      {/* Fixed Tabs Section (from old code) */}
       <div
         style={{
           position: "sticky",
@@ -324,20 +256,20 @@ export default function ETFEPF() {
           ))}
         </div>
       </div>
-
-      {/* Fixed Filters Section */}
+      
+      {/* Fixed Filters Section (from old code) */}
       <div
         style={{
           position: "sticky",
-          top: "56px",
+          top: "56px", 
           zIndex: 90,
           backgroundColor: "var(--bg)",
         }}
       >
-        {/* Filters Card */}
         <div className="card">
           <div className="grid-3" style={{ alignItems: "end", marginBottom: "12px" }}>
-            <div>
+             {/* Employee Filter */}
+             <div>
               <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
                 Employee
               </label>
@@ -347,7 +279,8 @@ export default function ETFEPF() {
                 ))}
               </select>
             </div>
-
+            
+            {/* Department Filter */}
             <div>
               <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
                 Department
@@ -359,6 +292,7 @@ export default function ETFEPF() {
               </select>
             </div>
 
+            {/* EPF Number Filter */}
             <div>
               <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
                 EPF Number
@@ -371,6 +305,7 @@ export default function ETFEPF() {
               />
             </div>
 
+            {/* ETF Number Filter */}
             <div>
               <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
                 ETF Number
@@ -383,6 +318,7 @@ export default function ETFEPF() {
               />
             </div>
 
+            {/* Search Input */}
             <div>
               <label style={{ fontSize: "12px", color: "var(--muted)", display: "block", marginBottom: "6px" }}>
                 Search
@@ -401,7 +337,7 @@ export default function ETFEPF() {
               </button>
             </div>
           </div>
-
+          
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", gap: "8px" }}>
               {(employeeFilter !== "All Employees" || departmentFilter !== "All Departments" || epfFilter || etfFilter || searchTerm) && (
@@ -410,260 +346,152 @@ export default function ETFEPF() {
                 </button>
               )}
             </div>
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button className="btn btn-primary" onClick={openAddModal}>
-                + Add ETF/EPF
-              </button>
+            {/* Payment buttons */}
+            <div style={{ display: "flex", gap: "12px" }}>
+              <button className="btn btn-primary" style={{ backgroundColor: "#059669", borderColor: "#059669" }} onClick={() => handlePaidClick("EPF")}>Paid EPF</button>
+              <button className="btn btn-primary" style={{ backgroundColor: "#059669", borderColor: "#059669" }} onClick={() => handlePaidClick("ETF")}>Paid ETF</button>
             </div>
+            {/* + Add ETF/EPF button removed */}
           </div>
         </div>
-
-        {/* Error Display */}
-        {error && (
-          <div className="card" style={{ color: "var(--danger)", background: "#fef2f2" }}>
-            {error}
-          </div>
-        )}
       </div>
-
+      
       {/* Scrollable Table Section */}
-      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        <div className="table-container" style={{ marginTop: 0, flex: 1, minHeight: 0 }}>
-          <div className="card" style={{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ 
-              padding: "12px 16px", 
-              borderBottom: "1px solid var(--border)", 
-              display: "flex", 
-              alignItems: "center",
-              flexShrink: 0
-            }}>
-              <div style={{ fontWeight: "700" }}>ETF & EPF Management</div>
-              <div style={{ marginLeft: "auto", fontSize: "12px", color: "var(--muted)" }}>
-                {loading ? "Loading..." : `${filtered.length} employee(s)`}
-              </div>
-            </div>
-
-            {loading ? (
-              <div style={{ padding: "16px", flex: 1 }}>Loading ETF/EPF data...</div>
-            ) : (
-              <div style={{ overflow: 'auto', flex: 1, minHeight: 0 }}>
-                <table className="table">
-                  <thead style={{
-                    position: "sticky",
-                    top: 0,
-                    backgroundColor: "#f8f9fa",
-                    zIndex: 10
-                  }}>
-                    <tr>
-                      <th>Employee ID</th>
-                      <th>Employee Name</th>
-                      <th>Department</th>
-                      <th>EPF Number</th>
-                      <th>ETF Number</th>
-                      <th>EPF Effective Date</th>
-                      <th>ETF Effective Date</th>
-                      <th>EPF Status</th>
-                      <th>ETF Status</th>
-                      <th style={{ width: "180px" }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((employee) => (
-                        <tr key={employee.employee_id}>
-                        <td>{employee.employee_id}</td>
-                        <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                            <div className="user-avatar" />
-                            <div style={{ fontWeight: "600" }}>{employee.full_name || "-"}</div>
-                        </td>
-                        <td>{employee.department || "-"}</td>
-                        <td>{employee.employee_code || "-"}</td>
-                        <td>{employee.epf_number || "-"}</td>
-                        <td>{employee.etf_number || "-"}</td>
-                        <td>{formatDate(employee.epf_effective_date)}</td>
-                        <td>{formatDate(employee.etf_effective_date)}</td>
-                        <td>
-                            <span className={`pill ${employee.epf_status === "Active" ? "pill-ok" : employee.epf_status === "Not Set" ? "pill-info" : "pill-warn"}`}>
-                            {employee.epf_status || "Not Set"}
-                            </span>
-                        </td>
-                        <td>
-                            <span className={`pill ${employee.etf_status === "Active" ? "pill-ok" : employee.etf_status === "Not Set" ? "pill-info" : "pill-warn"}`}>
-                            {employee.etf_status || "Not Set"}
-                            </span>
-                        </td>
-                        <td>
-                            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                            {employee.has_etf_epf_record === 'Yes' ? (
-                                <>
-                                <button 
-                                    className="btn btn-soft" 
-                                    onClick={() => handleViewDetails(employee)}
-                                    style={{ fontSize: "11px", padding: "4px 8px" }}
-                                >
-                                    View Details
-                                </button>
-                                <button 
-                                    className="btn btn-soft" 
-                                    onClick={() => openEditModal(employee)}
-                                    style={{ fontSize: "11px", padding: "4px 8px" }}
-                                >
-                                    Edit
-                                </button>
-                                <button 
-                                    className="btn btn-soft" 
-                                    onClick={() => handleDelete(employee)}
-                                    style={{ 
-                                    fontSize: "11px", 
-                                    padding: "4px 8px",
-                                    background: "#fef2f2",
-                                    color: "#dc2626",
-                                    border: "1px solid #fecaca"
-                                    }}
-                                >
-                                    Delete
-                                </button>
-                                <button 
-                                    className="btn btn-soft" 
-                                    onClick={() => handleCalculateContributions(employee)}
-                                    style={{ 
-                                    fontSize: "11px", 
-                                    padding: "4px 8px",
-                                    background: "#f0f9ff",
-                                    color: "#0369a1",
-                                    border: "1px solid #bae6fd"
-                                    }}
-                                >
-                                    Calculate
-                                </button>
-                                </>
-                            ) : (
-                                <button 
-                                className="btn btn-primary" 
-                                onClick={() => openAddModalForEmployee(employee)}
-                                style={{ fontSize: "11px", padding: "4px 8px" }}
-                                >
-                                Add ETF/EPF
-                                </button>
-                            )}
-                            </div>
-                        </td>
-                        </tr>
-                    ))}
-                    {!filtered.length && (
-                        <tr>
-                        <td colSpan="10" style={{ textAlign: "center", padding: "20px" }}>
-                            No employees found.
-                        </td>
-                        </tr>
-                    )}
-                    </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+      <div className="table-container" style={{ flex: 1 }}>
+        <div className="card" style={{ padding: 0 }}>
+          {loading ? <div style={{ padding: 20 }}>Loading...</div> : (
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Employee</th>
+                  <th>Dept</th>
+                  <th>EPF No</th>
+                  <th>ETF No</th>
+                  <th>EPF Effective Date</th>
+                  <th>ETF Effective Date</th>
+                  <th>EPF Status</th>
+                  <th>ETF Status</th>
+                  <th style={{ width: "180px" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((emp) => (
+                  <tr key={emp.employee_id}> 
+                    <td>{emp.employee_id}</td>
+                    <td>
+                      <div style={{fontWeight:'600'}}>{emp.full_name}</div>
+                      <div style={{fontSize:'11px', color:'gray'}}>{emp.designation}</div>
+                    </td>
+                    <td>{emp.department || "-"}</td>
+                    <td>{emp.epf_number || "-"}</td>
+                    <td>{emp.etf_number || "-"}</td>
+                    
+                    <td>{formatDate(emp.epf_effective_date)}</td>
+                    <td>{formatDate(emp.etf_effective_date)}</td>
+                    
+                    <td><span className={`pill ${emp.epf_status === "Active" ? "pill-ok" : "pill-warn"}`}>{emp.epf_status}</span></td>
+                    <td><span className={`pill ${emp.etf_status === "Active" ? "pill-ok" : "pill-warn"}`}>{emp.etf_status}</span></td>
+                    <td>
+                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                        <button className="btn btn-soft" style={{ fontSize: "12px", padding: "4px 8px" }} onClick={() => handleViewHistory(emp)}>View</button>
+                        <button className="btn btn-soft" style={{ fontSize: "12px", padding: "4px 8px" }} onClick={() => handleEdit(emp)}>Edit</button>
+                        <button 
+                          className="btn btn-soft" 
+                          style={{ fontSize: "12px", padding: "4px 8px", background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca" }}
+                          onClick={() => handleDelete(emp)}
+                        >
+                            Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && <tr><td colSpan="10" style={{textAlign:'center', padding:20}}>No records found</td></tr>}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
-      {/* Add/Edit Modal */}
-      {showModal && (
+      {/* Edit Modal (For quick edit from table row) */}
+      {showEditModal && (
         <div className="modal-backdrop">
           <div className="modal">
-            <h3>{editingEmployee ? "Edit ETF/EPF Details" : "Add ETF/EPF Details"}</h3>
-
-            <form onSubmit={handleSubmit}>.
-
-            
-                {!editingEmployee && formData.employee_id && (
-                <div style={{ marginBottom: "12px", padding: "8px", background: "#f8f9fa", borderRadius: "4px" }}>
-                    <div style={{ fontSize: "12px", color: "#666" }}>Adding ETF/EPF for:</div>
-                    <div style={{ fontWeight: "600" }}>
-                    {rows.find(emp => emp.employee_id === formData.employee_id)?.full_name} 
-                    (ID: {formData.employee_id})
-                    </div>
-                </div>
-                )}
-
-
-              <div style={{ marginBottom: "12px" }}>
-                <label>Employee ID *</label>
-                <input
-                  type="text"
-                  name="employee_id"
-                  value={formData.employee_id}
-                  onChange={handleFormChange}
-                  required
-                  disabled={!!editingEmployee}
-                />
-              </div>
-
-              <div className="grid-2" style={{ gap: "12px", marginBottom: "12px" }}>
-                <div>
-                  <label>EPF Number</label>
-                  <input
-                    type="text"
-                    name="epf_number"
-                    value={formData.epf_number}
-                    onChange={handleFormChange}
-                  />
-                </div>
-                <div>
-                  <label>ETF Number</label>
-                  <input
-                    type="text"
-                    name="etf_number"
-                    value={formData.etf_number}
-                    onChange={handleFormChange}
-                  />
-                </div>
-              </div>
-
-              <div className="grid-2" style={{ gap: "12px", marginBottom: "12px" }}>
-                <div>
-                  <label>EPF Effective Date</label>
-                  <input
-                    type="date"
-                    name="epf_effective_date"
-                    value={formData.epf_effective_date}
-                    onChange={handleFormChange}
-                  />
-                </div>
-                <div>
-                  <label>ETF Effective Date</label>
-                  <input
-                    type="date"
-                    name="etf_effective_date"
-                    value={formData.etf_effective_date}
-                    onChange={handleFormChange}
-                  />
-                </div>
-              </div>
-
-              <div className="grid-2" style={{ gap: "12px", marginBottom: "16px" }}>
+            <h3>Edit ETF/EPF Status</h3>
+            <div style={{ marginBottom: 10, fontSize: 13, color: 'gray' }}>Employee: {editingRecord?.full_name}</div>
+            <form onSubmit={submitEdit}>
+              <div className="grid-2" style={{ gap: 10, marginBottom: 10 }}>
+                <div><label>EPF Number</label><input className="input" name="epf_number" value={formData.epf_number || ''} onChange={e => setFormData({...formData, epf_number: e.target.value})} /></div>
+                <div><label>ETF Number</label><input className="input" name="etf_number" value={formData.etf_number || ''} onChange={e => setFormData({...formData, etf_number: e.target.value})} /></div>
                 <div>
                   <label>EPF Status</label>
-                  <select name="epf_status" value={formData.epf_status} onChange={handleFormChange}>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                  <select className="select" name="epf_status" value={formData.epf_status} onChange={e => setFormData({...formData, epf_status: e.target.value})}>
+                    <option>Active</option><option>Inactive</option>
                   </select>
                 </div>
                 <div>
                   <label>ETF Status</label>
-                  <select name="etf_status" value={formData.etf_status} onChange={handleFormChange}>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                  <select className="select" name="etf_status" value={formData.etf_status} onChange={e => setFormData({...formData, etf_status: e.target.value})}>
+                    <option>Active</option><option>Inactive</option>
                   </select>
                 </div>
               </div>
-
               <div className="modal-actions">
-                <button type="button" className="btn btn-soft" onClick={closeModal}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingEmployee ? "Update" : "Add"} Details
-                </button>
+                <button type="button" className="btn btn-soft" onClick={() => setShowEditModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Save Changes</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* History Modal */}
+      {showHistoryModal && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{ maxWidth: "600px", width: "100%" }}>
+            <h3>Payment History</h3>
+            <div style={{ marginBottom: 15 }}>
+              <strong>{selectedEmployeeHistory?.full_name}</strong>
+            </div>
+            {historyLoading ? <div>Loading history...</div> : (
+              <div style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid #eee", borderRadius: 4 }}>
+                <table className="table" style={{ margin: 0 }}>
+                  <thead style={{ position: 'sticky', top: 0, background: '#f9fafb' }}>
+                    <tr><th>Period</th><th>Paid Date</th><th style={{textAlign:'right'}}>Net Salary</th></tr>
+                  </thead>
+                  <tbody>
+                    {historyData.length > 0 ? historyData.map((h, idx) => (
+                      <tr key={idx}>
+                        <td>{h.period_year} - {String(h.period_month).padStart(2, '0')}</td>
+                        <td>{h.payment_date ? new Date(h.payment_date).toLocaleDateString() : '-'}</td>
+                        <td style={{textAlign:'right'}}>{Number(h.net_salary || 0).toFixed(2)}</td>
+                      </tr>
+                    )) : <tr><td colSpan="3" style={{textAlign:'center', padding:15, color:'gray'}}>No history found.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <div className="modal-actions" style={{ marginTop: 15 }}>
+              <button type="button" className="btn btn-primary" onClick={() => setShowHistoryModal(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{ maxWidth: "400px" }}>
+            <h3>Process {paymentType} Payment</h3>
+            <div style={{ marginBottom: 20 }}>
+              <label>Select Month</label>
+              <input type="month" className="input" value={paymentMonth} onChange={(e) => setPaymentMonth(e.target.value)} style={{ width: "100%" }} />
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="btn btn-soft" onClick={() => setShowPaymentModal(false)}>Cancel</button>
+              <button type="button" className="btn btn-primary" onClick={processPayment}>Proceed</button>
+            </div>
           </div>
         </div>
       )}
