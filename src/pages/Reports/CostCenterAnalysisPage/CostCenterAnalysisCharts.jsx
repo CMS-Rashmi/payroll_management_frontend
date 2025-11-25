@@ -9,7 +9,7 @@ const CostCenterAnalysisCharts = ({ year = new Date().getFullYear() }) => {
     <div
       style={{
         display: 'grid',
-        gap: '20px',
+        gap: '10px',
         gridTemplateColumns: '1fr',
       }}
     >

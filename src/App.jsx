@@ -42,7 +42,11 @@ import EditUser from "./pages/EditUser";
 import PrivateRoute from "./components/PrivateRoute";
 import AuditLog from "./pages/AuditLog";
 import AuditLogDetails from "./pages/AuditLogDetails";
-import ReportPage from "./pages/Reports/ReportPage";
+import EmployeeSummaryPage from "./pages/Reports/EmployeeSummaryPage/EmployeeSummaryPage";
+import PayRollSummaryPage from "./pages/Reports/PayRollSummaryPage/PayRollSummaryPage";
+import CostCenterAnalysisPage from "./pages/Reports/CostCenterAnalysisPage/CostCenterAnalysisPage";
+import CompensateTrendsPage from "./pages/Reports/CompentsationTrendsPage/CompensateTrendsPage";
+import ForecastingPage from "./pages/Reports/ForecastingPage/ForecastingPage";
 
 import ETFEPF from "./pages/ETFEPF";
 import UnpaidLeaves from "./pages/UnpaidLeaves";
@@ -133,7 +137,11 @@ function App() {
 
 
       {/* Reports and Analysis */}
-      <Route path="/report-analytics" element={<ReportPage/>} />
+        <Route path="/report-analytics" element={<EmployeeSummaryPage />} />
+        <Route path="/report-analytics/payroll-summary" element={<PayRollSummaryPage />} />
+        <Route path="/report-analytics/cost-center-analysis" element={<CostCenterAnalysisPage />} />
+        <Route path="/report-analytics/compensation-trends" element={<CompensateTrendsPage />} />
+        <Route path="/report-analytics/forecasting" element={<ForecastingPage />} />
 
       {/* Admin helpers*/}
       <Route path="/bulk-actions" element={<BulkActions/>}/>

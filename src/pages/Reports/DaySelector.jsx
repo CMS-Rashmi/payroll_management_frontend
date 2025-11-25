@@ -31,7 +31,7 @@ const DaySelector = ({ type = 'monthYear', onChange, initialYear  }) => {
         <div>
           <label>Month:</label>
           <select
-            style={{height:24,  padding:2}}
+            style={{height:'34px',  margin:'2px'}}
             value={month}
             onChange={(e) => handleChange(Number(e.target.value), year)}
           >
@@ -48,7 +48,7 @@ const DaySelector = ({ type = 'monthYear', onChange, initialYear  }) => {
         <div>
           <label>Year:</label>
           <select
-            style={{height:24, padding:5}}
+            style={{height:24, margin:5}}
             value={year}
             onChange={(e) => handleChange(month, Number(e.target.value))}
           >
