@@ -4,27 +4,28 @@ const StatCard = ({ title, amount, change, isPositive, sentence }) => {
   return (
     <div
       className="
-        bg-white rounded-lg p-4 
+        bg-white rounded-lg
         shadow-sm hover:shadow-lg 
         transition-all duration-200 
         hover:-translate-y-1 
-        max-md:mb-4
       "
+      style={{padding:'8px', marginBottom:'16px'}}
     >
       {/* Header */}
-      <div className="text-[12px] font-medium mb-3 text-gray-700">
+      <div className="text-[12px] font-medium text-gray-700" style={{marginBottom:"12px"}}>
         {title}
       </div>
 
       {/* Number */}
       <div
         className="
-          text-[25px] font-bold text-gray-900 mb-2 
+          text-[25px] font-bold text-gray-900
           leading-none 
           font-sans 
           max-lg:text-[22px] 
           max-md:text-[20px]
         "
+        style={{marginBottom:'8px'}}
       >
         {amount}
       </div>

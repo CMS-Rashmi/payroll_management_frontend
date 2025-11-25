@@ -58,7 +58,7 @@ const AbsenceReport = () => {
         // Build params
         const params = {};
         if (selectedDate) {
-          params.statrtDate = selectedDate;
+          params.startDate = selectedDate;
           params.endDate = selectedDate;
         }
         if (filterDept) params.department = filterDept;
@@ -68,7 +68,12 @@ const AbsenceReport = () => {
         //backend may return either {ok, data: [] } or directly []
         const rows = Array.isArray(data) ? data : data.data || [];
         const normalized = rows.map((item, idx) => ({
-          no: idx + 1,
+          empNo:
+            item.employee_code ||
+            item.empNo ||
+            item.employee_id ||
+            "",
+          rowIndex: idx + 1,
           employeeName: item.full_name || item.employee_name || "",
           callingName: item.calling_name || "",
           department: item.department_name || item.department || "",
@@ -111,7 +116,7 @@ const AbsenceReport = () => {
   // ✅ Export CSV
   const handleExportCSV = () => {
     const csvHeaders = [
-      "No",
+      "Employee No",  
       "Employee Name",
       "Calling Name",
       "Department",
@@ -124,7 +129,7 @@ const AbsenceReport = () => {
     ];
     const csvRows = filteredData.map((row) =>
       [
-        row.no,
+        row.empNo,
         row.employeeName,
         row.callingName,
         row.department,
@@ -328,7 +333,7 @@ const AbsenceReport = () => {
             <table className="table">
               <thead>
                 <tr>
-                  <th>No</th>
+                  <th>Employee No</th>
                   <th>Employee Name</th>
                   <th>Calling Name</th>
                   <th>Department</th>
@@ -355,9 +360,9 @@ const AbsenceReport = () => {
                     </td>
                   </tr>
                 ) : filteredData.length > 0 ? (
-                  filteredData.map((row) => (
-                    <tr key={row.no}>
-                      <td>{row.no}</td>
+                  filteredData.map((row, i) => (
+                    <tr key={row.empNo || row.rowIndex || i}>
+                      <td>{row.empNo || "-"}</td>
                       <td
                         style={{
                           display: "flex",

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { apiGetWithParams } from '../../../services/api';
 import StatCard from '../StatCard';
+import Spineer from '../../../components/Spineer';
 
 const PayrollSummaryCards = ({ month, year }) => {
   const [loading, setLoading] = useState(true);
@@ -24,7 +25,7 @@ const PayrollSummaryCards = ({ month, year }) => {
     }
   }, [month, year]); // ✅ Dependency on props
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spineer/>;
 
   const payrollCards = [
     {
@@ -50,7 +51,7 @@ const PayrollSummaryCards = ({ month, year }) => {
   ];
 
   return (
-    <div className='flex gap-1 p-2 flex-wrap mb-2'>
+    <div className='flex gap-1 flex-wrap' style={{padding:'8px', marginBottom:'8px'}}>
       {payrollCards.map((card, index) => (
         <StatCard key={index} title={card.title} amount={card.amount} />
       ))}

@@ -1,4 +1,5 @@
 // src/services/api.js
+import { getPublicIP } from "../utils/getIP";
 
 // Base URL (same as you had)
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -38,15 +39,19 @@ export async function apiGet(path, opts = {}) {
   return body; // could be array or object
 }
 
+let cachedIP = null;
 // ---- JSON helpers (POST/PUT/PATCH) that ALWAYS attach token --------
 // They return: { ok, status, ...body } so caller can check json.ok safely.
-
 async function apiJsonWrite(path, method, body) {
+  if (!cachedIP) cachedIP = await getPublicIP(); 
+  const payload = { ...body, ip : cachedIP };
+  console.log(payload);
+
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     credentials: 'include',
     headers: authHeaders({ 'Content-Type': 'application/json' }),
-    body: body != null ? JSON.stringify(body) : undefined,
+    body: JSON.stringify(payload),
   });
 
   const ct = res.headers.get('content-type') || '';
@@ -148,27 +153,92 @@ export async function apiGetWithParams(path, params = {}, opts = {}) {
 
 // Time & Attendance API calls
 export const attendanceApi = {
-    // Timetables
-    getTimetables: () => apiGet('/attendance/timetables'),
-    createTimetable: (data) => apiPost('/attendance/timetables', data),
-    updateTimetable: (id, data) => apiPut(`/attendance/timetables/${id}`, data),
-    deleteTimetable: (id) => apiDelete(`/attendance/timetables/${id}`),
-    
-    // Attendance records
-    checkIn: (data) => apiPost('/attendance/checkin', data),
-    checkOut: (data) => apiPost('/attendance/checkout', data),
-    
-    // Adjustments
-    getAttendanceRecords: (params) => apiGetWithParams('/attendance/attendance', params),
-    getEmployeeAttendance: (employeeId, params) => apiGetWithParams(`/attendance/attendance/employee/${employeeId}`, params),
-    getAdjustments: (params) => apiGetWithParams('/attendance/adjustments', params),
-    createAdjustment: (data) => apiPost('/attendance/adjustments', data),
-    approveAdjustment: (id, data) => apiPut(`/attendance/adjustments/${id}/approve`, data),
+  // Timetables
+  getTimetables: () => apiGet('/attendance/timetables'),
+  createTimetable: (data) => apiPost('/attendance/timetables', data),
+  updateTimetable: (id, data) => apiPut(`/attendance/timetables/${id}`, data),
+  deleteTimetable: (id) => apiDelete(`/attendance/timetables/${id}`),
+
+  // Attendance records
+  checkIn: (data) => apiPost('/attendance/checkin', data),
+  checkOut: (data) => apiPost('/attendance/checkout', data),
+
+  // Adjustments
+  getAttendanceRecords: (params) =>
+    apiGetWithParams('/attendance/attendance', params),
+  getEmployeeAttendance: (employeeId, params) =>
+    apiGetWithParams(`/attendance/attendance/employee/${employeeId}`, params),
+  getAdjustments: (params) =>
+    apiGetWithParams('/attendance/adjustments', params),
+  createAdjustment: (data) => apiPost('/attendance/adjustments', data),
+  approveAdjustment: (id, data) =>
+    apiPut(`/attendance/adjustments/${id}/approve`, data),
+
+  // Reports
+  getAbsenceReport: (params) =>
+    apiGetWithParams('/attendance/reports/absence', params),
+  // 🔧 FIXED: use apiGetWithParams so query params are actually sent
+  getCheckinCheckoutReport: (params) =>
+    apiGetWithParams('/attendance/reports/checkin-checkout', params),
+};
+
+// Leave Management API calls
+export const leaveApi = {
+  // Requests
+  // If later you send FormData (with attachment), switch this to apiUpload
+  createRequest: (data) => apiPost('/leaves/requests', data),
+  listRequests: (params) => apiGetWithParams('/leaves/requests', params),
+  decideRequest: (id, data) => apiPost(`/leaves/requests/${id}/decide`, data),
+
+  // Overview + widgets
+  getStatusList: (params) => apiGetWithParams('/leaves/status', params),
+  getCalendar: (params) => apiGetWithParams('/leaves/calendar', params),
+  getSummary: (params) => apiGetWithParams('/leaves/summary', params),
+  getEmployeeBalances: (params) =>
+  apiGetWithParams('/leaves/balances', params),
 
   
 
-    
-    // Reports
-    getAbsenceReport: (params) => apiGetWithParams('/attendance/reports/absence', params),
-    getCheckinCheckoutReport: (params) => apiGet('/attendance/reports/checkin-checkout', params)
+  // 🔹 Calendar restrictions (special / restricted days)
+  saveRestriction: (data) =>
+    apiPost('/leaves/calendar/restrictions', data),
+
+  deleteRestrictionById: (id) =>
+    apiDelete(`/leaves/calendar/restrictions/${id}`),
+
+  // we send a dummy id (0) + date query, controller will use the date
+  deleteRestrictionByDate: (date) =>
+    apiDelete(
+      `/leaves/calendar/restrictions/0?date=${encodeURIComponent(date)}`
+    ),
+
+  
 };
+
+export const performanceApi = {
+  getPerformanceOverview: () => apiGet('/employees/performance-overview'),
+  addPerformanceReview: (data) => apiPost('/employees/performance-reviews', data),
+
+  getTrainingOverview: () => apiGet('/employees/training-overview'),
+  addTrainingRecord: (data) => apiPost('/employees/training-records', data),
+};
+
+export const contractsApi = {
+  list: (params) => apiGetWithParams('/contracts-docs', params),
+  upload: (formData) => apiUpload('/contracts-docs', formData),
+  delete: (id) => apiDelete(`/contracts-docs/${id}`),
+};
+
+// epf etf
+export const etfEpfApi = {
+  getRecords: () => apiGet('/salary/etf-epf'),
+  getEmployeesWithout: () => apiGet('/salary/etf-epf/employees-without'),
+  getById: (id) => apiGet(`/salary/etf-epf/${id}`),
+  create: (data) => apiPost('/salary/etf-epf', data),
+  update: (id, data) => apiPut(`/salary/etf-epf/${id}`, data),
+  delete: (id) => apiDelete(`/salary/etf-epf/${id}`),
+  calculate: (data) => apiPost('/salary/etf-epf/calculate', data),
+};
+
+
+

@@ -15,6 +15,8 @@ export default function NetSalarySummary() {
     { key: 'allowances', label: 'Allowances', path: '/allowances' },
     { key: 'overtime', label: 'Overtime & Adjustments', path: '/overtime-adjustments' },
     { key: 'compensation', label: 'Compensation Adjustment', path: '/compensation-adjustment' },
+    { label: "ETF & EPF", path: "/etf-epf" },
+    { label: "Unpaid Leaves", path: "/unpaid-leaves" },
     { key: 'summary', label: 'Net Salary Summary', path: '/net-salary-summary' }
   ];
 
@@ -432,7 +434,7 @@ export default function NetSalarySummary() {
                     <th>Employee</th>
                     <th>ID</th>
                     <th>Department</th>
-                    <th>Designation</th>
+                    
                     <th>Basic Salary</th>
                     <th>Allowances</th>
                     <th>Overtime</th>
@@ -468,7 +470,7 @@ export default function NetSalarySummary() {
                       </td>
                       <td>{r.employee_code || r.employee_id}</td>
                       <td>{r.department_name || '-'}</td>
-                      <td>{r.designation || '-'}</td>
+                      
                       <td>{formatCurrency(r.basic)}</td>
                       <td style={{ color: "var(--success)" }}>{formatCurrency(r.allowances)}</td>
                       <td style={{ color: "var(--success)" }}>{formatCurrency(r.overtime)}</td>

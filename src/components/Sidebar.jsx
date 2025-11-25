@@ -12,10 +12,10 @@ const Sidebar = () => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '🏠', path: '/dashboard' },
     { id: 'employee-information', label: 'Employee Information', icon: '👤', path: '/employee-info' },
-    { 
-      id: 'salary-compensation', 
-      label: 'Salary Compensation', 
-      icon: '💰', 
+    {
+      id: 'salary-compensation',
+      label: 'Salary Compensation',
+      icon: '💰',
       path: '/earnings',
       hasSubmenu: true,
       submenu: [
@@ -24,6 +24,8 @@ const Sidebar = () => {
         { label: 'Allowances', path: '/allowances' },
         { label: 'Overtime & Adjustments', path: '/overtime-adjustments' },
         { label: 'Compensation Adjustment', path: '/compensation-adjustment' },
+        { label: 'ETF & EPF', path: '/etf-epf'},
+        { label: 'Unpaid Leaves', path: '/unpaid-leaves'},
         { label: 'Net Salary Summary', path: '/net-salary-summary' },
       ],
     },
@@ -40,14 +42,19 @@ const Sidebar = () => {
       ],
     },
     { id: 'compliance-reporting', label: 'Compliance & Reporting', icon: '📋', path: '/compliance-reporting' },
-    { id: 'report-analytics', label: 'Report & Analytics', icon: '📈', path: '/report-analytics' },
+    {
+      id: 'report-analytics',
+      label: 'Report & Analytics',
+      icon: '📈',
+      path: '/report-analytics',
+    },
     { id: 'administration', label: 'Administration', icon: '⚙️', path: '/administration', hasSubmenu: true },
     { id: 'security-access-control', label: 'Security & Access', icon: '🔒', path: '/security-access-control' },
   ];
 
   // Define all salary compensation related paths
   const salaryCompensationPaths = [
-    '/earnings', '/deductions', '/allowances', '/overtime-adjustments', 
+    '/earnings', '/deductions', '/allowances', '/overtime-adjustments',
     '/compensation-adjustment', '/net-salary-summary', '/add-deduction', '/add-allowance'
   ];
 
@@ -62,18 +69,23 @@ const Sidebar = () => {
   ];
 
   const timeAttendancePaths = [
-    '/attendance-overview', '/employee-leaves' , '/time-management', '/absence-report',
-    '/attendance-adjustment', '/checkin-checkout-report', '/leave-approval', 
+    '/attendance-overview', '/employee-leaves', '/time-management', '/absence-report',
+    '/attendance-adjustment', '/checkin-checkout-report', '/leave-approval',
     '/leave-calendar', '/leave-request'
   ];
 
+  const reportAnalyticsPath = [
+    '/report-analytics/payroll-summary', "/report-analytics/cost-center-analysis", "/report-analytics/compensation-trends", "/report-analytics/forecasting"
+  ]
+
   const getActiveItem = () => {
     const currentPath = location.pathname;
-    
+
     if (salaryCompensationPaths.some(p => currentPath.startsWith(p))) return 'salary-compensation';
     if (employeeInfoPaths.some(p => currentPath.startsWith(p))) return 'employee-information';
     if (timeAttendancePaths.some(p => currentPath.startsWith(p))) return 'time-attendance';
-    
+    if (reportAnalyticsPath.some(p => currentPath.startsWith(p))) return 'report-analytics';
+
     return menuItems.find(item => currentPath === item.path)?.id || 'dashboard';
   };
 
