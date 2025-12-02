@@ -755,13 +755,8 @@ function EmployeeSearch({ value, onChange, results, onPick }) {
           overflowY: "auto",
         }}
       >
-<<<<<<< HEAD
-        {results.length !== 0 && value?.trim() && (
-          <div className="sc-muted" style={{ padding: '10px 12px', fontSize: 12 }}>
-=======
         {results.length === 0 && value?.trim() && (
           <div style={{ padding: "10px 12px", fontSize: "12px", color: "var(--muted)" }}>
->>>>>>> dev-shanika
             No matches. Try a different name, ID, or department.
           </div>
         )}
